@@ -8,13 +8,25 @@ project_dir = os.path.join(base_dir, "..", "..")
 project_path = os.path.abspath(project_dir)
 sys.path.insert(0, project_path)
 
-from src.main.python.server import run
+from src.main.python.server import run  # noqa
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Custom arguments for the server")
 
-    parser.add_argument("-e", "--env", type=str, default='dev', help="Specify the environment for the project")
-    parser.add_argument("-c", "--config_file", type=str, default=None, help="Path to a custom configuration file")
+    parser.add_argument(
+        "-e",
+        "--env",
+        type=str,
+        default="dev",
+        help="Specify the environment for the project",
+    )
+    parser.add_argument(
+        "-c",
+        "--config_file",
+        type=str,
+        default=None,
+        help="Path to a custom configuration file",
+    )
 
     args = parser.parse_args()
 

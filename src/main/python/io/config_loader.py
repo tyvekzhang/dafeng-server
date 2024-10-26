@@ -3,8 +3,9 @@ import yaml
 
 from typing import Dict
 
+
 class ConfigLoader:
-    def __init__(self,env: str, base_config_file:str=None) -> None:
+    def __init__(self, env: str, base_config_file: str = None) -> None:
         """
         Initializes a new instance of the ConfigLoader class
 
@@ -32,7 +33,7 @@ class ConfigLoader:
         Returns:
             Dict: The contents of the YAML file as a dictionary.
         """
-        with open(file_path, 'r', encoding='utf-8') as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             return yaml.safe_load(file)
 
     def merge_dicts(self, base_dict, override_dict) -> Dict:
@@ -69,9 +70,11 @@ class ConfigLoader:
         if self.default_flag:
             if not environment:
                 environment = self.env
-            env_config_file = f'config-{environment}.yml'
+            env_config_file = f"config-{environment}.yml"
             # Replace the base config file name with the environment-specific one
-            env_config_path = self.base_config_file.replace("config.yml", env_config_file)
+            env_config_path = self.base_config_file.replace(
+                "config.yml", env_config_file
+            )
             if os.path.exists(env_config_path):
                 env_config = self.load_yaml_file(env_config_path)
                 self.config = self.merge_dicts(self.config, env_config)

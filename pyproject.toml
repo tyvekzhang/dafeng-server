@@ -9,3 +9,8 @@ dependencies = [
     "sqlmodel>=0.0.22",
     "alembic>=1.13.3",
 ]
+
+[[tool.uv.index]]
+name = "tsinghua"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+default = true

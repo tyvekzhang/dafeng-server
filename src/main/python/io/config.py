@@ -1,5 +1,5 @@
 class ServerConfig:
-    def __init__(self, host: str = '127.0.0.1', port: int = 18000) -> None:
+    def __init__(self, host: str = "127.0.0.1", port: int = 18000) -> None:
         """
         Initializes server configuration with default host and port.
 
@@ -21,7 +21,7 @@ class ServerConfig:
 
 
 class DatabaseConfig:
-    def __init__(self, dialog: str = 'sqlite') -> None:
+    def __init__(self, dialog: str = "sqlite") -> None:
         """
         Initializes database configuration with a default database type.
 
