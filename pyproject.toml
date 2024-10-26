@@ -1,7 +1,7 @@
 [project]
 name = "dafeng-server"
 version = "0.1.0"
-description = "Da feng server to help us code easy and happy"
+description = "Da feng helps us work more easily and happily"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

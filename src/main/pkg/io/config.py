@@ -1,14 +1,33 @@
 class ServerConfig:
-    def __init__(self, host: str = "127.0.0.1", port: int = 18000) -> None:
+    def __init__(
+        self,
+        host: str = "127.0.0.1",
+        name: str = "Server",
+        port: int = 18000,
+        version: str = "0.1.0",
+        app_desc: str = "Server",
+        api_version: str = "/v1",
+        workers: int = 1,
+    ) -> None:
         """
         Initializes server configuration with default host and port.
 
         Args:
             host (str): The server host address. Default is '127.0.0.1'.
+            name (str): The server name. Default is 'Server'.
             port (int): The server port number. Default is 18000.
+            version (str): The server version. Default is '0.1.0'.
+            app_desc (str): The server app_desc. Default is 'server'.
+            api_version (str): The server api_version. Default is 'v1'.
+            workers (int): The server worker numbers. Default is 1.
         """
-        self.host = host  # Server host address
-        self.port = port  # Server port number
+        self.host = host
+        self.name = name
+        self.port = port
+        self.version = version
+        self.app_desc = app_desc
+        self.api_version = api_version
+        self.workers = workers
 
     def __repr__(self) -> str:
         """
@@ -28,7 +47,7 @@ class DatabaseConfig:
         Args:
             dialog (str): The type of database. Default is 'sqlite'.
         """
-        self.dialog = dialog  # Type of database
+        self.dialog = dialog
 
     def __repr__(self) -> str:
         """
@@ -48,8 +67,8 @@ class Config:
         Args:
             config_dict (dict): A dictionary containing server and database configuration.
         """
-        self.server = "server"  # Key for server configuration
-        self.database = "database"  # Key for database configuration
+        self.server = "server"
+        self.database = "database"
 
         if self.server in config_dict:
             """
@@ -82,6 +101,6 @@ class Config:
         Returns a string representation of the main configuration.
 
         Returns:
-            str: A string representation of the Config instance.
+            str: A string representation of the instance.
         """
         return f"{self.__class__.__name__}({self.__dict__})"

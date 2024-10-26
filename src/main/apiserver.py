@@ -8,7 +8,7 @@ project_dir = os.path.join(base_dir, "..", "..")
 project_path = os.path.abspath(project_dir)
 sys.path.insert(0, project_path)
 
-from src.main.python.server import run  # noqa
+from src.main.pkg.server import run  # noqa
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Custom arguments for the server")
