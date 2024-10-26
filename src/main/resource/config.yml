@@ -6,3 +6,11 @@ server:
   app_desc: Da feng helps us work more easily and happily
   api_version: /v1
   workers: 8
+
+database:
+  dialog: sqlite
+  # When use sqlite do not need to set url and default in src/main/resource/alembic/db/server.db
+  # Url format: driver://user:pass@localhost:port/dbname
+  url: ""
+  pool_recycle: 20
+  echo_sql: True

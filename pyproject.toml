@@ -8,6 +8,7 @@ dependencies = [
     "fastapi[standard]>=0.115.3",
     "sqlmodel>=0.0.22",
     "alembic>=1.13.3",
+    "aiosqlite>=0.20.0",
 ]
 
 [[tool.uv.index]]
