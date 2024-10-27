@@ -1,12 +1,19 @@
 """User domain service impl"""
 
-from src.main.pkg.enums.enum import ResponseCode
-from src.main.pkg.exception.exception import ServiceException
+import http
+from datetime import timedelta
+
+from src.main.pkg.config.config import Config
+from src.main.pkg.enums.enum import ResponseCode, TokenTypeEnum
+from src.main.pkg.exception.exception import ServiceException, SystemException
 from src.main.pkg.mapper.user_mapper import UserMapper
-from src.main.pkg.schema.user_schema import UserCreateCmd
+from src.main.pkg.schema.common_schema import Token
+from src.main.pkg.schema.user_schema import UserCreateCmd, LoginCmd
 from src.main.pkg.service.impl.base_service_impl import ServiceImpl
 from src.main.pkg.service.user_service import UserService
 from src.main.pkg.type.user_do import UserDO
+from src.main.pkg.util import security_util
+from src.main.pkg.util.security_util import get_password_hash, verify_password
 
 
 class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
@@ -44,5 +51,51 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
                 ResponseCode.USER_NAME_EXISTS.msg,
             )
         # generate hash password
-        user_create_cmd.password = "123456"
+        user_create_cmd.password = get_password_hash(user_create_cmd.password)
         return await self.mapper.insert_record(record=user_create_cmd)
+
+    async def login(self, login_cmd: LoginCmd) -> Token:
+        """
+        Perform login and return an access token and refresh token.
+
+        Args:
+            login_cmd (LoginCmd): The login command containing username and password.
+
+        Returns:
+            Token: The access token and refresh token.
+        """
+        config = Config()
+        # verify username and password
+        username: str = login_cmd.username
+        user_do: UserDO = await self.mapper.get_user_by_username(username=username)
+        if user_do is None or not verify_password(login_cmd.password, user_do.password):
+            raise SystemException(
+                ResponseCode.AUTH_FAILED.code,
+                ResponseCode.AUTH_FAILED.msg,
+                status_code=http.HTTPStatus.UNAUTHORIZED,
+            )
+        # generate access token
+        access_token_expires = timedelta(
+            minutes=config.security.access_token_expire_minutes
+        )
+        access_token = security_util.create_token(
+            subject=user_do.id,
+            token_type=TokenTypeEnum.access,
+        )
+        # generate refresh token
+        refresh_token_expires = timedelta(
+            days=config.security.refresh_token_expire_days
+        )
+        refresh_token = security_util.create_token(
+            subject=user_do.id,
+            token_type=TokenTypeEnum.refresh,
+            expires_delta=refresh_token_expires,
+        )
+        token = Token(
+            access_token=access_token,
+            expired_at=int(access_token_expires.total_seconds()),
+            token_type=TokenTypeEnum.bearer,
+            refresh_token=refresh_token,
+            re_expired_at=int(refresh_token_expires.total_seconds()),
+        )
+        return token

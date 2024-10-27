@@ -44,3 +44,13 @@ class SortEnum(str, Enum):
 
     ascending = "asc"
     descending = "desc"
+
+
+class TokenTypeEnum(str, Enum):
+    """
+    Enum for token type.
+    """
+
+    access = "access"
+    refresh = "refresh"
+    bearer = "bearer"

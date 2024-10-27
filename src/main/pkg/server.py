@@ -2,23 +2,22 @@ from argparse import Namespace
 import uvicorn
 from fastapi import FastAPI
 
-from src.main.pkg.io.config import Config, load_config
+from src.main.pkg.config.config import Config, load_config
 from src.main.pkg.router.router import create_router
 from src.main.pkg.session.db_session_middleware import SQLAlchemyMiddleware
 
 app = FastAPI()
+
 
 def register_routes(api_version: str) -> None:
     router = create_router()
     app.include_router(router, prefix=api_version)
 
 
-def register_exception_handler() -> None:
+def register_necessary_modules(c: Config) -> None:
     from src.main.pkg.exception import exception_handler  # noqa
 
-
-def register_middleware(config: Config) -> None:
-    db_config = config.database
+    db_config = c.database
     app.add_middleware(
         SQLAlchemyMiddleware,
         db_url=str(db_config.url),
@@ -29,11 +28,15 @@ def register_middleware(config: Config) -> None:
     )
 
 
-def start_server(config: Config) -> None:
-    server_config = config.server
+def register_optional_modules() -> None:
+    import src.main.pkg.plugin.jwt_middleware  # noqa
+
+
+def start_server(c: Config) -> None:
+    server_config = c.server
     register_routes(server_config.api_version)
-    register_exception_handler()
-    register_middleware(config)
+    register_necessary_modules(c)
+    register_optional_modules()
     uvicorn.run(
         app=app,
         host=server_config.host,

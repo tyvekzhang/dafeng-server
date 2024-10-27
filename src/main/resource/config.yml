@@ -14,3 +14,12 @@ database:
   url: ""
   pool_recycle: 20
   echo_sql: True
+
+security:
+  enable: True
+  enable_swagger: False
+  algorithm: HS256
+  secret_key: 43365f0e3e88863ff5080ac382d7717634a8ef72d8f2b52d436fc9847dbecc64
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 30
+  white_list_routes: /api/v1/probe/liveness, /api/v1/probe/readiness, /api/v1/user/login, /api/v1/user/register

@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from src.main.pkg.api.probe_controller import probe_router
-from src.main.pkg.api.user_controller import user_router
+from src.main.pkg.controller.probe_controller import probe_router
+from src.main.pkg.controller.user_controller import user_router
 
 
 def create_router() -> APIRouter:

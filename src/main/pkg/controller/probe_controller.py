@@ -1,18 +1,20 @@
 """Project health probe"""
 
+from typing import Dict
+
 from fastapi import APIRouter
 
-from src.main.pkg.schema.result import BaseResponse
+from src.main.pkg.schema import result
 
 probe_router = APIRouter()
 
 
 @probe_router.get("/liveness")
-async def liveness():
+async def liveness() -> Dict:
     """
     Check the system's live status.
 
     Returns:
         dict: A status object with a 'code' and a 'msg' indicating liveness.
     """
-    return BaseResponse()
+    return result.success()

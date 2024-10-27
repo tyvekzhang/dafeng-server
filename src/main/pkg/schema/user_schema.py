@@ -30,3 +30,22 @@ class UserCreateCmd(BaseModel):
         if not re.search(r"\d", value):
             raise ValueError("Password must contain at least one digit")
         return value
+
+
+class LoginCmd(BaseModel):
+    """
+    Login schema
+    """
+
+    username: str
+    password: str
+
+
+class UserQuery(BaseModel):
+    """
+    UserQuery schema
+    """
+
+    id: int
+    username: str
+    nickname: str

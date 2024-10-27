@@ -1,7 +1,5 @@
 """User data object"""
 
-from typing import Optional
-
 from sqlmodel import Field, Column, String, SQLModel
 
 from src.main.pkg.type.base_model import BaseModel, ModelExt
@@ -16,8 +14,9 @@ class BaseUser(SQLModel):
     password: str = Field(
         default=None, sa_column=Column(String(64), nullable=True, comment="密码")
     )
-    nickname: Optional[str] = Field(
-        default=None, sa_column=Column(String(32), comment="昵称")
+    nickname: str = Field(default=None, sa_column=Column(String(32), comment="昵称"))
+    avatar_url: str = Field(
+        default=None, sa_column=Column(String(64), comment="头像地址")
     )
 
 

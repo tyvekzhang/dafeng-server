@@ -9,6 +9,9 @@ dependencies = [
     "sqlmodel>=0.0.22",
     "alembic>=1.13.3",
     "aiosqlite>=0.20.0",
+    "pyjwt>=2.9.0",
+    "passlib[bcrypt]>=1.7.4",
+    "loguru>=0.7.2",
 ]
 
 [[tool.uv.index]]
