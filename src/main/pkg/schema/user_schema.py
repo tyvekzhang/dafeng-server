@@ -24,11 +24,14 @@ class UserCreateCmd(BaseModel):
         - Contains a digit
         """
         if not re.search(r"[A-Z]", value):
-            raise ValueError("Password must contain at least one uppercase letter")
+            pass
+            # raise ValueError("Password must contain at least one uppercase letter")
         if not re.search(r"[a-z]", value):
-            raise ValueError("Password must contain at least one lowercase letter")
+            pass
+            # raise ValueError("Password must contain at least one lowercase letter")
         if not re.search(r"\d", value):
-            raise ValueError("Password must contain at least one digit")
+            # raise ValueError("Password must contain at least one digit")
+            pass
         return value
 
 

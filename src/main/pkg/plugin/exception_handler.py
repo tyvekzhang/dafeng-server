@@ -5,7 +5,6 @@ import http
 from fastapi import Request
 from fastapi.exception_handlers import (
     http_exception_handler,
-    request_validation_exception_handler,
 )
 from fastapi.exceptions import RequestValidationError
 from fastapi.utils import is_body_allowed_for_status_code
@@ -80,7 +79,9 @@ async def custom_http_exception_handler(request: Request, exc: StarletteHTTPExce
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     """
     Asynchronous handler for RequestValidationError.
 
@@ -89,7 +90,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         exc (RequestValidationError): The RequestValidationError instance.
 
     Returns:
-        Response: A Response object which could be a basic Response or a JSONResponse,
-                  depending on whether a response body is allowed for the given status code.
+        Response: A JSONResponse object which contain code and msg,
     """
-    return await request_validation_exception_handler(request, exc)
+    return JSONResponse(
+        {"code": http.HTTPStatus.UNPROCESSABLE_ENTITY, "msg": str(exc.errors())},
+    )

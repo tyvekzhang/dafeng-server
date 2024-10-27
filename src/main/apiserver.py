@@ -2,13 +2,13 @@ import os
 import sys
 import argparse
 
+from src.main.pkg.config.config import Config, load_config
+
 # Add the project path to the system path for module imports
 base_dir = os.path.dirname(os.path.abspath(__file__))
 project_dir = os.path.join(base_dir, "..", "..")
 project_path = os.path.abspath(project_dir)
 sys.path.insert(0, project_path)
-
-from src.main.pkg.server import run  # noqa
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Custom arguments for the server")
@@ -30,5 +30,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Run the server with the parsed arguments
-    run(args)
+    # Ensure that the configuration is initialized first
+    config: Config = load_config(args)
+    # Run the server with the config arguments
+    from src.main.pkg.server import run  # noqa
+
+    run(config)

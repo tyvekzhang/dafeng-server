@@ -22,9 +22,9 @@ class BaseResponse(BaseModel, Generic[T]):
         data: Optional response data of generic type T
     """
 
+    data: Optional[T] = None
     msg: str = DEFAULT_SUCCESS_MSG
     code: Optional[int] = DEFAULT_SUCCESS_CODE
-    data: Optional[T] = None
 
 
 def success(

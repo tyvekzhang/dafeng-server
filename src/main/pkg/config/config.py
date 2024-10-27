@@ -99,6 +99,7 @@ class SecurityConfig:
         refresh_token_expire_days: int = 30,
         enable_swagger: bool = False,
         white_list_routes: str = "",
+        backend_cors_origins: str = "",
     ) -> None:
         """
         Initializes security configuration with default values for algorithm,
@@ -116,6 +117,7 @@ class SecurityConfig:
                                                token expires. Default is 30 days.
             enable_swagger (bool): Whether to enable swagger ui. Default is False
             white_list_routes (str): White list routes which can be release. Default is ""
+            backend_cors_origins (str): Backend cors origins which can access. Default is ""
         """
         self.enable = enable
         self.algorithm = algorithm
@@ -124,6 +126,7 @@ class SecurityConfig:
         self.refresh_token_expire_days = refresh_token_expire_days
         self.enable_swagger = enable_swagger
         self.white_list_routes = white_list_routes
+        self.backend_cors_origins = backend_cors_origins
 
     def __repr__(self) -> str:
         """

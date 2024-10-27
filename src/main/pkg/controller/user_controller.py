@@ -38,7 +38,7 @@ async def register_user(
 @user_router.post("/login")
 async def login(
     login_form: OAuth2PasswordRequestForm = Depends(),
-) -> Token:
+) -> BaseResponse[Token]:
     """
     Authenticates user and provides an access token.
 
@@ -50,7 +50,7 @@ async def login(
         Token object with access token.
     """
     login_cmd = LoginCmd(username=login_form.username, password=login_form.password)
-    return await user_service.login(login_cmd=login_cmd)
+    return BaseResponse(data=await user_service.login(login_cmd=login_cmd))
 
 
 @user_router.get("/me")

@@ -1,5 +1,5 @@
 server:
-  name: Da feng
+  name: DaFeng
   host: 0.0.0.0
   port: 19001
   version: 0.1.0
@@ -22,4 +22,5 @@ security:
   secret_key: 43365f0e3e88863ff5080ac382d7717634a8ef72d8f2b52d436fc9847dbecc64
   access_token_expire_minutes: 30
   refresh_token_expire_days: 30
-  white_list_routes: /api/v1/probe/liveness, /api/v1/probe/readiness, /api/v1/user/login, /api/v1/user/register
+  white_list_routes: /v1/probe/liveness, /v1/probe/readiness, /v1/user/login, /v1/user/register
+  backend_cors_origins: http://127.0.0.1:8200, http://localhost:8200, http://localhost

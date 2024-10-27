@@ -1,6 +1,6 @@
 """User data object"""
 
-from sqlmodel import Field, Column, String, SQLModel
+from sqlmodel import Field, Column, String, SQLModel, Integer
 
 from src.main.pkg.type.base_model import BaseModel, ModelExt
 
@@ -17,6 +17,10 @@ class BaseUser(SQLModel):
     nickname: str = Field(default=None, sa_column=Column(String(32), comment="昵称"))
     avatar_url: str = Field(
         default=None, sa_column=Column(String(64), comment="头像地址")
+    )
+    status: int = Field(
+        default=1,
+        sa_column=Column(Integer, comment="状态(0:停用,1:待审核,2:正常,3:已注销)"),
     )
 
 
