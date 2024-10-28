@@ -60,7 +60,7 @@ def get_current_user() -> Callable[[], CurrentUser]:
                 detail="Error when decoding the token. Please check your request.",
             )
 
-        return CurrentUser(user_id=user_id)
+        return CurrentUser(id=user_id)
 
     return current_user
 
@@ -72,7 +72,7 @@ def create_token(
 ) -> str:
     """Create a JWT token"""
     config = Config()
-    expire = datetime.utcnow() + (
+    expire = datetime.now() + (
         expires_delta or timedelta(minutes=config.security.access_token_expire_minutes)
     )
     to_encode = {"exp": expire, "sub": str(subject), "type": token_type}
@@ -104,6 +104,6 @@ def is_token_valid(token: str) -> bool:
     try:
         payload = decode_token(token)
         exp = payload.get("exp")
-        return exp and datetime.utcfromtimestamp(exp) > datetime.utcnow()
+        return exp and datetime.fromtimestamp(exp) > datetime.now()
     except (ExpiredSignatureError, DecodeError):
         return False

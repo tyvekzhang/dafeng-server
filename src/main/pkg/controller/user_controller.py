@@ -66,5 +66,5 @@ async def get_user(
     Returns:
         BaseResponse with current user's profile information.
     """
-    user: UserQuery = await user_service.find_by_id(id=current_user.user_id)
-    return result.success(data=user)
+    user: UserQuery = await user_service.find_by_id(id=current_user.id)
+    return BaseResponse(data=user)

@@ -53,4 +53,4 @@ class TokenTypeEnum(str, Enum):
 
     access = "access"
     refresh = "refresh"
-    bearer = "bearer"
+    bearer = "Bearer"

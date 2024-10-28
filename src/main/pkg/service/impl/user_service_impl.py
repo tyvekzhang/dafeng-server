@@ -1,14 +1,15 @@
 """User domain service impl"""
 
 import http
-from datetime import timedelta
+from datetime import timedelta, datetime
+from typing import Optional
 
 from src.main.pkg.config.config import Config
 from src.main.pkg.enums.enum import ResponseCode, TokenTypeEnum
 from src.main.pkg.exception.exception import ServiceException, SystemException
 from src.main.pkg.mapper.user_mapper import UserMapper
 from src.main.pkg.schema.common_schema import Token
-from src.main.pkg.schema.user_schema import UserCreateCmd, LoginCmd
+from src.main.pkg.schema.user_schema import UserCreateCmd, LoginCmd, UserQuery
 from src.main.pkg.service.impl.base_service_impl import ServiceImpl
 from src.main.pkg.service.user_service import UserService
 from src.main.pkg.type.user_do import UserDO
@@ -91,11 +92,31 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
             token_type=TokenTypeEnum.refresh,
             expires_delta=refresh_token_expires,
         )
+        access_token_expires = int(
+            (datetime.now() + access_token_expires).timestamp() * 1000
+        )
+        print(access_token_expires)
+        refresh_token_expires = int(
+            (datetime.now() + refresh_token_expires).timestamp() * 1000
+        )
         token = Token(
             access_token=access_token,
-            expired_at=int(access_token_expires.total_seconds()),
+            expired_at=access_token_expires,
             token_type=TokenTypeEnum.bearer,
             refresh_token=refresh_token,
-            re_expired_at=int(refresh_token_expires.total_seconds()),
+            re_expired_at=refresh_token_expires,
         )
         return token
+
+    async def find_by_id(self, id: int) -> Optional[UserQuery]:
+        """
+        Retrieve a user by ID.
+
+        Args:
+            id (int): The user ID to retrieve.
+
+        Returns:
+            Optional[UserQuery]: The user query object if found, None otherwise.
+        """
+        user_do = await self.mapper.select_record_by_id(id=id)
+        return UserQuery(**user_do.model_dump()) if user_do else None
