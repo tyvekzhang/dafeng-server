@@ -55,6 +55,43 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         user_create_cmd.password = get_password_hash(user_create_cmd.password)
         return await self.mapper.insert_record(record=user_create_cmd)
 
+    async def generate_tokens(self, user_id: int) -> Token:
+        config = Config()
+
+        # generate access token
+        access_token_expires = timedelta(
+            minutes=config.security.access_token_expire_minutes
+        )
+        access_token = security_util.create_token(
+            subject=user_id, token_type=TokenTypeEnum.access
+        )
+
+        # generate refresh token
+        refresh_token_expires = timedelta(
+            days=config.security.refresh_token_expire_days
+        )
+        refresh_token = security_util.create_token(
+            subject=user_id,
+            token_type=TokenTypeEnum.refresh,
+            expires_delta=refresh_token_expires,
+        )
+
+        # 计算过期时间
+        access_token_expires_at = int(
+            (datetime.now() + access_token_expires).timestamp()
+        )
+        refresh_token_expires_at = int(
+            (datetime.now() + refresh_token_expires).timestamp()
+        )
+
+        return Token(
+            access_token=access_token,
+            expired_at=access_token_expires_at,
+            token_type=TokenTypeEnum.bearer,
+            refresh_token=refresh_token,
+            re_expired_at=refresh_token_expires_at,
+        )
+
     async def login(self, login_cmd: LoginCmd) -> Token:
         """
         Perform login and return an access token and refresh token.
@@ -65,7 +102,6 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         Returns:
             Token: The access token and refresh token.
         """
-        config = Config()
         # verify username and password
         username: str = login_cmd.username
         user_do: UserDO = await self.mapper.get_user_by_username(username=username)
@@ -75,38 +111,7 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
                 ResponseCode.AUTH_FAILED.msg,
                 status_code=http.HTTPStatus.UNAUTHORIZED,
             )
-        # generate access token
-        access_token_expires = timedelta(
-            minutes=config.security.access_token_expire_minutes
-        )
-        access_token = security_util.create_token(
-            subject=user_do.id,
-            token_type=TokenTypeEnum.access,
-        )
-        # generate refresh token
-        refresh_token_expires = timedelta(
-            days=config.security.refresh_token_expire_days
-        )
-        refresh_token = security_util.create_token(
-            subject=user_do.id,
-            token_type=TokenTypeEnum.refresh,
-            expires_delta=refresh_token_expires,
-        )
-        access_token_expires = int(
-            (datetime.now() + access_token_expires).timestamp() * 1000
-        )
-        print(access_token_expires)
-        refresh_token_expires = int(
-            (datetime.now() + refresh_token_expires).timestamp() * 1000
-        )
-        token = Token(
-            access_token=access_token,
-            expired_at=access_token_expires,
-            token_type=TokenTypeEnum.bearer,
-            refresh_token=refresh_token,
-            re_expired_at=refresh_token_expires,
-        )
-        return token
+        return await self.generate_tokens(user_id=user_do.id)
 
     async def find_by_id(self, id: int) -> Optional[UserQuery]:
         """

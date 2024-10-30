@@ -21,15 +21,22 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def decode_token(token: str):
     config = Config()
     """Decode JWT and return payload"""
-    return jwt.decode(
-        token, config.security.secret_key, algorithms=[config.security.algorithm]
-    )
+    key = config.security.secret_key
+    return jwt.decode(token, key, algorithms=[config.security.algorithm])
 
 
-def get_user_id(token: str) -> str:
+def get_user_id(token: str) -> int:
     """Extract user ID from token"""
     payload = decode_token(token)
     return payload["sub"]
+
+
+def get_oauth2_scheme() -> OAuth2PasswordBearer:
+    config = Config()
+    oauth2_scheme = OAuth2PasswordBearer(
+        tokenUrl=f"{config.server.api_version}/user/login"
+    )
+    return oauth2_scheme
 
 
 def get_current_user() -> Callable[[], CurrentUser]:
@@ -39,13 +46,9 @@ def get_current_user() -> Callable[[], CurrentUser]:
     Returns:
         CurrentUser instance
     """
-    config = Config()
-    oauth2_scheme = OAuth2PasswordBearer(
-        tokenUrl=f"{config.server.api_version}/user/login"
-    )
 
     def current_user(
-        access_token: str = Depends(oauth2_scheme),
+        access_token: str = Depends(get_oauth2_scheme()),
     ) -> CurrentUser:
         try:
             user_id = get_user_id(access_token)
@@ -72,8 +75,14 @@ def create_token(
 ) -> str:
     """Create a JWT token"""
     config = Config()
-    expire = datetime.now() + (
-        expires_delta or timedelta(minutes=config.security.access_token_expire_minutes)
+    expire = int(
+        (
+            datetime.now()
+            + (
+                expires_delta
+                or timedelta(minutes=config.security.access_token_expire_minutes)
+            )
+        ).timestamp()
     )
     to_encode = {"exp": expire, "sub": str(subject), "type": token_type}
     return jwt.encode(
@@ -104,6 +113,8 @@ def is_token_valid(token: str) -> bool:
     try:
         payload = decode_token(token)
         exp = payload.get("exp")
-        return exp and datetime.fromtimestamp(exp) > datetime.now()
+        exp_date = datetime.fromtimestamp(exp)
+        now = datetime.now()
+        return exp and exp_date > now
     except (ExpiredSignatureError, DecodeError):
         return False

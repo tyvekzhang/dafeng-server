@@ -52,3 +52,11 @@ class UserQuery(BaseModel):
     id: int
     username: str
     nickname: str
+
+
+class RefreshToken(BaseModel):
+    """
+    RefreshToken schema
+    """
+
+    refresh_token: str

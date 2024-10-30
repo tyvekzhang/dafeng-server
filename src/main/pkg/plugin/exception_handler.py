@@ -10,6 +10,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.utils import is_body_allowed_for_status_code
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse, Response
+from jwt import PyJWTError
 
 from src.main.pkg.enums.enum import ResponseCode
 from src.main.pkg.exception.exception import ServiceException
@@ -94,4 +95,25 @@ async def validation_exception_handler(
     """
     return JSONResponse(
         {"code": http.HTTPStatus.UNPROCESSABLE_ENTITY, "msg": str(exc.errors())},
+    )
+
+
+@app.exception_handler(PyJWTError)
+async def jwt_exception_handler() -> JSONResponse:
+    """
+    Asynchronous handler for JWT-related exceptions.
+
+    Args:
+        request (Request): The request instance containing all request details.
+        exc (PyJWTError): The JWTError instance indicating the error.
+
+    Returns:
+        JSONResponse: A JSON response with an error code and message.
+    """
+    return JSONResponse(
+        status_code=http.HTTPStatus.UNAUTHORIZED,
+        content={
+            "code": http.HTTPStatus.UNAUTHORIZED,
+            "msg": "Your token has expired. Please log in again.",
+        },  # Error message
     )

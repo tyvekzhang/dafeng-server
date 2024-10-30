@@ -17,3 +17,6 @@ class UserService(Service[UserDO], ABC):
 
     @abstractmethod
     async def find_by_id(self, *, id: int) -> UserQuery: ...
+
+    @abstractmethod
+    async def generate_tokens(self, user_id: int) -> Token: ...

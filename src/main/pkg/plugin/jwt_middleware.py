@@ -5,6 +5,7 @@ import http
 from fastapi import Request
 from loguru import logger
 from starlette.responses import JSONResponse
+from jwt import PyJWTError
 
 from src.main.pkg.config.config import Config
 from src.main.pkg.server import app
@@ -38,7 +39,8 @@ async def jwt_middleware(request: Request, call_next):
     if auth_header:
         try:
             token = auth_header.split(" ")[-1]
-            is_token_valid(token)
+            if not is_token_valid(token):
+                raise PyJWTError
         except Exception as e:
             logger.error(f"{e}")
             return JSONResponse(
@@ -48,7 +50,7 @@ async def jwt_middleware(request: Request, call_next):
 
     else:
         return JSONResponse(
-            status_code=401,
+            status_code=http.HTTPStatus.UNAUTHORIZED,
             content={"detail": "Missing Authentication token"},
         )
 
