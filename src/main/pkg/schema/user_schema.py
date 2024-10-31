@@ -5,7 +5,6 @@ import re
 from pydantic import BaseModel, field_validator
 from sqlmodel import Field
 
-
 class UserCreateCmd(BaseModel):
     """
     UserCreate schema

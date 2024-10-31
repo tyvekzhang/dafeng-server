@@ -109,7 +109,7 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
             raise SystemException(
                 ResponseCode.AUTH_FAILED.code,
                 ResponseCode.AUTH_FAILED.msg,
-                status_code=http.HTTPStatus.UNAUTHORIZED,
+                status_code= ResponseCode.AUTH_FAILED.code,
             )
         return await self.generate_tokens(user_id=user_do.id)
 

@@ -2,7 +2,7 @@ import os
 import sys
 import argparse
 
-from src.main.pkg.config.config import Config, load_config
+from src.main.pkg.config.config_manager import load_config
 
 # Add the project path to the system path for module imports
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -30,9 +30,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # Ensure that the configuration is initialized first
-    config: Config = load_config(args)
+    # Load the configuration firstly
+    load_config(args)
+
     # Run the server with the config arguments
     from src.main.pkg.server import run  # noqa
-
-    run(config)
+    run()

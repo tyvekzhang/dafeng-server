@@ -1,8 +1,5 @@
 import os.path
-from argparse import Namespace
 from os import makedirs
-
-from src.main.pkg.config.config_loader import ConfigLoader
 
 
 class ServerConfig:
@@ -184,22 +181,3 @@ class Config:
         """
         return f"{self.__class__.__name__}({self.__dict__})"
 
-
-def load_config(args: Namespace) -> Config:
-    """
-    Loads the configuration based on the provided command-line arguments.
-
-    Args:
-        args (Namespace): Command-line arguments containing 'env' for the environment
-                          and 'config_file' for the configuration file path.
-
-    Returns:
-        Config: A configuration object populated with the loaded settings.
-    """
-    env = args.env
-
-    config_file = args.config_file
-    config_loader = ConfigLoader(env, config_file)
-    config_dict = config_loader.load_config()
-    config = Config(config_dict)
-    return config

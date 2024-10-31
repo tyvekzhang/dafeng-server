@@ -1,7 +1,8 @@
 """User operation controller"""
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.security import OAuth2PasswordRequestForm
+
 from jwt import PyJWTError
 
 from src.main.pkg.mapper.user_mapper import userMapper
@@ -88,6 +89,9 @@ async def refresh_tokens(token: RefreshToken):
     user_id: int = get_user_id(refresh_token)
     return await user_service.generate_tokens(user_id)
 
+@user_router.get("/logout")
+async def logout():
+    return result.success()
 
 @user_router.get("/dynamicMenu")
 async def get_menus():

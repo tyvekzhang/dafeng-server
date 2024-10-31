@@ -77,3 +77,16 @@ class MissingSessionException(Exception):
         """
 
         super().__init__(detail)
+
+class ConfigNotInitialisedException(Exception):
+    """
+    Exception raised when the config not load correctly.
+    """
+
+    def __init__(self):
+        detail = """
+        Config not initialised! Ensure that config has been loaded before attempting.
+        """
+
+        super().__init__(detail)
+
