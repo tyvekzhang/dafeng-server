@@ -1,6 +1,7 @@
 """User domain schema"""
 
 import re
+from typing import Optional
 
 from pydantic import BaseModel, field_validator
 from sqlmodel import Field
@@ -11,8 +12,9 @@ class UserCreateCmd(BaseModel):
     """
 
     username: str = Field(..., min_length=2, max_length=32)
-    password: str = Field(..., min_length=6, max_length=64)
+    password: str = Field(..., min_length=6, max_length=32)
     nickname: str = Field(..., min_length=2, max_length=32)
+    remark: Optional[str] =  Field("",  max_length=255)
 
     @field_validator("password")
     def password_complexity(cls, value):
@@ -22,15 +24,8 @@ class UserCreateCmd(BaseModel):
         - Contains a lowercase letter
         - Contains a digit
         """
-        if not re.search(r"[A-Z]", value):
-            pass
-            # raise ValueError("Password must contain at least one uppercase letter")
-        if not re.search(r"[a-z]", value):
-            pass
-            # raise ValueError("Password must contain at least one lowercase letter")
-        if not re.search(r"\d", value):
-            # raise ValueError("Password must contain at least one digit")
-            pass
+        if not re.search(r"^(?=.*[a-zA-Z])(?=.*\d).+$", value):
+            raise ValueError("Password must contain digit and letter")
         return value
 
 

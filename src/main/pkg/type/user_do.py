@@ -22,6 +22,9 @@ class BaseUser(SQLModel):
         default=1,
         sa_column=Column(Integer, comment="状态(0:停用,1:待审核,2:正常,3:已注销)"),
     )
+    remark: str = Field(
+        default=None, sa_column=Column(String(255), comment="备注")
+    )
 
 
 class UserDO(ModelExt, BaseUser, BaseModel, table=True):

@@ -10,9 +10,8 @@ class ResponseCode(Enum):
     SERVICE_INTERNAL_ERROR = (-1, "Service internal error")
 
     PARAMETER_ERROR = (400, "Parameter error")
-    AUTH_FAILED = (405, "Username or password error")
+    AUTH_FAILED = (403, "Username or password error")
     PARAMETER_CHECK_ERROR = (402, "Parameter error")
-    DELETE_PARAMETER_ERROR = (403, "Delete parameter error")
     USER_NAME_EXISTS = (100, "Username already exists")
     ROLE_ALREADY_EXISTS = (101, "Assign role already exists")
 
