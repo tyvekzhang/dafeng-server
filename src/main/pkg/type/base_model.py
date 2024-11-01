@@ -29,10 +29,13 @@ class ModelExt(_SQLModel):
     Create time and update time for a data object, can be automatically generated
     """
 
-    create_time: Optional[datetime] = Field(
-        default_factory=datetime.now, sa_column_kwargs={"comment": "创建时间"}
+    create_time: Optional[int] = Field(
+        sa_type=BigInteger,
+        default_factory=lambda: int(datetime.now().timestamp()),
+        sa_column_kwargs={"comment": "创建时间"}
     )
-    update_time: Optional[datetime] = Field(
-        default_factory=datetime.now,
-        sa_column_kwargs={"onupdate": datetime.now, "comment": "更新时间"},
+    update_time: Optional[int] = Field(
+        sa_type=BigInteger,
+        default=None,
+        sa_column_kwargs={"onupdate": lambda: int(datetime.now().timestamp()), "comment": "更新时间"},
     )

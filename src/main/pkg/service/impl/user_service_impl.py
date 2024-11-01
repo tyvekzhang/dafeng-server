@@ -2,7 +2,7 @@
 
 import http
 from datetime import timedelta, datetime
-from typing import Optional
+from typing import Optional, List
 
 from src.main.pkg.config.config import Config
 from src.main.pkg.enums.enum import ResponseCode, TokenTypeEnum
@@ -125,3 +125,19 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         """
         user_do = await self.mapper.select_record_by_id(id=id)
         return UserQuery(**user_do.model_dump()) if user_do else None
+
+    async def retrieve_user(
+        self, page: int, size: int, **kwargs
+    ) -> Optional[List[UserQuery]]:
+        """
+        List users with pagination.
+
+        Args:
+            page (int): The page number.
+            size (int): The page size.
+
+        Returns:
+            Optional[List[UserQuery]]: The list of users or None if no users are found.
+        """
+        results, _ = await self.mapper.select_ordered_records(page=page, size=size, **kwargs)
+        return [UserQuery(**user.model_dump()) for user in results]

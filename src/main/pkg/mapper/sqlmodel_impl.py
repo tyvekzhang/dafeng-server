@@ -162,9 +162,9 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         """
         db_session = db_session or self.db.session
         query = select(self.model)
-        if "filter_by" in kwargs:
+        if "filter_by" in kwargs and kwargs["filter_by"]:
             query = query.filter_by(**kwargs["filter_by"])
-        if "like" in kwargs:
+        if "like" in kwargs and kwargs["like"]:
             for column, value in kwargs["like"].items():
                 query = query.filter(getattr(self.model, column).like(value))
         columns = self.model.__table__.columns

@@ -6,6 +6,17 @@ from typing import Optional
 from pydantic import BaseModel, field_validator
 from sqlmodel import Field
 
+from src.main.pkg.type.user_do import UserDO
+
+
+class RefreshToken(BaseModel):
+    """
+    RefreshToken schema
+    """
+
+    refresh_token: str
+
+
 class UserCreateCmd(BaseModel):
     """
     UserCreate schema
@@ -38,19 +49,14 @@ class LoginCmd(BaseModel):
     password: str
 
 
-class UserQuery(BaseModel):
+class UserQuery(UserDO):
     """
     UserQuery schema
     """
+    pass
 
+class UserUpdateCmd(BaseModel):
     id: int
-    username: str
-    nickname: str
-
-
-class RefreshToken(BaseModel):
-    """
-    RefreshToken schema
-    """
-
-    refresh_token: str
+    nickname: Optional[str] = None
+    status:  Optional[int] = None
+    remark: Optional[str] = None

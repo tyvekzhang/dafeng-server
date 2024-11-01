@@ -52,8 +52,8 @@ class ServiceImpl(Generic[M, T], Service[T]):
             page=page, size=size, order_by=order_by, sort_order=sort_order, **kwargs
         )
 
-    async def modify_by_id(self, *, update_user_cmd: T) -> bool:
-        affect_row: int = await self.mapper.update_record_by_id(record=update_user_cmd)
+    async def modify_by_id(self, *, record: T) -> bool:
+        affect_row: int = await self.mapper.update_record_by_id(record=record)
         if affect_row != 1:
             raise SystemException(
                 ResponseCode.PARAMETER_ERROR.code,

@@ -4,7 +4,7 @@ import os
 import time
 from typing import Generator
 
-API_EPOCH = 1640995200
+API_EPOCH = 1730438845
 
 worker_id_bits = 5
 process_id_bits = 5
@@ -37,7 +37,7 @@ def generator(
     sequence = 0
 
     while True:
-        timestamp = int(time.time() * 1000)
+        timestamp = int(time.time())
 
         if last_timestamp > timestamp:
             sleep(last_timestamp - timestamp)

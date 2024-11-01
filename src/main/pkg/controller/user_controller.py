@@ -1,19 +1,20 @@
 """User operation controller"""
+from typing import List, Dict
 
-from fastapi import APIRouter, Depends, Form
+from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
 from jwt import PyJWTError
 
 from src.main.pkg.mapper.user_mapper import userMapper
 from src.main.pkg.schema import result
-from src.main.pkg.schema.common_schema import Token, CurrentUser
+from src.main.pkg.schema.common_schema import Token, CurrentUser, FilterParams
 from src.main.pkg.schema.result import BaseResponse
 from src.main.pkg.schema.user_schema import (
     UserCreateCmd,
     LoginCmd,
     UserQuery,
-    RefreshToken,
+    RefreshToken, UserUpdateCmd,
 )
 from src.main.pkg.service.impl.user_service_impl import UserServiceImpl
 from src.main.pkg.service.user_service import UserService
@@ -36,7 +37,6 @@ async def register_user(
     Registers a new user.
 
     Args:
-
         user_create_cmd: Data required for registration.
 
     Returns:
@@ -45,6 +45,21 @@ async def register_user(
     user: UserDO = await user_service.register(user_create_cmd=user_create_cmd)
     return result.success(data=user.id)
 
+@user_router.post("/recover")
+async def user_recover(
+    user_recover_cmd: UserDO,
+) -> dict:
+    """
+    User add .
+
+    Args:
+        user_recover_cmd: User recover data
+
+    Returns:
+        BaseResponse with user's ID.
+    """
+    user: UserDO = await user_service.save(record=user_recover_cmd)
+    return result.success(data=user.id)
 
 @user_router.post("/login")
 async def login(
@@ -54,7 +69,6 @@ async def login(
     Authenticates user and provides an access token.
 
     Args:
-
         login_form: Login credentials.
 
     Returns:
@@ -89,11 +103,66 @@ async def refresh_tokens(token: RefreshToken):
     user_id: int = get_user_id(refresh_token)
     return await user_service.generate_tokens(user_id)
 
+
+@user_router.post("/list")
+async def list_user(
+    filter_params: FilterParams,
+) -> BaseResponse:
+    """
+    List users with pagination.
+
+    Args:
+        filter_params: param to filter data
+
+    Returns:
+        BaseResponse with userQuery list.
+    """
+
+    records: List[UserQuery] = await user_service.retrieve_user(
+        page=filter_params.page,
+        size=filter_params.size,
+        filter_by=filter_params.filter_by,
+        like=filter_params.like,
+    )
+    return BaseResponse(data=records)
+
+@user_router.put("/")
+async def update_user(
+    user_update_cmd: UserUpdateCmd,
+) -> Dict:
+    """
+    Update user information.
+
+    Args:
+        user_update_cmd: Command containing updated user info.
+
+    Returns:
+        Success result message
+    """
+    await user_service.modify_by_id(record=UserDO(**user_update_cmd.model_dump(exclude_unset=True)))
+    return result.success()
+
+@user_router.delete("/{id}")
+async def delete_user(
+    id: int,
+) -> Dict:
+    """
+    Remove a user by their ID.
+
+    Args:
+        id: User ID to remove.
+
+    Returns:
+        Success result message
+    """
+    await user_service.remove_by_id(id=id)
+    return result.success()
+
 @user_router.get("/logout")
 async def logout():
     return result.success()
 
-@user_router.get("/dynamicMenu")
+@user_router.get("/menu")
 async def get_menus():
     data = [
         {
