@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar, Optional, Dict
+from typing import Generic, TypeVar, Optional, Dict, Any
 
 from pydantic import BaseModel
 
@@ -31,7 +31,7 @@ def success(
     data: DataType = None,
     msg: Optional[str] = DEFAULT_SUCCESS_MSG,
     code: Optional[int] = DEFAULT_SUCCESS_CODE,
-) -> Dict:
+) -> Dict[str, Any]:
     """
     Generate a success response dictionary
 
@@ -43,9 +43,10 @@ def success(
     Returns:
         Dict containing response data
     """
-    if data is None:
-        return {"code": code, "msg": msg}
-    return {"code": code, "msg": msg, "data": data}
+    response = {"code": code, "msg": msg}
+    if data is not None:
+        response["data"] = data
+    return response
 
 
 def fail(msg: str, code: int = DEFAULT_FAIL_CODE) -> Dict:

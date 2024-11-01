@@ -60,7 +60,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         statement = insert(self.model).values(
             [record.model_dump() for record in orm_records]
         )
-        exec_response = await db_session.execute(statement)
+        exec_response = await db_session.exec(statement)
         return exec_response.rowcount
 
     async def select_record_by_id(
@@ -124,9 +124,10 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         if "like" in kwargs and kwargs["like"]:
             for column, value in kwargs["like"].items():
                 query = query.filter(getattr(self.model, column).like(value))
+        count_query = query
         total_count = 0
         if "count" in kwargs and kwargs["count"]:
-            count_query = select(func.count()).select_from(query.subquery())
+            count_query = select(func.count()).select_from(count_query.subquery())
             total_count_result = await db_session.execute(count_query)
             total_count = total_count_result.scalar()
 
@@ -167,6 +168,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         if "like" in kwargs and kwargs["like"]:
             for column, value in kwargs["like"].items():
                 query = query.filter(getattr(self.model, column).like(value))
+        count_query = query
         columns = self.model.__table__.columns
         if order_by is None or order_by not in columns:
             order_by = "id"
@@ -184,7 +186,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
             )
         total_count = 0
         if "count" in kwargs and kwargs["count"]:
-            count_query = select(func.count()).select_from(query.subquery())
+            count_query = select(func.count()).select_from(count_query.subquery())
             total_count_result = await db_session.execute(count_query)
             total_count = total_count_result.scalar()
 

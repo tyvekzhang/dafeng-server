@@ -31,7 +31,7 @@ class BasePage(BaseModel):
 
     page: Optional[int] = 1
     size: Optional[int] = 10
-    count: Optional[bool] = False
+    count: Optional[bool] = True
 
 class FilterParams(BasePage):
     """

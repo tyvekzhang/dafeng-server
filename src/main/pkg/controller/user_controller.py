@@ -8,7 +8,7 @@ from jwt import PyJWTError
 
 from src.main.pkg.mapper.user_mapper import userMapper
 from src.main.pkg.schema import result
-from src.main.pkg.schema.common_schema import Token, CurrentUser, FilterParams
+from src.main.pkg.schema.common_schema import Token, CurrentUser, FilterParams, BasePage
 from src.main.pkg.schema.result import BaseResponse
 from src.main.pkg.schema.user_schema import (
     UserCreateCmd,
@@ -106,25 +106,24 @@ async def refresh_tokens(token: RefreshToken):
 
 @user_router.post("/list")
 async def list_user(
-    filter_params: FilterParams,
-) -> BaseResponse:
+    base_page: BasePage,
+) -> Dict:
     """
     List users with pagination.
 
     Args:
-        filter_params: param to filter data
+        base_page: pagination info to query
 
     Returns:
         BaseResponse with userQuery list.
     """
 
-    records: List[UserQuery] = await user_service.retrieve_user(
-        page=filter_params.page,
-        size=filter_params.size,
-        filter_by=filter_params.filter_by,
-        like=filter_params.like,
+    records, total_count = await user_service.retrieve_user(
+        page=base_page.page,
+        size=base_page.size,
+        count=base_page.count
     )
-    return BaseResponse(data=records)
+    return result.success(data={"records": records, "total_count": total_count})
 
 @user_router.put("/")
 async def update_user(
