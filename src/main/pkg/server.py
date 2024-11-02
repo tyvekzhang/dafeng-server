@@ -4,6 +4,8 @@ from fastapi import FastAPI
 from src.main.pkg.config.config import ServerConfig
 from src.main.pkg.config.config_manager import get_server_config
 from src.main.pkg.router.router import create_router
+from src.main.pkg.session.db_engine import get_async_engine
+from src.main.pkg.session.db_session_middleware import SQLAlchemyMiddleware
 
 # Create FastAPI application instance
 app = FastAPI(
@@ -22,7 +24,10 @@ def register_routes(server_config: ServerConfig) -> None:
 # Register essential modules
 def register_necessary_modules() -> None:
     import src.main.pkg.exception.exception_handler  # noqa
-    import src.main.pkg.middleware.session_middleware # noqa
+    app.add_middleware(
+        SQLAlchemyMiddleware,
+        custom_engine=get_async_engine()
+    )
 
 # Register optional modules
 def register_optional_modules() -> None:

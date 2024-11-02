@@ -10,6 +10,7 @@ class ResponseCode(Enum):
     SERVICE_INTERNAL_ERROR = (-1, "Service internal error")
 
     PARAMETER_ERROR = (400, "Parameter error")
+    DB_UNKNOWN_ERROR = (400, "Db unknown error")
     AUTH_FAILED = (403, "Username or password error")
     PARAMETER_CHECK_ERROR = (402, "Parameter error")
     USER_NAME_EXISTS = (100, "Username already exists")

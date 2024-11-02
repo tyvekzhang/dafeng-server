@@ -19,6 +19,7 @@ class BaseModel(_SQLModel):
         primary_key=True,
         index=True,
         nullable=False,
+        unique=True,
         sa_type=BigInteger,
         sa_column_kwargs={"comment": "主键"},
     )
@@ -36,6 +37,6 @@ class ModelExt(_SQLModel):
     )
     update_time: Optional[int] = Field(
         sa_type=BigInteger,
-        default=None,
+        default_factory=lambda: int(datetime.now().timestamp()),
         sa_column_kwargs={"onupdate": lambda: int(datetime.now().timestamp()), "comment": "更新时间"},
     )

@@ -1,5 +1,5 @@
 """User operation controller"""
-from typing import List, Dict
+from typing import Dict
 
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm

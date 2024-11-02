@@ -60,7 +60,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         statement = insert(self.model).values(
             [record.model_dump() for record in orm_records]
         )
-        exec_response = await db_session.exec(statement)
+        exec_response = await db_session.execute(statement)
         return exec_response.rowcount
 
     async def select_record_by_id(
@@ -172,17 +172,17 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         columns = self.model.__table__.columns
         if order_by is None or order_by not in columns:
             order_by = "id"
-        if sort_order is None or sort_order == SortEnum.ascending:
+        if sort_order is None or sort_order == SortEnum.descending:
             query = (
                 query.offset((page - 1) * size)
                 .limit(size)
-                .order_by(columns[order_by].asc())
+                .order_by(columns[order_by].desc())
             )
         else:
             query = (
                 query.offset((page - 1) * size)
                 .limit(size)
-                .order_by(columns[order_by].des())
+                .order_by(columns[order_by].acs())
             )
         total_count = 0
         if "count" in kwargs and kwargs["count"]:
