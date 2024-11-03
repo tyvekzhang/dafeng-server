@@ -5,6 +5,7 @@ from typing import Union
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from src.main.pkg.mapper.base_mapper import BaseMapper
 from src.main.pkg.mapper.sqlmodel_impl import SqlModelMapper
 from src.main.pkg.type.user_do import UserDO
 

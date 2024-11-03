@@ -124,6 +124,15 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         if "like" in kwargs and kwargs["like"]:
             for column, value in kwargs["like"].items():
                 query = query.filter(getattr(self.model, column).like(value))
+        if "between" in kwargs and kwargs["between"]:
+            for column, (start, end) in kwargs["between"].items():
+                query = query.filter(getattr(self.model, column).between(start, end))
+        if "greater_than" in kwargs and kwargs["greater_than"]:
+            for column, value in kwargs["greater_than"].items():
+                query = query.filter(getattr(self.model, column) > value)
+        if "less_than" in kwargs and kwargs["less_than"]:
+            for column, value in kwargs["less_than"].items():
+                query = query.filter(getattr(self.model, column) < value)
         count_query = query
         total_count = 0
         if "count" in kwargs and kwargs["count"]:
@@ -168,6 +177,15 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         if "like" in kwargs and kwargs["like"]:
             for column, value in kwargs["like"].items():
                 query = query.filter(getattr(self.model, column).like(value))
+        if "between" in kwargs and kwargs["between"]:
+            for column, (start, end) in kwargs["between"].items():
+                query = query.filter(getattr(self.model, column).between(start, end))
+        if "greater_than" in kwargs and kwargs["greater_than"]:
+            for column, value in kwargs["greater_than"].items():
+                query = query.filter(getattr(self.model, column) > value)
+        if "less_than" in kwargs and kwargs["less_than"]:
+            for column, value in kwargs["less_than"].items():
+                query = query.filter(getattr(self.model, column) < value)
         count_query = query
         columns = self.model.__table__.columns
         if order_by is None or order_by not in columns:

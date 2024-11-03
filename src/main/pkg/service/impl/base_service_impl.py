@@ -1,6 +1,6 @@
 """Common service impl"""
 
-from typing import Any, TypeVar, List, Generic, Type, Tuple
+from typing import Any, TypeVar, List, Generic, Type, Tuple, Union, Dict
 
 from src.main.pkg.enums.enum import ResponseCode
 from src.main.pkg.exception.exception import SystemException
@@ -22,30 +22,24 @@ class ServiceImpl(Generic[M, T], Service[T]):
         await self.mapper.batch_insert_records(records=records)
         return True
 
-    async def retrieve_by_id(self, *, id: T) -> T:
+    async def retrieve_by_id(self, *, id: Union[int, str]) -> T:
         return await self.mapper.select_record_by_id(id=id)
 
-    async def retrieve_by_ids(self, *, ids: List[T]) -> List[T]:
+    async def retrieve_by_ids(self, *, ids: Union[List[int], List[str]]) -> List[T]:
         return await self.mapper.select_records_by_ids(ids=ids)
 
     async def retrieve_records(
         self, *, page: int, size: int, **kwargs
     ) -> Tuple[
-        List[Any],
+        List[T],
         int,
     ]:
         return await self.mapper.select_records(page=page, size=size, **kwargs)
 
     async def retrieve_ordered_records(
-        self,
-        *,
-        page: int,
-        size: int,
-        order_by: T = None,
-        sort_order: T = None,
-        **kwargs,
+        self, *, page: int, size: int, order_by: str, sort_order: str, **kwargs
     ) -> Tuple[
-        List[Any],
+        List[T],
         int,
     ]:
         return await self.mapper.select_ordered_records(
@@ -62,7 +56,7 @@ class ServiceImpl(Generic[M, T], Service[T]):
         return True
 
     async def batch_modify_by_ids(
-        self, *, ids: List[Any], record: dict, db_session: Any = None
+        self, *, ids: Union[List[int], List[str]], record: Dict, db_session: Any = None
     ) -> bool:
         affect_row: int = await self.mapper.batch_update_records_by_ids(
             ids=ids, record=record
@@ -74,7 +68,7 @@ class ServiceImpl(Generic[M, T], Service[T]):
             )
         return True
 
-    async def remove_by_id(self, *, id: T) -> bool:
+    async def remove_by_id(self, *, id: Union[int, str]) -> bool:
         affect_row: int = await self.mapper.delete_record_by_id(id=id)
         if affect_row != 1:
             raise SystemException(
@@ -83,11 +77,11 @@ class ServiceImpl(Generic[M, T], Service[T]):
             )
         return True
 
-    async def batch_remove_by_ids(self, *, ids: List[Any]) -> bool:
+    async def batch_remove_by_ids(self, *, ids: Union[List[int], List[str]]) -> bool:
         affect_row: int = await self.mapper.batch_delete_records_by_ids(ids=ids)
         if len(ids) != affect_row:
             raise SystemException(
-                ResponseCode.DELETE_PARAMETER_ERROR.code,
-                ResponseCode.DELETE_PARAMETER_ERROR.msg,
+                ResponseCode.PARAMETER_ERROR.code,
+                ResponseCode.PARAMETER_ERROR.msg,
             )
         return True

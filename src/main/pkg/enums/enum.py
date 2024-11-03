@@ -6,6 +6,7 @@ class ResponseCode(Enum):
     Enum for system response codes.
     """
 
+
     SUCCESS = (0, "Success")
     SERVICE_INTERNAL_ERROR = (-1, "Service internal error")
 

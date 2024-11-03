@@ -1,20 +1,20 @@
 """User operation controller"""
-from typing import Dict
+from typing import Dict, Annotated, List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends,Query
 from fastapi.security import OAuth2PasswordRequestForm
-
+from starlette.responses import StreamingResponse
 from jwt import PyJWTError
 
 from src.main.pkg.mapper.user_mapper import userMapper
 from src.main.pkg.schema import result
-from src.main.pkg.schema.common_schema import Token, CurrentUser, FilterParams, BasePage
+from src.main.pkg.schema.common_schema import Token, CurrentUser, BasePage
 from src.main.pkg.schema.result import BaseResponse
 from src.main.pkg.schema.user_schema import (
-    UserCreateCmd,
+    UserCreate,
     LoginCmd,
     UserQuery,
-    RefreshToken, UserUpdateCmd,
+    RefreshToken, UserUpdateCmd, UserFilterForm,
 )
 from src.main.pkg.service.impl.user_service_impl import UserServiceImpl
 from src.main.pkg.service.user_service import UserService
@@ -30,35 +30,35 @@ user_service: UserService = UserServiceImpl(mapper=userMapper)
 
 
 @user_router.post("/register")
-async def register_user(
-    user_create_cmd: UserCreateCmd,
-) -> dict:
+async def user_register(
+    user_create: UserCreate,
+) -> Dict:
     """
     Registers a new user.
 
     Args:
-        user_create_cmd: Data required for registration.
+        user_create: Data required for registration.
 
     Returns:
         BaseResponse with new user's ID.
     """
-    user: UserDO = await user_service.register(user_create_cmd=user_create_cmd)
+    user: UserDO = await user_service.register(user_create=user_create)
     return result.success(data=user.id)
 
 @user_router.post("/recover")
 async def user_recover(
-    user_recover_cmd: UserDO,
+    user_recover_parm: UserDO,
 ) -> dict:
     """
     User add .
 
     Args:
-        user_recover_cmd: User recover data
+        user_recover_parm: User recover data
 
     Returns:
         BaseResponse with user's ID.
     """
-    user: UserDO = await user_service.save(record=user_recover_cmd)
+    user: UserDO = await user_service.save(record=user_recover_parm)
     return result.success(data=user.id)
 
 @user_router.post("/login")
@@ -79,7 +79,7 @@ async def login(
 
 
 @user_router.get("/me")
-async def get_user(
+async def me(
     current_user: CurrentUser = Depends(get_current_user()),
 ) -> BaseResponse[UserQuery]:
     """
@@ -104,28 +104,21 @@ async def refresh_tokens(token: RefreshToken):
     return await user_service.generate_tokens(user_id)
 
 
-@user_router.post("/list")
-async def list_user(
-    base_page: BasePage,
-) -> Dict:
+@user_router.get("/users")
+async def retrieve_user(user_filter_form: Annotated[UserFilterForm, Query()]) -> Dict:
     """
-    List users with pagination.
+    Filter users with pagination.
 
     Args:
-        base_page: pagination info to query
+        user_filter_form: Pagination and filter info to query
 
     Returns:
-        BaseResponse with userQuery list.
+        UserQuery list and total count.
     """
-
-    records, total_count = await user_service.retrieve_user(
-        page=base_page.page,
-        size=base_page.size,
-        count=base_page.count
-    )
+    records, total_count = await user_service.retrieve_user(user_filter_form = user_filter_form)
     return result.success(data={"records": records, "total_count": total_count})
-
-@user_router.put("/")
+    
+@user_router.put("/update")
 async def update_user(
     user_update_cmd: UserUpdateCmd,
 ) -> Dict:
@@ -141,7 +134,7 @@ async def update_user(
     await user_service.modify_by_id(record=UserDO(**user_update_cmd.model_dump(exclude_unset=True)))
     return result.success()
 
-@user_router.delete("/{id}")
+@user_router.delete("/delete/{id}")
 async def delete_user(
     id: int,
 ) -> Dict:
@@ -156,6 +149,40 @@ async def delete_user(
     """
     await user_service.remove_by_id(id=id)
     return result.success()
+
+@user_router.delete("/remove")
+async def user_remove_by_ids(
+    ids: List[int] = Query(...),
+) -> Dict:
+    """
+    Delete users by a list of IDs.
+
+    Args:
+
+        ids: List of user IDs to delete.
+
+    Returns:
+        Success result message
+    """
+    await user_service.batch_remove_by_ids(ids=ids)
+    return result.success()
+
+@user_router.get("/export")
+async def export_user(
+    params: BasePage = Depends(),
+    current_user: CurrentUser = Depends(get_current_user()),
+) -> StreamingResponse:
+    """
+    Export user information based on provided parameters.
+
+    Args:
+        params: Filtering and format parameters for export.
+
+    Returns:
+        StreamingResponse with user info
+    """
+    return await user_service.export_user(params=params)
+
 
 @user_router.get("/logout")
 async def logout():

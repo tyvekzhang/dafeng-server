@@ -1,5 +1,5 @@
 """Common schema"""
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from pydantic import BaseModel
 

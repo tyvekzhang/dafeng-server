@@ -1,11 +1,13 @@
 """User domain schema"""
 
 import re
+from idlelib.query import Query
 from typing import Optional
 
 from pydantic import BaseModel, field_validator
 from sqlmodel import Field
 
+from src.main.pkg.schema.common_schema import BasePage
 from src.main.pkg.type.user_do import UserDO
 
 
@@ -17,7 +19,7 @@ class RefreshToken(BaseModel):
     refresh_token: str
 
 
-class UserCreateCmd(BaseModel):
+class UserCreate(BaseModel):
     """
     UserCreate schema
     """
@@ -54,6 +56,16 @@ class UserQuery(UserDO):
     UserQuery schema
     """
     pass
+
+class UserFilterForm(BasePage):
+    """
+    UserFilterForm schema
+    """
+    nickname: Optional[str] = Field(None)
+    status:  Optional[int] = Field(None)
+    username: Optional[str] = Field(None)
+    create_time: Optional[str] = Field(None)
+
 
 class UserUpdateCmd(BaseModel):
     id: int

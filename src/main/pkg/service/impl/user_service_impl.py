@@ -1,19 +1,20 @@
 """User domain service impl"""
 
-import http
 from datetime import timedelta, datetime
-from typing import Optional, List, Union, Tuple
+from typing import Optional
+from starlette.responses import StreamingResponse
 
 from src.main.pkg.config.config import Config
 from src.main.pkg.enums.enum import ResponseCode, TokenTypeEnum
 from src.main.pkg.exception.exception import ServiceException, SystemException
 from src.main.pkg.mapper.user_mapper import UserMapper
-from src.main.pkg.schema.common_schema import Token
-from src.main.pkg.schema.user_schema import UserCreateCmd, LoginCmd, UserQuery
+from src.main.pkg.schema.common_schema import Token, BasePage
+from src.main.pkg.schema.user_schema import UserCreate, LoginCmd, UserQuery, UserFilterForm
 from src.main.pkg.service.impl.base_service_impl import ServiceImpl
 from src.main.pkg.service.user_service import UserService
 from src.main.pkg.type.user_do import UserDO
 from src.main.pkg.util import security_util
+from src.main.pkg.util.excel_util import export_template
 from src.main.pkg.util.security_util import get_password_hash, verify_password
 
 
@@ -32,19 +33,19 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def register(self, user_create_cmd: UserCreateCmd) -> UserDO:
+    async def register(self, user_create: UserCreate) -> UserDO:
         """
         Register a new user.
 
         Args:
-            user_create_cmd (UserCreateCmd): The user creation command containing username and password.
+            user_create (UserCreate): The user creation command containing username and password.
 
         Returns:
             UserDO: The newly created user.
         """
         # user name duplicate verification
         user: UserDO = await self.mapper.get_user_by_username(
-            username=user_create_cmd.username
+            username=user_create.username
         )
         if user is not None:
             raise ServiceException(
@@ -52,8 +53,8 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
                 ResponseCode.USER_NAME_EXISTS.msg,
             )
         # generate hash password
-        user_create_cmd.password = get_password_hash(user_create_cmd.password)
-        return await self.mapper.insert_record(record=user_create_cmd)
+        user_create.password = get_password_hash(user_create.password)
+        return await self.mapper.insert_record(record=user_create)
 
     async def generate_tokens(self, user_id: int) -> Token:
         config = Config()
@@ -126,18 +127,54 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         user_do = await self.mapper.select_record_by_id(id=id)
         return UserQuery(**user_do.model_dump()) if user_do else None
 
-    async def retrieve_user(
-        self, page: int, size: int, **kwargs
-    ) -> tuple[list[UserQuery], int]:
+    async def retrieve_user(self, user_filter_form: UserFilterForm) -> tuple[list[UserQuery], int]:
+        status = user_filter_form.status
+        username = user_filter_form.username
+        nickname = user_filter_form.nickname
+        create_time = user_filter_form.create_time
+        filter_by = {}
+        like = {}
+        between = {}
+        if not status is None:
+            filter_by["status"] = status
+        if  username is not None and len(username) > 0:
+            like["username"] = f"%{username}%"
+        if  nickname is not None and len(nickname) > 0:
+            like["nickname"] = f"%{nickname}%"
+        if  create_time is not None and len(create_time) > 0:
+            time_range = create_time.split(",")
+            start_time = int(time_range[0])
+            end_time = int(time_range[1])
+            between["create_time"] = start_time, end_time
+        results, total_count = await self.mapper.select_ordered_records(
+            page=user_filter_form.page,
+            size=user_filter_form.size,
+            count=user_filter_form.count,
+            filter_by=filter_by,
+            like=like,
+            between=between
+        )
+        return [UserQuery(**user.model_dump()) for user in results], total_count
+
+    async def export_user(
+        self, params: BasePage, file_name: str = "user"
+    ) -> StreamingResponse:
         """
-        List users with pagination.
+        Export user record to an Excel file.
 
         Args:
-            page (int): The page number.
-            size (int): The page size.
+            params (Params): The query parameters for filtering users.
+            file_name: File name for export
 
         Returns:
-            Optional[List[UserQuery]]: The list of users or None if no users are found.
+            StreamingResponse: The Excel file containing user record.
         """
-        results, total_count = await self.mapper.select_ordered_records(page=page, size=size, **kwargs)
-        return [UserQuery(**user.model_dump()) for user in results], total_count
+        user_pages, _ = await self.mapper.select_records(
+            page=params.page, size=params.size
+        )
+        records = []
+        for user in user_pages:
+            records.append(UserQuery(**user.model_dump()))
+        return await export_template(
+            schema=UserQuery, file_name=file_name, records=records
+        )
