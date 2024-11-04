@@ -19,6 +19,8 @@ from src.main.pkg.schema.user_schema import (
     UserUpdateCmd,
     UserFilterForm,
     UserExport,
+    UserBatchUpdate,
+    Ids,
 )
 from src.main.pkg.service.impl.user_service_impl import UserServiceImpl
 from src.main.pkg.service.user_service import UserService
@@ -28,6 +30,7 @@ from src.main.pkg.util.security_util import (
     get_current_user,
     is_token_valid,
     get_user_id,
+    get_password_hash,
 )
 
 user_router = APIRouter()
@@ -144,6 +147,24 @@ async def update_user(
     await user_service.modify_by_id(
         record=UserDO(**user_update_cmd.model_dump(exclude_unset=True))
     )
+    return result.success()
+
+
+@user_router.put("/batchUpdate")
+async def user_batch_update(
+    ids_data: Ids, user_batch_update_data: UserBatchUpdate
+) -> Dict:
+    if user_batch_update_data.password is not None:
+        user_batch_update_data.password = get_password_hash(
+            user_batch_update_data.password
+        )
+    cleaned_data = {
+        k: v for k, v in user_batch_update_data.model_dump().items() if v is not None
+    }
+    if len(cleaned_data) == 0:
+        return result.fail("请填写更新的信息")
+
+    await user_service.batch_modify_by_ids(ids=ids_data.ids, record=cleaned_data)
     return result.success()
 
 

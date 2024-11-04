@@ -1,7 +1,7 @@
 """User domain schema"""
 
 import re
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, field_validator
 from sqlmodel import Field
@@ -78,6 +78,24 @@ class UserUpdateCmd(BaseModel):
     nickname: Optional[str] = None
     status: Optional[int] = None
     remark: Optional[str] = None
+
+
+class UserBatchUpdate(BaseModel):
+    """
+    UserBatchUpdate schema
+    """
+
+    password: Optional[str] = None
+    status: Optional[int] = None
+    remark: Optional[str] = None
+
+
+class Ids(BaseModel):
+    """
+    Ids schema
+    """
+
+    ids: List[int]
 
 
 class UserExport(BaseModel):
