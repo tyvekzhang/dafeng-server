@@ -11,13 +11,12 @@ from src.main.pkg.config.config import Config
 from src.main.pkg.enums.enum import ResponseCode, TokenTypeEnum
 from src.main.pkg.exception.exception import ServiceException, SystemException
 from src.main.pkg.mapper.user_mapper import UserMapper
-from src.main.pkg.schema.common_schema import Token, BasePage
+from src.main.pkg.schema.common_schema import Token
 from src.main.pkg.schema.user_schema import (
     UserCreate,
     LoginCmd,
     UserQuery,
     UserFilterForm,
-    UserExport,
 )
 from src.main.pkg.service.impl.base_service_impl import ServiceImpl
 from src.main.pkg.service.user_service import UserService
@@ -168,7 +167,7 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         return [UserQuery(**user.model_dump()) for user in results], total_count
 
     async def export_user(
-        self, params: BasePage, file_name: str = "user"
+        self, params: UserFilterForm, file_name: str = "user"
     ) -> StreamingResponse:
         """
         Export user record to an Excel file.
@@ -180,26 +179,13 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         Returns:
             StreamingResponse: The Excel file containing user record.
         """
-        user_pages, _ = await self.mapper.select_records(
-            page=params.page, size=params.size
-        )
+        user_pages, _ = await self.retrieve_user(params)
         records = []
         for user in user_pages:
             records.append(UserQuery(**user.model_dump()))
         return await export_excel(
             schema=UserQuery, file_name=file_name, records=records
         )
-
-    async def export_user_template(
-        self, file_name: str = "user_template"
-    ) -> StreamingResponse:
-        """
-        Export an empty user import template.
-
-        Args:
-            file_name: File name for export
-        """
-        return await export_excel(schema=UserExport, file_name=file_name)
 
     async def import_user(self, file: UploadFile):
         """

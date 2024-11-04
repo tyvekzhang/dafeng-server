@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from starlette.responses import StreamingResponse
 from fastapi import UploadFile
 
-from src.main.pkg.schema.common_schema import Token, BasePage
+from src.main.pkg.schema.common_schema import Token
 from src.main.pkg.schema.user_schema import LoginCmd, UserQuery, UserFilterForm
 from src.main.pkg.service.base_service import Service
 from src.main.pkg.type.user_do import UserDO
@@ -30,11 +30,8 @@ class UserService(Service[UserDO], ABC):
 
     @abstractmethod
     async def export_user(
-        self, *, params: BasePage, file_name: str
+        self, *, params: UserFilterForm, file_name: str
     ) -> StreamingResponse: ...
-
-    @abstractmethod
-    async def export_user_template(self, file_name: str) -> StreamingResponse: ...
 
     @abstractmethod
     async def import_user(self, *, file: UploadFile): ...

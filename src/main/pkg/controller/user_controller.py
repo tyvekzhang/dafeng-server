@@ -9,7 +9,7 @@ from jwt import PyJWTError
 
 from src.main.pkg.mapper.user_mapper import userMapper
 from src.main.pkg.schema import result
-from src.main.pkg.schema.common_schema import Token, CurrentUser, BasePage
+from src.main.pkg.schema.common_schema import Token, CurrentUser
 from src.main.pkg.schema.result import BaseResponse
 from src.main.pkg.schema.user_schema import (
     UserCreate,
@@ -18,10 +18,12 @@ from src.main.pkg.schema.user_schema import (
     RefreshToken,
     UserUpdateCmd,
     UserFilterForm,
+    UserExport,
 )
 from src.main.pkg.service.impl.user_service_impl import UserServiceImpl
 from src.main.pkg.service.user_service import UserService
 from src.main.pkg.type.user_do import UserDO
+from src.main.pkg.util.excel_util import export_excel
 from src.main.pkg.util.security_util import (
     get_current_user,
     is_token_valid,
@@ -182,18 +184,18 @@ async def user_remove_by_ids(
 
 @user_router.get("/export")
 async def export_user(
-    params: BasePage = Depends(),
+    user_filter_form: Annotated[UserFilterForm, Query()],
 ) -> StreamingResponse:
     """
     Export user information based on provided parameters.
 
     Args:
-        params: Filtering and format parameters for export.
+        user_filter_form: Filtering and format parameters for export.
 
     Returns:
         StreamingResponse with user info
     """
-    return await user_service.export_user(params=params)
+    return await user_service.export_user(params=user_filter_form)
 
 
 @user_router.get("/exportTemplate")
@@ -207,7 +209,7 @@ async def export_user_template() -> StreamingResponse:
     Returns:
         StreamingResponse with user field
     """
-    return await user_service.export_user_template()
+    return await export_excel(schema=UserExport, file_name="user_import_template")
 
 
 @user_router.post("/import")
