@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio.engine import AsyncEngine
 
 from src.main.pkg.config.config_manager import get_database_config
 
-async_engine:AsyncEngine
+async_engine: AsyncEngine
+
 
 def get_async_engine():
     global async_engine

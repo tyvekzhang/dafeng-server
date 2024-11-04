@@ -1,7 +1,8 @@
 """User operation controller"""
+
 from typing import Dict, Annotated, List
 
-from fastapi import APIRouter, Depends,Query
+from fastapi import APIRouter, Depends, Query, UploadFile, Form
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
 from jwt import PyJWTError
@@ -14,7 +15,9 @@ from src.main.pkg.schema.user_schema import (
     UserCreate,
     LoginCmd,
     UserQuery,
-    RefreshToken, UserUpdateCmd, UserFilterForm,
+    RefreshToken,
+    UserUpdateCmd,
+    UserFilterForm,
 )
 from src.main.pkg.service.impl.user_service_impl import UserServiceImpl
 from src.main.pkg.service.user_service import UserService
@@ -45,6 +48,7 @@ async def user_register(
     user: UserDO = await user_service.register(user_create=user_create)
     return result.success(data=user.id)
 
+
 @user_router.post("/recover")
 async def user_recover(
     user_recover_parm: UserDO,
@@ -60,6 +64,7 @@ async def user_recover(
     """
     user: UserDO = await user_service.save(record=user_recover_parm)
     return result.success(data=user.id)
+
 
 @user_router.post("/login")
 async def login(
@@ -115,9 +120,12 @@ async def retrieve_user(user_filter_form: Annotated[UserFilterForm, Query()]) ->
     Returns:
         UserQuery list and total count.
     """
-    records, total_count = await user_service.retrieve_user(user_filter_form = user_filter_form)
+    records, total_count = await user_service.retrieve_user(
+        user_filter_form=user_filter_form
+    )
     return result.success(data={"records": records, "total_count": total_count})
-    
+
+
 @user_router.put("/update")
 async def update_user(
     user_update_cmd: UserUpdateCmd,
@@ -131,8 +139,11 @@ async def update_user(
     Returns:
         Success result message
     """
-    await user_service.modify_by_id(record=UserDO(**user_update_cmd.model_dump(exclude_unset=True)))
+    await user_service.modify_by_id(
+        record=UserDO(**user_update_cmd.model_dump(exclude_unset=True))
+    )
     return result.success()
+
 
 @user_router.delete("/delete/{id}")
 async def delete_user(
@@ -149,6 +160,7 @@ async def delete_user(
     """
     await user_service.remove_by_id(id=id)
     return result.success()
+
 
 @user_router.delete("/remove")
 async def user_remove_by_ids(
@@ -167,10 +179,10 @@ async def user_remove_by_ids(
     await user_service.batch_remove_by_ids(ids=ids)
     return result.success()
 
+
 @user_router.get("/export")
 async def export_user(
     params: BasePage = Depends(),
-    current_user: CurrentUser = Depends(get_current_user()),
 ) -> StreamingResponse:
     """
     Export user information based on provided parameters.
@@ -184,9 +196,42 @@ async def export_user(
     return await user_service.export_user(params=params)
 
 
+@user_router.get("/exportTemplate")
+async def export_user_template() -> StreamingResponse:
+    """
+    Export a template for user information.
+
+    Args:
+        current_user: Logged-in user requesting the template.
+
+    Returns:
+        StreamingResponse with user field
+    """
+    return await user_service.export_user_template()
+
+
+@user_router.post("/import")
+async def import_user(
+    file: UploadFile = Form(),
+) -> Dict:
+    """
+    Import user information from a file.
+
+    Args:
+        file: The file containing user information to import.
+
+        current_user: Logged-in user performing the import.
+    Returns:
+        Success result message
+    """
+    await user_service.import_user(file=file)
+    return result.success()
+
+
 @user_router.get("/logout")
 async def logout():
     return result.success()
+
 
 @user_router.get("/menu")
 async def get_menus():

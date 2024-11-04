@@ -1,5 +1,6 @@
 """Common schema"""
-from typing import Optional, Dict, Any, List
+
+from typing import Optional, Dict, Any
 
 from pydantic import BaseModel
 
@@ -33,6 +34,7 @@ class BasePage(BaseModel):
     size: Optional[int] = 10
     count: Optional[bool] = True
 
+
 class FilterParams(BasePage):
     """
     UserFilterParams schema
@@ -41,10 +43,12 @@ class FilterParams(BasePage):
     filter_by: Optional[Dict[str, Any]] = None
     like: Optional[Dict[str, str]] = None
 
+
 class BaseParams(BaseModel):
     """
     BaseParams for all data object
     """
+
     id: int
     create_time: int
     update_time: Optional[int] = None

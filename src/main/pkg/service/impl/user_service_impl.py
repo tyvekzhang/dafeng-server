@@ -1,20 +1,29 @@
 """User domain service impl"""
 
+import io
 from datetime import timedelta, datetime
-from typing import Optional
 from starlette.responses import StreamingResponse
+from fastapi import UploadFile
+from typing import Optional, List
+import pandas as pd
 
 from src.main.pkg.config.config import Config
 from src.main.pkg.enums.enum import ResponseCode, TokenTypeEnum
 from src.main.pkg.exception.exception import ServiceException, SystemException
 from src.main.pkg.mapper.user_mapper import UserMapper
 from src.main.pkg.schema.common_schema import Token, BasePage
-from src.main.pkg.schema.user_schema import UserCreate, LoginCmd, UserQuery, UserFilterForm
+from src.main.pkg.schema.user_schema import (
+    UserCreate,
+    LoginCmd,
+    UserQuery,
+    UserFilterForm,
+    UserExport,
+)
 from src.main.pkg.service.impl.base_service_impl import ServiceImpl
 from src.main.pkg.service.user_service import UserService
 from src.main.pkg.type.user_do import UserDO
 from src.main.pkg.util import security_util
-from src.main.pkg.util.excel_util import export_template
+from src.main.pkg.util.excel_util import export_excel
 from src.main.pkg.util.security_util import get_password_hash, verify_password
 
 
@@ -110,7 +119,7 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
             raise SystemException(
                 ResponseCode.AUTH_FAILED.code,
                 ResponseCode.AUTH_FAILED.msg,
-                status_code= ResponseCode.AUTH_FAILED.code,
+                status_code=ResponseCode.AUTH_FAILED.code,
             )
         return await self.generate_tokens(user_id=user_do.id)
 
@@ -127,7 +136,9 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         user_do = await self.mapper.select_record_by_id(id=id)
         return UserQuery(**user_do.model_dump()) if user_do else None
 
-    async def retrieve_user(self, user_filter_form: UserFilterForm) -> tuple[list[UserQuery], int]:
+    async def retrieve_user(
+        self, user_filter_form: UserFilterForm
+    ) -> tuple[list[UserQuery], int]:
         status = user_filter_form.status
         username = user_filter_form.username
         nickname = user_filter_form.nickname
@@ -135,13 +146,13 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         filter_by = {}
         like = {}
         between = {}
-        if not status is None:
+        if status is not None:
             filter_by["status"] = status
-        if  username is not None and len(username) > 0:
+        if username is not None and len(username) > 0:
             like["username"] = f"%{username}%"
-        if  nickname is not None and len(nickname) > 0:
+        if nickname is not None and len(nickname) > 0:
             like["nickname"] = f"%{nickname}%"
-        if  create_time is not None and len(create_time) > 0:
+        if create_time is not None and len(create_time) > 0:
             time_range = create_time.split(",")
             start_time = int(time_range[0])
             end_time = int(time_range[1])
@@ -152,7 +163,7 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
             count=user_filter_form.count,
             filter_by=filter_by,
             like=like,
-            between=between
+            between=between,
         )
         return [UserQuery(**user.model_dump()) for user in results], total_count
 
@@ -175,6 +186,58 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         records = []
         for user in user_pages:
             records.append(UserQuery(**user.model_dump()))
-        return await export_template(
+        return await export_excel(
             schema=UserQuery, file_name=file_name, records=records
         )
+
+    async def export_user_template(
+        self, file_name: str = "user_template"
+    ) -> StreamingResponse:
+        """
+        Export an empty user import template.
+
+        Args:
+            file_name: File name for export
+        """
+        return await export_excel(schema=UserExport, file_name=file_name)
+
+    async def import_user(self, file: UploadFile):
+        """
+        Import user record from an Excel file.
+
+        Args:
+            file (UploadFile): The Excel file containing user record.
+        """
+        contents = await file.read()
+        import_df = pd.read_excel(io.BytesIO(contents))
+        import_df = import_df.fillna("")
+        user_records = import_df.to_dict(orient="records")
+        if len(user_records) == 0:
+            return
+        for record in user_records:
+            for key, value in record.items():
+                if value == "":
+                    record[key] = None
+        user_import_list = []
+        user_name_list = []
+
+        for user_record in user_records:
+            user_import = UserDO(**user_record, exclude_unset=True)
+            user_import.password = get_password_hash(user_import.password)
+            user_import_list.append(user_import)
+            user_name_list.append(user_import.username)
+        await file.close()
+
+        # Check if any usernames already exist
+        existing_users: List[UserDO] = await self.mapper.get_user_by_usernames(
+            usernames=user_name_list
+        )
+
+        if existing_users:
+            existing_usernames = [user.username for user in existing_users]
+            err_msg = ",".join(existing_usernames)
+            raise SystemException(
+                ResponseCode.USER_NAME_EXISTS.code,
+                f"{ResponseCode.USER_NAME_EXISTS.msg}{err_msg}",
+            )
+        await self.mapper.batch_insert_records(records=user_import_list)

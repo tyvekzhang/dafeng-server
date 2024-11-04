@@ -22,7 +22,9 @@ async def jwt_middleware(request: Request, call_next):
         return await call_next(request)
     api_version = configs.server.api_version
     raw_url_path = request.url.path
-    if not raw_url_path.__contains__(api_version) or raw_url_path.__contains__(media_type_json):
+    if not raw_url_path.__contains__(api_version) or raw_url_path.__contains__(
+        media_type_json
+    ):
         if security.enable_swagger:
             return await call_next(request)
         else:
@@ -30,7 +32,9 @@ async def jwt_middleware(request: Request, call_next):
                 status_code=http.HTTPStatus.FORBIDDEN,
                 content={"detail": "Document not enabled"},
             )
-    white_list_routes = (router.strip() for router in security.white_list_routes.split(","))
+    white_list_routes = (
+        router.strip() for router in security.white_list_routes.split(",")
+    )
     request_url_path = api_version + raw_url_path.split(api_version)[1]
     if request_url_path in white_list_routes:
         return await call_next(request)

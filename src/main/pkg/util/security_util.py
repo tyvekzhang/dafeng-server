@@ -12,6 +12,7 @@ from passlib.context import CryptContext
 from starlette import status
 
 from src.main.pkg.config.config import Config
+from src.main.pkg.config.config_manager import get_security_config
 from src.main.pkg.schema.common_schema import CurrentUser
 
 
@@ -50,6 +51,10 @@ def get_current_user() -> Callable[[], CurrentUser]:
     def current_user(
         access_token: str = Depends(get_oauth2_scheme()),
     ) -> CurrentUser:
+        security = get_security_config()
+        if not security.enable:
+            user_id = 1
+            return CurrentUser(id=user_id)
         try:
             user_id = get_user_id(access_token)
         except ExpiredSignatureError:

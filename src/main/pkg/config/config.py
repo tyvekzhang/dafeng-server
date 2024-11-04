@@ -180,4 +180,3 @@ class Config:
                  showing all configuration attributes and their current values.
         """
         return f"{self.__class__.__name__}({self.__dict__})"
-

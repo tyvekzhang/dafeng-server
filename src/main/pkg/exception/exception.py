@@ -78,6 +78,7 @@ class MissingSessionException(Exception):
 
         super().__init__(detail)
 
+
 class ConfigNotInitialisedException(Exception):
     """
     Exception raised when the config not load correctly.
@@ -89,4 +90,3 @@ class ConfigNotInitialisedException(Exception):
         """
 
         super().__init__(detail)
-

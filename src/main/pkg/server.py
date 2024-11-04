@@ -16,23 +16,25 @@ app = FastAPI(
     default_response_model_exclude_unset=True,
 )
 
+
 # Register API routes
 def register_routes(server_config: ServerConfig) -> None:
     router = create_router()
     app.include_router(router, prefix=server_config.api_version)
 
+
 # Register essential modules
 def register_necessary_modules() -> None:
     import src.main.pkg.exception.exception_handler  # noqa
-    app.add_middleware(
-        SQLAlchemyMiddleware,
-        custom_engine=get_async_engine()
-    )
+
+    app.add_middleware(SQLAlchemyMiddleware, custom_engine=get_async_engine())
+
 
 # Register optional modules
 def register_optional_modules() -> None:
-    import src.main.pkg.middleware.jwt_middleware # noqa
-    import src.main.pkg.middleware.cors_middleware # noqa
+    import src.main.pkg.middleware.jwt_middleware  # noqa
+    import src.main.pkg.middleware.cors_middleware  # noqa
+
 
 # Start the Uvicorn server
 def start_server(server_config: ServerConfig) -> None:
@@ -42,6 +44,7 @@ def start_server(server_config: ServerConfig) -> None:
         port=server_config.port,
         workers=server_config.workers,
     )
+
 
 # Main function to run the application
 def run() -> None:

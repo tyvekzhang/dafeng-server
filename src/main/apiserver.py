@@ -35,4 +35,5 @@ if __name__ == "__main__":
 
     # Run the server with the config arguments
     from src.main.pkg.server import run  # noqa
+
     run()

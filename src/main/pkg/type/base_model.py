@@ -33,10 +33,13 @@ class ModelExt(_SQLModel):
     create_time: Optional[int] = Field(
         sa_type=BigInteger,
         default_factory=lambda: int(datetime.now().timestamp()),
-        sa_column_kwargs={"comment": "创建时间"}
+        sa_column_kwargs={"comment": "创建时间"},
     )
     update_time: Optional[int] = Field(
         sa_type=BigInteger,
         default_factory=lambda: int(datetime.now().timestamp()),
-        sa_column_kwargs={"onupdate": lambda: int(datetime.now().timestamp()), "comment": "更新时间"},
+        sa_column_kwargs={
+            "onupdate": lambda: int(datetime.now().timestamp()),
+            "comment": "更新时间",
+        },
     )

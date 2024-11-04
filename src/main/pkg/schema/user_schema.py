@@ -1,7 +1,6 @@
 """User domain schema"""
 
 import re
-from idlelib.query import Query
 from typing import Optional
 
 from pydantic import BaseModel, field_validator
@@ -27,7 +26,7 @@ class UserCreate(BaseModel):
     username: str = Field(..., min_length=2, max_length=32)
     password: str = Field(..., min_length=6, max_length=32)
     nickname: str = Field(..., min_length=2, max_length=32)
-    remark: Optional[str] =  Field("",  max_length=255)
+    remark: Optional[str] = Field("", max_length=255)
 
     @field_validator("password")
     def password_complexity(cls, value):
@@ -55,20 +54,38 @@ class UserQuery(UserDO):
     """
     UserQuery schema
     """
+
     pass
+
 
 class UserFilterForm(BasePage):
     """
     UserFilterForm schema
     """
+
     nickname: Optional[str] = Field(None)
-    status:  Optional[int] = Field(None)
+    status: Optional[int] = Field(None)
     username: Optional[str] = Field(None)
     create_time: Optional[str] = Field(None)
 
 
 class UserUpdateCmd(BaseModel):
+    """
+    UserUpdateCmd schema
+    """
+
     id: int
     nickname: Optional[str] = None
-    status:  Optional[int] = None
+    status: Optional[int] = None
     remark: Optional[str] = None
+
+
+class UserExport(BaseModel):
+    """
+    UserExport schema
+    """
+
+    username: str
+    password: str
+    nickname: str
+    remark: str

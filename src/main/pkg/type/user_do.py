@@ -1,4 +1,5 @@
 """User data object"""
+
 from typing import Optional
 
 from sqlmodel import Field, Column, String, SQLModel, Integer

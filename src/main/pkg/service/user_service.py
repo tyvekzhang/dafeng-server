@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 from starlette.responses import StreamingResponse
+from fastapi import UploadFile
 
 from src.main.pkg.schema.common_schema import Token, BasePage
 from src.main.pkg.schema.user_schema import LoginCmd, UserQuery, UserFilterForm
@@ -23,9 +24,17 @@ class UserService(Service[UserDO], ABC):
     async def generate_tokens(self, user_id: int) -> Token: ...
 
     @abstractmethod
-    async def retrieve_user(self, user_filter_form: UserFilterForm) -> tuple[list[UserQuery], int]:...
+    async def retrieve_user(
+        self, user_filter_form: UserFilterForm
+    ) -> tuple[list[UserQuery], int]: ...
 
     @abstractmethod
     async def export_user(
         self, *, params: BasePage, file_name: str
     ) -> StreamingResponse: ...
+
+    @abstractmethod
+    async def export_user_template(self, file_name: str) -> StreamingResponse: ...
+
+    @abstractmethod
+    async def import_user(self, *, file: UploadFile): ...
