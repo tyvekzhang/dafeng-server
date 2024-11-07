@@ -37,20 +37,20 @@ user_router = APIRouter()
 user_service: UserService = UserServiceImpl(mapper=userMapper)
 
 
-@user_router.post("/register")
-async def user_register(
-    user_create: UserCreate,
+@user_router.post("/create")
+async def user_create(
+    data: UserCreate,
 ) -> Dict:
     """
-    Registers a new user.
+    Create a new user.
 
     Args:
-        user_create: Data required for registration.
+        data: Data required for registration.
 
     Returns:
         BaseResponse with new user's ID.
     """
-    user: UserDO = await user_service.register(user_create=user_create)
+    user: UserDO = await user_service.register(user_create=data)
     return result.success(data=user.id)
 
 
