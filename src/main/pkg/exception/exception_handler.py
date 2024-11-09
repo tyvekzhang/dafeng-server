@@ -8,6 +8,7 @@ from fastapi.exception_handlers import (
 )
 from fastapi.exceptions import RequestValidationError
 from fastapi.utils import is_body_allowed_for_status_code
+from pydantic_core._pydantic_core import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse, Response
 from jwt import PyJWTError
@@ -36,6 +37,32 @@ async def global_exception_handler(request: Request, exc: Exception):
         return Response(status_code=status_code, headers=headers)
     return JSONResponse(
         {"code": ResponseCode.SERVICE_INTERNAL_ERROR.code, "msg": str(exc)},
+        status_code=status_code,
+    )
+
+
+@app.exception_handler(ValidationError)
+async def validation_exception_handler(request: Request, exc: ValidationError):
+    """
+    Asynchronous exception handler for validation exceptions.
+
+    Args:
+        request (Request): The request instance containing all request details.
+        exc (ValidationError): The exception instance.
+
+    Returns:
+        Response: A Response object which could be a basic Response or a JSONResponse,
+                  depending on whether a response body is allowed for the given status code.
+    """
+    status_code = http.HTTPStatus.INTERNAL_SERVER_ERROR
+    headers = getattr(exc, "headers", None)
+    if not is_body_allowed_for_status_code(status_code):
+        return Response(status_code=status_code, headers=headers)
+    return JSONResponse(
+        {
+            "code": ResponseCode.SERVICE_INTERNAL_ERROR.code,
+            "msg": str(exc).split("For further")[0],
+        },
         status_code=status_code,
     )
 
@@ -115,5 +142,5 @@ async def jwt_exception_handler() -> JSONResponse:
         content={
             "code": http.HTTPStatus.UNAUTHORIZED,
             "msg": "Your token has expired. Please log in again.",
-        },  # Error message
+        },
     )

@@ -1,5 +1,6 @@
 """User operation controller"""
 
+import re
 from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Depends, Query, UploadFile, Form
@@ -7,12 +8,14 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
 from jwt import PyJWTError
 
+from src.main.pkg.enums.enum import ResponseCode
+from src.main.pkg.exception.exception import SystemException
 from src.main.pkg.mapper.user_mapper import userMapper
 from src.main.pkg.schema import result
 from src.main.pkg.schema.common_schema import Token, CurrentUser
 from src.main.pkg.schema.result import BaseResponse
 from src.main.pkg.schema.user_schema import (
-    UserCreate,
+    UserAdd,
     LoginCmd,
     UserQuery,
     RefreshToken,
@@ -37,55 +40,47 @@ user_router = APIRouter()
 user_service: UserService = UserServiceImpl(mapper=userMapper)
 
 
-@user_router.post("/create")
-async def user_create(
-    data: UserCreate,
+@user_router.post("/add")
+async def add(
+    data: UserAdd,
 ) -> Dict:
     """
-    Create a new user.
+    User add.
 
     Args:
-        data: Data required for registration.
+        data: Data required for add.
 
     Returns:
         BaseResponse with new user's ID.
     """
-    user: UserDO = await user_service.register(user_create=data)
-    return result.success(data=user.id)
-
-
-@user_router.post("/recover")
-async def user_recover(
-    user_recover_parm: UserDO,
-) -> dict:
-    """
-    User add .
-
-    Args:
-        user_recover_parm: User recover data
-
-    Returns:
-        BaseResponse with user's ID.
-    """
-    user: UserDO = await user_service.save(record=user_recover_parm)
+    user: UserDO = await user_service.add(data=data)
     return result.success(data=user.id)
 
 
 @user_router.post("/login")
 async def login(
-    login_form: OAuth2PasswordRequestForm = Depends(),
+    data: OAuth2PasswordRequestForm = Depends(),
 ) -> Token:
     """
     Authenticates user and provides an access token.
 
     Args:
-        login_form: Login credentials.
+        data: Login credentials.
 
     Returns:
         Token object with access token.
     """
-    login_cmd = LoginCmd(username=login_form.username, password=login_form.password)
+    login_cmd = LoginCmd(username=data.username, password=data.password)
     return await user_service.login(login_cmd=login_cmd)
+
+
+@user_router.post("/refreshtoken")
+async def refresh_tokens(data: RefreshToken):
+    refresh_token = data.refresh_token
+    if not is_token_valid(refresh_token):
+        raise PyJWTError
+    user_id: int = get_user_id(refresh_token)
+    return await user_service.generate_tokens(user_id)
 
 
 @user_router.get("/me")
@@ -105,127 +100,27 @@ async def me(
     return BaseResponse(data=user)
 
 
-@user_router.post("/refreshTokens")
-async def refresh_tokens(token: RefreshToken):
-    refresh_token = token.refresh_token
-    if not is_token_valid(refresh_token):
-        raise PyJWTError
-    user_id: int = get_user_id(refresh_token)
-    return await user_service.generate_tokens(user_id)
-
-
-@user_router.get("/users")
-async def retrieve_user(user_filter_form: Annotated[UserFilterForm, Query()]) -> Dict:
-    """
-    Filter users with pagination.
-
-    Args:
-        user_filter_form: Pagination and filter info to query
-
-    Returns:
-        UserQuery list and total count.
-    """
-    records, total_count = await user_service.retrieve_user(
-        user_filter_form=user_filter_form
-    )
-    return result.success(data={"records": records, "total_count": total_count})
-
-
-@user_router.put("/update")
-async def update_user(
-    user_update_cmd: UserUpdateCmd,
+@user_router.post("/recover")
+async def recover(
+    data: UserDO,
 ) -> Dict:
     """
-    Update user information.
+    User recover that be deleted.
 
     Args:
-        user_update_cmd: Command containing updated user info.
+        data: User recover data
 
     Returns:
-        Success result message
+        BaseResponse with user's ID.
     """
-    await user_service.modify_by_id(
-        record=UserDO(**user_update_cmd.model_dump(exclude_unset=True))
-    )
-    return result.success()
+    user: UserDO = await user_service.save(record=data)
+    return result.success(data=user.id)
 
 
-@user_router.put("/batchUpdate")
-async def user_batch_update(
-    ids_data: Ids, user_batch_update_data: UserBatchUpdate
-) -> Dict:
-    if user_batch_update_data.password is not None:
-        user_batch_update_data.password = get_password_hash(
-            user_batch_update_data.password
-        )
-    cleaned_data = {
-        k: v for k, v in user_batch_update_data.model_dump().items() if v is not None
-    }
-    if len(cleaned_data) == 0:
-        return result.fail("请填写更新的信息")
-
-    await user_service.batch_modify_by_ids(ids=ids_data.ids, record=cleaned_data)
-    return result.success()
-
-
-@user_router.delete("/delete/{id}")
-async def delete_user(
-    id: int,
-) -> Dict:
-    """
-    Remove a user by their ID.
-
-    Args:
-        id: User ID to remove.
-
-    Returns:
-        Success result message
-    """
-    await user_service.remove_by_id(id=id)
-    return result.success()
-
-
-@user_router.delete("/remove")
-async def user_remove_by_ids(
-    ids: List[int] = Query(...),
-) -> Dict:
-    """
-    Delete users by a list of IDs.
-
-    Args:
-
-        ids: List of user IDs to delete.
-
-    Returns:
-        Success result message
-    """
-    await user_service.batch_remove_by_ids(ids=ids)
-    return result.success()
-
-
-@user_router.get("/export")
-async def export_user(
-    user_filter_form: Annotated[UserFilterForm, Query()],
-) -> StreamingResponse:
-    """
-    Export user information based on provided parameters.
-
-    Args:
-        user_filter_form: Filtering and format parameters for export.
-
-    Returns:
-        StreamingResponse with user info
-    """
-    return await user_service.export_user(params=user_filter_form)
-
-
-@user_router.get("/exportTemplate")
-async def export_user_template() -> StreamingResponse:
+@user_router.get("/exporttemplate")
+async def export_template() -> StreamingResponse:
     """
     Export a template for user information.
-
-    Args:
-        current_user: Logged-in user requesting the template.
 
     Returns:
         StreamingResponse with user field
@@ -243,21 +138,125 @@ async def import_user(
     Args:
         file: The file containing user information to import.
 
-        current_user: Logged-in user performing the import.
     Returns:
         Success result message
     """
-    await user_service.import_user(file=file)
+    success_count = await user_service.import_user(file=file)
+    return result.success(data=f"Success import count: {success_count}")
+
+
+@user_router.get("/users")
+async def users(user_filter_form: Annotated[UserFilterForm, Query()]) -> Dict:
+    """
+    Filter users with pagination.
+
+    Args:
+        user_filter_form: Pagination and filter info to query
+
+    Returns:
+        UserQuery list and total count.
+    """
+    records, total_count = await user_service.users(data=user_filter_form)
+    return result.success(data={"records": records, "total_count": total_count})
+
+
+@user_router.get("/export")
+async def export(
+    data: Annotated[UserFilterForm, Query()],
+) -> StreamingResponse:
+    """
+    Export user information based on provided parameters.
+
+    Args:
+        data: Filtering and format parameters for export.
+
+    Returns:
+        StreamingResponse with user info
+    """
+    return await user_service.export_user(params=data)
+
+
+@user_router.put("/modify")
+async def modify(
+    data: UserUpdateCmd,
+) -> Dict:
+    """
+    Update user information.
+
+    Args:
+        data: Command containing updated user info.
+
+    Returns:
+        Success result message
+    """
+    await user_service.modify_by_id(
+        record=UserDO(**data.model_dump(exclude_unset=True))
+    )
     return result.success()
 
 
-@user_router.get("/logout")
+@user_router.put("/batchmodify")
+async def batch_modify(ids: Ids, data: UserBatchUpdate) -> Dict:
+    password = data.password
+    if password is not None:
+        if len(password) < 6 or not re.search(
+            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$", password
+        ):
+            raise SystemException(
+                ResponseCode.PASSWORD_VALID_ERROR.code,
+                ResponseCode.PASSWORD_VALID_ERROR.msg,
+            )
+        data.password = get_password_hash(password)
+    cleaned_data = {k: v for k, v in data.model_dump().items() if v is not None}
+    if len(cleaned_data) == 0:
+        return result.fail("Please fill in the modify information")
+
+    await user_service.batch_modify_by_ids(ids=ids.ids, record=cleaned_data)
+    return result.success()
+
+
+@user_router.delete("/remove/{id}")
+async def remove(
+    id: int,
+) -> Dict:
+    """
+    Remove a user by their ID.
+
+    Args:
+        id: User ID to remove.
+
+    Returns:
+        Success result message
+    """
+    await user_service.remove_by_id(id=id)
+    return result.success()
+
+
+@user_router.delete("/batchremove")
+async def batch_remove(
+    ids: List[int] = Query(...),
+) -> Dict:
+    """
+    Delete users by a list of IDs.
+
+    Args:
+
+        ids: List of user IDs to delete.
+
+    Returns:
+        Success result message
+    """
+    await user_service.batch_remove_by_ids(ids=ids)
+    return result.success()
+
+
+@user_router.post("/logout")
 async def logout():
     return result.success()
 
 
-@user_router.get("/menu")
-async def get_menus():
+@user_router.get("/menus")
+async def menus():
     data = [
         {
             "icon": "system-manage",

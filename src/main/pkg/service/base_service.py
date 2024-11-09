@@ -3,7 +3,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, TypeVar, Generic, Tuple, Union, Dict
 
-T = TypeVar("T", bound=Any)
+from src.main.pkg.type.base_model import BaseModel
+
+T = TypeVar("T", bound=BaseModel)
 
 
 class Service(Generic[T], ABC):

@@ -18,7 +18,7 @@ class RefreshToken(BaseModel):
     refresh_token: str
 
 
-class UserCreate(BaseModel):
+class UserAdd(BaseModel):
     """
     UserCreate schema
     """

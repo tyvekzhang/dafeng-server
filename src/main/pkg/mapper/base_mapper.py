@@ -6,23 +6,23 @@ from typing import Any, List, Tuple
 
 class BaseMapper(ABC):
     @abstractmethod
-    async def insert_record(self, *, record: Any, db_session: Any = None) -> Any: ...
+    async def insert(self, *, record: Any, db_session: Any = None) -> Any: ...
 
     @abstractmethod
-    async def batch_insert_records(
+    async def batch_insert(
         self, *, records: List[Any], db_session: Any = None
     ) -> int: ...
 
     @abstractmethod
-    async def select_record_by_id(self, *, id: Any, db_session: Any = None) -> Any: ...
+    async def select_by_id(self, *, id: Any, db_session: Any = None) -> Any: ...
 
     @abstractmethod
-    async def select_records_by_ids(
+    async def select_by_ids(
         self, *, ids: List[Any], db_session: Any = None
     ) -> List[Any]: ...
 
     @abstractmethod
-    async def select_records(
+    async def select_pagination(
         self, *, page: int, size: int, db_session: Any = None, **kwargs
     ) -> Tuple[
         List[Any],
@@ -30,7 +30,7 @@ class BaseMapper(ABC):
     ]: ...
 
     @abstractmethod
-    async def select_ordered_records(
+    async def select_ordered_pagination(
         self,
         *,
         page: int,
@@ -45,19 +45,17 @@ class BaseMapper(ABC):
     ]: ...
 
     @abstractmethod
-    async def update_record_by_id(
-        self, *, record: Any, db_session: Any = None
-    ) -> int: ...
+    async def update_by_id(self, *, record: Any, db_session: Any = None) -> int: ...
 
     @abstractmethod
-    async def batch_update_records_by_ids(
+    async def batch_update_by_ids(
         self, *, ids: List[Any], record: dict, db_session: Any = None
     ) -> int: ...
 
     @abstractmethod
-    async def delete_record_by_id(self, *, id: Any, db_session: Any = None) -> int: ...
+    async def delete_by_id(self, *, id: Any, db_session: Any = None) -> int: ...
 
     @abstractmethod
-    async def batch_delete_records_by_ids(
+    async def batch_delete_by_ids(
         self, *, ids: List[Any], db_session: Any = None
     ) -> int: ...

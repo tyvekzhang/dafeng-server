@@ -21,7 +21,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         self.model = model
         self.db = db
 
-    async def insert_record(
+    async def insert(
         self,
         *,
         record: Union[ModelType, SchemaType],
@@ -42,9 +42,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         db_session.add(orm_record)
         return orm_record
 
-    async def batch_insert_records(
-        self, *, records: List[Any], db_session: Any = None
-    ) -> int:
+    async def batch_insert(self, *, records: List[Any], db_session: Any = None) -> int:
         """
         Inserts multiple records into the database in a single batch.
 
@@ -63,7 +61,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         exec_response = await db_session.execute(statement)
         return exec_response.rowcount
 
-    async def select_record_by_id(
+    async def select_by_id(
         self, *, id: Any, db_session: Any = None
     ) -> Union[ModelType, SchemaType]:
         """
@@ -81,7 +79,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         exec_response = await db_session.execute(statement)
         return exec_response.scalar_one_or_none()
 
-    async def select_records_by_ids(
+    async def select_by_ids(
         self, *, ids: List[Any], db_session: Any = None
     ) -> List[Any]:
         """
@@ -99,7 +97,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         exec_response = await db_session.execute(statement)
         return exec_response.scalars().all()
 
-    async def select_records(
+    async def select_pagination(
         self, *, page: int = 1, size: int = 100, db_session: Any = None, **kwargs
     ) -> Tuple[
         List[Any],
@@ -146,7 +144,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
 
         return records, total_count
 
-    async def select_ordered_records(
+    async def select_ordered_pagination(
         self,
         *,
         page: int = 1,
@@ -212,7 +210,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         records = exec_response.scalars().all()
         return records, total_count
 
-    async def update_record_by_id(self, *, record: Any, db_session: Any = None) -> int:
+    async def update_by_id(self, *, record: Any, db_session: Any = None) -> int:
         """
         Update a single record by its ID.
 
@@ -227,7 +225,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         exec_response = await db_session.execute(update_query)
         return exec_response.rowcount
 
-    async def batch_update_records_by_ids(
+    async def batch_update_by_ids(
         self, *, ids: List[Any], record: dict, db_session: Any = None
     ) -> int:
         """
@@ -245,7 +243,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         exec_response = await db_session.execute(statement)
         return exec_response.rowcount
 
-    async def delete_record_by_id(self, *, id: Any, db_session: Any = None) -> int:
+    async def delete_by_id(self, *, id: Any, db_session: Any = None) -> int:
         """
         Delete a single record by its ID.
 
@@ -258,7 +256,7 @@ class SqlModelMapper(Generic[ModelType], BaseMapper):
         exec_response = await db_session.execute(statement)
         return exec_response.rowcount
 
-    async def batch_delete_records_by_ids(
+    async def batch_delete_by_ids(
         self, *, ids: List[Any], db_session: Any = None
     ) -> int:
         """

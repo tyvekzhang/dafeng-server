@@ -10,6 +10,12 @@ class ResponseCode(Enum):
     SERVICE_INTERNAL_ERROR = (-1, "Service internal error")
 
     PARAMETER_ERROR = (400, "Parameter error")
+    NO_IMPORT_DATA_ERROR = (400, "No import data detected")
+    DUPLICATE_USERNAME_ERROR = (400, "Duplicate username")
+    PASSWORD_VALID_ERROR = (
+        400,
+        "Password must contain digit, letter and length more than 6",
+    )
     DB_UNKNOWN_ERROR = (400, "Db unknown error")
     AUTH_FAILED = (403, "Username or password error")
     PARAMETER_CHECK_ERROR = (402, "Parameter error")

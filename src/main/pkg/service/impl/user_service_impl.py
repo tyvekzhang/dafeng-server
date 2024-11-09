@@ -1,6 +1,7 @@
 """User domain service impl"""
 
 import io
+from collections import Counter
 from datetime import timedelta, datetime
 from starlette.responses import StreamingResponse
 from fastapi import UploadFile
@@ -13,7 +14,7 @@ from src.main.pkg.exception.exception import ServiceException, SystemException
 from src.main.pkg.mapper.user_mapper import UserMapper
 from src.main.pkg.schema.common_schema import Token
 from src.main.pkg.schema.user_schema import (
-    UserCreate,
+    UserAdd,
     LoginCmd,
     UserQuery,
     UserFilterForm,
@@ -41,30 +42,30 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def register(self, user_create: UserCreate) -> UserDO:
+    async def add(self, data: UserAdd) -> UserDO:
         """
         Register a new user.
 
         Args:
-            user_create (UserCreate): The user creation command containing username and password.
+            data (UserAdd): The user creation command containing username and password.
 
         Returns:
             UserDO: The newly created user.
         """
         # user name duplicate verification
-        user: UserDO = await self.mapper.get_user_by_username(
-            username=user_create.username
-        )
+        user: UserDO = await self.mapper.get_user_by_username(username=data.username)
         if user is not None:
+            error_msg = data.username + " " + ResponseCode.USER_NAME_EXISTS.msg
             raise ServiceException(
                 ResponseCode.USER_NAME_EXISTS.code,
-                ResponseCode.USER_NAME_EXISTS.msg,
+                error_msg,
             )
         # generate hash password
-        user_create.password = get_password_hash(user_create.password)
-        return await self.mapper.insert_record(record=user_create)
+        data.password = get_password_hash(data.password)
+        return await self.mapper.insert(record=data)
 
-    async def generate_tokens(self, user_id: int) -> Token:
+    @classmethod
+    async def generate_tokens(cls, user_id: int) -> Token:
         config = Config()
 
         # generate access token
@@ -85,7 +86,6 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
             expires_delta=refresh_token_expires,
         )
 
-        # 计算过期时间
         access_token_expires_at = int(
             (datetime.now() + access_token_expires).timestamp()
         )
@@ -132,16 +132,14 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         Returns:
             Optional[UserQuery]: The user query object if found, None otherwise.
         """
-        user_do = await self.mapper.select_record_by_id(id=id)
+        user_do = await self.mapper.select_by_id(id=id)
         return UserQuery(**user_do.model_dump()) if user_do else None
 
-    async def retrieve_user(
-        self, user_filter_form: UserFilterForm
-    ) -> tuple[list[UserQuery], int]:
-        status = user_filter_form.status
-        username = user_filter_form.username
-        nickname = user_filter_form.nickname
-        create_time = user_filter_form.create_time
+    async def users(self, data: UserFilterForm) -> tuple[list[UserQuery], int]:
+        status = data.status
+        username = data.username
+        nickname = data.nickname
+        create_time = data.create_time
         filter_by = {}
         like = {}
         between = {}
@@ -156,10 +154,10 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
             start_time = int(time_range[0])
             end_time = int(time_range[1])
             between["create_time"] = start_time, end_time
-        results, total_count = await self.mapper.select_ordered_records(
-            page=user_filter_form.page,
-            size=user_filter_form.size,
-            count=user_filter_form.count,
+        results, total_count = await self.mapper.select_ordered_pagination(
+            page=data.page,
+            size=data.size,
+            count=data.count,
             filter_by=filter_by,
             like=like,
             between=between,
@@ -167,7 +165,7 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         return [UserQuery(**user.model_dump()) for user in results], total_count
 
     async def export_user(
-        self, params: UserFilterForm, file_name: str = "user"
+        self, params: UserFilterForm, file_name: str = "user_export"
     ) -> StreamingResponse:
         """
         Export user record to an Excel file.
@@ -179,7 +177,7 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         Returns:
             StreamingResponse: The Excel file containing user record.
         """
-        user_pages, _ = await self.retrieve_user(params)
+        user_pages, _ = await self.users(params)
         records = []
         for user in user_pages:
             records.append(UserQuery(**user.model_dump()))
@@ -187,7 +185,7 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
             schema=UserQuery, file_name=file_name, records=records
         )
 
-    async def import_user(self, file: UploadFile):
+    async def import_user(self, file: UploadFile) -> int:
         """
         Import user record from an Excel file.
 
@@ -199,7 +197,10 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         import_df = import_df.fillna("")
         user_records = import_df.to_dict(orient="records")
         if len(user_records) == 0:
-            return
+            raise SystemException(
+                ResponseCode.NO_IMPORT_DATA_ERROR.code,
+                ResponseCode.NO_IMPORT_DATA_ERROR.msg,
+            )
         for record in user_records:
             for key, value in record.items():
                 if value == "":
@@ -208,11 +209,19 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
         user_name_list = []
 
         for user_record in user_records:
-            user_import = UserDO(**user_record, exclude_unset=True)
+            user_import = UserAdd(**user_record, exclude_unset=True)
             user_import.password = get_password_hash(user_import.password)
             user_import_list.append(user_import)
             user_name_list.append(user_import.username)
         await file.close()
+
+        counter = Counter(user_name_list)
+        for username, count in counter.items():
+            if count > 1:
+                raise SystemException(
+                    ResponseCode.DUPLICATE_USERNAME_ERROR.code,
+                    f"{ResponseCode.DUPLICATE_USERNAME_ERROR.msg}: {username}",
+                )
 
         # Check if any usernames already exist
         existing_users: List[UserDO] = await self.mapper.get_user_by_usernames(
@@ -224,6 +233,6 @@ class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
             err_msg = ",".join(existing_usernames)
             raise SystemException(
                 ResponseCode.USER_NAME_EXISTS.code,
-                f"{ResponseCode.USER_NAME_EXISTS.msg}{err_msg}",
+                f"{ResponseCode.USER_NAME_EXISTS.msg}: {err_msg}",
             )
-        await self.mapper.batch_insert_records(records=user_import_list)
+        return await self.mapper.batch_insert(records=user_import_list)
