@@ -26,7 +26,7 @@ from src.main.pkg.schema.user_schema import (
     Ids,
 )
 from src.main.pkg.service.impl.user_service_impl import UserServiceImpl
-from src.main.pkg.service.user_service import UserService
+from src.main.pkg.service.user_service import UserServiceBase
 from src.main.pkg.type.user_do import UserDO
 from src.main.pkg.util.excel_util import export_excel
 from src.main.pkg.util.security_util import (
@@ -37,7 +37,7 @@ from src.main.pkg.util.security_util import (
 )
 
 user_router = APIRouter()
-user_service: UserService = UserServiceImpl(mapper=userMapper)
+user_service: UserServiceBase = UserServiceImpl(mapper=userMapper)
 
 
 @user_router.post("/add")

@@ -19,15 +19,15 @@ from src.main.pkg.schema.user_schema import (
     UserQuery,
     UserFilterForm,
 )
-from src.main.pkg.service.impl.base_service_impl import ServiceImpl
-from src.main.pkg.service.user_service import UserService
+from src.main.pkg.service.impl.service_base_impl import ServiceBaseImpl
+from src.main.pkg.service.user_service import UserServiceBase
 from src.main.pkg.type.user_do import UserDO
 from src.main.pkg.util import security_util
 from src.main.pkg.util.excel_util import export_excel
 from src.main.pkg.util.security_util import get_password_hash, verify_password
 
 
-class UserServiceImpl(ServiceImpl[UserMapper, UserDO], UserService):
+class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserServiceBase):
     """
     Implementation of the UserService interface.
     """

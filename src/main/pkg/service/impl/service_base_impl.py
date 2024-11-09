@@ -4,15 +4,15 @@ from typing import Any, TypeVar, List, Generic, Tuple, Union, Dict
 
 from src.main.pkg.enums.enum import ResponseCode
 from src.main.pkg.exception.exception import SystemException
-from src.main.pkg.mapper.sqlmodel_impl import SqlModelMapper
-from src.main.pkg.service.base_service import Service
-from src.main.pkg.type.base_model import BaseModel
+from src.main.pkg.mapper.sqlmodel_impl import SqlModelMapperBase
+from src.main.pkg.service.service_base import ServiceBase
+from src.main.pkg.type.model_base import ModelBase
 
-T = TypeVar("T", bound=BaseModel)
-M = TypeVar("M", bound=SqlModelMapper)
+T = TypeVar("T", bound=ModelBase)
+M = TypeVar("M", bound=SqlModelMapperBase)
 
 
-class ServiceImpl(Generic[M, T], Service[T]):
+class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
     def __init__(self, mapper: M):
         self.mapper = mapper
 

@@ -9,7 +9,7 @@ from sqlmodel import SQLModel as _SQLModel, Field
 from src.main.pkg.util.snowflake_util import snowflake_id
 
 
-class BaseModel(_SQLModel):
+class ModelBase(_SQLModel):
     """
     Identifier for a data object
     """

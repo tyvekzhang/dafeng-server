@@ -3,12 +3,12 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, TypeVar, Generic, Tuple, Union, Dict
 
-from src.main.pkg.type.base_model import BaseModel
+from src.main.pkg.type.model_base import ModelBase
 
-T = TypeVar("T", bound=BaseModel)
+T = TypeVar("T", bound=ModelBase)
 
 
-class Service(Generic[T], ABC):
+class ServiceBase(Generic[T], ABC):
     @abstractmethod
     async def save(self, *, record: T) -> T: ...
 

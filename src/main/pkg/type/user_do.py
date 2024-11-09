@@ -4,7 +4,7 @@ from typing import Optional
 
 from sqlmodel import Field, Column, String, SQLModel, Integer
 
-from src.main.pkg.type.base_model import BaseModel, ModelExt
+from src.main.pkg.type.model_base import ModelBase, ModelExt
 
 
 class BaseUser(SQLModel):
@@ -29,6 +29,6 @@ class BaseUser(SQLModel):
     )
 
 
-class UserDO(ModelExt, BaseUser, BaseModel, table=True):
+class UserDO(ModelExt, BaseUser, ModelBase, table=True):
     __tablename__ = "sys_user"
     __table_args__ = {"comment": "用户信息表"}

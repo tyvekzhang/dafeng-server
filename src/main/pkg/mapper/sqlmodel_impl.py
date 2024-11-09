@@ -8,7 +8,7 @@ from sqlmodel import SQLModel, select, insert, update, delete
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from src.main.pkg.enums.enum import SortEnum
-from src.main.pkg.mapper.base_mapper import BaseMapper
+from src.main.pkg.mapper.mapper_base import MapperBase
 from src.main.pkg.session.db_session_middleware import db
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
@@ -16,7 +16,7 @@ SchemaType = TypeVar("SchemaType", bound=BaseModel)
 T = TypeVar("T", bound=SQLModel)
 
 
-class SqlModelMapper(Generic[ModelType], BaseMapper):
+class SqlModelMapperBase(Generic[ModelType], MapperBase):
     def __init__(self, model: Type[ModelType]):
         self.model = model
         self.db = db

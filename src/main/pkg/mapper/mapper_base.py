@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Tuple
 
 
-class BaseMapper(ABC):
+class MapperBase(ABC):
     @abstractmethod
     async def insert(self, *, record: Any, db_session: Any = None) -> Any: ...
 

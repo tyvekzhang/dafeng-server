@@ -6,11 +6,11 @@ from fastapi import UploadFile
 
 from src.main.pkg.schema.common_schema import Token
 from src.main.pkg.schema.user_schema import LoginCmd, UserQuery, UserFilterForm, UserAdd
-from src.main.pkg.service.base_service import Service
+from src.main.pkg.service.service_base import ServiceBase
 from src.main.pkg.type.user_do import UserDO
 
 
-class UserService(Service[UserDO], ABC):
+class UserServiceBase(ServiceBase[UserDO], ABC):
     @abstractmethod
     async def add(self, *, data: UserAdd) -> UserDO: ...
 
