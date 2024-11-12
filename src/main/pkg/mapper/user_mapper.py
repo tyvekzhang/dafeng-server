@@ -5,11 +5,11 @@ from typing import Union
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.main.pkg.mapper.sqlmodel_impl import SqlModelMapperBase
-from src.main.pkg.type.user_do import UserDO
+from src.main.pkg.mapper.mapper_base_impl import SqlModelMapper
+from src.main.pkg.model.user_model import UserDO
 
 
-class UserMapper(SqlModelMapperBase[UserDO]):
+class UserMapper(SqlModelMapper[UserDO]):
     async def get_user_by_username(
         self, *, username: str, db_session: Union[AsyncSession, None] = None
     ) -> Union[UserDO, None]:
@@ -25,9 +25,7 @@ class UserMapper(SqlModelMapperBase[UserDO]):
             Union[UserDO, None]: The UserDO instance if found, otherwise None.
         """
         db_session = db_session or self.db.session
-        user = await db_session.execute(
-            select(UserDO).where(UserDO.username == username)
-        )
+        user = await db_session.exec(select(UserDO).where(UserDO.username == username))
         return user.scalar_one_or_none()
 
     async def get_user_by_usernames(
@@ -38,8 +36,8 @@ class UserMapper(SqlModelMapperBase[UserDO]):
         """
         db_session = db_session or self.db.session
         statement = select(UserDO).where(UserDO.username.in_(usernames))
-        results = await db_session.execute(statement)
-        return results.scalars().all()
+        results = await db_session.exec(statement)
+        return results.all()
 
 
 userMapper = UserMapper(UserDO)

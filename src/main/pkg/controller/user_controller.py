@@ -8,12 +8,12 @@ from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
 from jwt import PyJWTError
 
-from src.main.pkg.enums.enum import ResponseCode
-from src.main.pkg.exception.exception import SystemException
+from src.main.pkg.common.enums.enum import ResponseCode
+from src.main.pkg.common.exception.exception import SystemException
 from src.main.pkg.mapper.user_mapper import userMapper
-from src.main.pkg.schema import result
+from src.main.pkg.common import result
 from src.main.pkg.schema.common_schema import Token, CurrentUser
-from src.main.pkg.schema.result import BaseResponse
+from src.main.pkg.common.result import BaseResponse
 from src.main.pkg.schema.user_schema import (
     UserAdd,
     LoginCmd,
@@ -26,10 +26,10 @@ from src.main.pkg.schema.user_schema import (
     Ids,
 )
 from src.main.pkg.service.impl.user_service_impl import UserServiceImpl
-from src.main.pkg.service.user_service import UserServiceBase
-from src.main.pkg.type.user_do import UserDO
-from src.main.pkg.util.excel_util import export_excel
-from src.main.pkg.util.security_util import (
+from src.main.pkg.service.user_service import UserService
+from src.main.pkg.model.user_model import UserDO
+from src.main.pkg.common.util.excel_util import export_excel
+from src.main.pkg.common.util.security_util import (
     get_current_user,
     is_token_valid,
     get_user_id,
@@ -37,7 +37,7 @@ from src.main.pkg.util.security_util import (
 )
 
 user_router = APIRouter()
-user_service: UserServiceBase = UserServiceImpl(mapper=userMapper)
+user_service: UserService = UserServiceImpl(mapper=userMapper)
 
 
 @user_router.post("/add")

@@ -4,7 +4,7 @@ from typing import Dict
 
 from fastapi import APIRouter
 
-from src.main.pkg.schema import result
+from src.main.pkg.common import result
 
 probe_router = APIRouter()
 

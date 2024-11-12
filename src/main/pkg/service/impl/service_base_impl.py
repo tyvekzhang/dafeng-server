@@ -2,14 +2,14 @@
 
 from typing import Any, TypeVar, List, Generic, Tuple, Union, Dict
 
-from src.main.pkg.enums.enum import ResponseCode
-from src.main.pkg.exception.exception import SystemException
-from src.main.pkg.mapper.sqlmodel_impl import SqlModelMapperBase
+from src.main.pkg.common.enums.enum import ResponseCode
+from src.main.pkg.common.exception.exception import SystemException
+from src.main.pkg.mapper.mapper_base_impl import SqlModelMapper
 from src.main.pkg.service.service_base import ServiceBase
-from src.main.pkg.type.model_base import ModelBase
+from src.main.pkg.model.model_base import ModelBase
 
 T = TypeVar("T", bound=ModelBase)
-M = TypeVar("M", bound=SqlModelMapperBase)
+M = TypeVar("M", bound=SqlModelMapper)
 
 
 class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
@@ -19,9 +19,8 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
     async def save(self, *, record: T) -> T:
         return await self.mapper.insert(record=record)
 
-    async def batch_save(self, *, records: List[T]) -> bool:
-        await self.mapper.batch_insert(records=records)
-        return True
+    async def batch_save(self, *, records: List[T]) -> int:
+        return await self.mapper.batch_insert(records=records)
 
     async def retrieve_by_id(self, *, id: Union[int, str]) -> T:
         return await self.mapper.select_by_id(id=id)
@@ -47,40 +46,36 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
             page=page, size=size, order_by=order_by, sort_order=sort_order, **kwargs
         )
 
-    async def modify_by_id(self, *, record: T) -> bool:
+    async def modify_by_id(self, *, record: T) -> None:
         affect_row: int = await self.mapper.update_by_id(record=record)
         if affect_row != 1:
             raise SystemException(
                 ResponseCode.PARAMETER_ERROR.code,
                 ResponseCode.PARAMETER_ERROR.msg,
             )
-        return True
 
     async def batch_modify_by_ids(
         self, *, ids: Union[List[int], List[str]], record: Dict, db_session: Any = None
-    ) -> bool:
+    ) -> None:
         affect_row: int = await self.mapper.batch_update_by_ids(ids=ids, record=record)
         if len(ids) != affect_row:
             raise SystemException(
                 ResponseCode.PARAMETER_ERROR.code,
                 ResponseCode.PARAMETER_ERROR.msg,
             )
-        return True
 
-    async def remove_by_id(self, *, id: Union[int, str]) -> bool:
+    async def remove_by_id(self, *, id: Union[int, str]) -> None:
         affect_row: int = await self.mapper.delete_by_id(id=id)
         if affect_row != 1:
             raise SystemException(
                 ResponseCode.PARAMETER_ERROR.code,
                 ResponseCode.PARAMETER_ERROR.msg,
             )
-        return True
 
-    async def batch_remove_by_ids(self, *, ids: Union[List[int], List[str]]) -> bool:
+    async def batch_remove_by_ids(self, *, ids: Union[List[int], List[str]]) -> None:
         affect_row: int = await self.mapper.batch_delete_by_ids(ids=ids)
         if len(ids) != affect_row:
             raise SystemException(
                 ResponseCode.PARAMETER_ERROR.code,
                 ResponseCode.PARAMETER_ERROR.msg,
             )
-        return True

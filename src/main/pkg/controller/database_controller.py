@@ -4,10 +4,10 @@ from fastapi import APIRouter
 from sqlalchemy import inspect
 from sqlalchemy import text
 
-from src.main.pkg.enums.enum import ResponseCode
-from src.main.pkg.exception.exception import SystemException
-from src.main.pkg.schema import result
-from src.main.pkg.session.db_engine import get_async_engine
+from src.main.pkg.common.enums.enum import ResponseCode
+from src.main.pkg.common.exception.exception import SystemException
+from src.main.pkg.common import result
+from src.main.pkg.common.session.db_engine import get_async_engine
 
 engine = get_async_engine()
 
@@ -90,7 +90,7 @@ async def get_table_fields(table_name: str) -> Dict:
         fields.append(
             {
                 "name": column["name"],
-                "type": str(column["type"]),
+                "model": str(column["model"]),
                 "nullable": column["nullable"],
                 "indexed": column["name"] in indexed_columns,
                 "comment": column.get("comment", column["name"]),

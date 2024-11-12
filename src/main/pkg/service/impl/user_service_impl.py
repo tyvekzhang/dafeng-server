@@ -8,9 +8,9 @@ from fastapi import UploadFile
 from typing import Optional, List
 import pandas as pd
 
-from src.main.pkg.config.config import Config
-from src.main.pkg.enums.enum import ResponseCode, TokenTypeEnum
-from src.main.pkg.exception.exception import ServiceException, SystemException
+from src.main.pkg.common.config.config import Config
+from src.main.pkg.common.enums.enum import ResponseCode, TokenTypeEnum
+from src.main.pkg.common.exception.exception import ServiceException, SystemException
 from src.main.pkg.mapper.user_mapper import UserMapper
 from src.main.pkg.schema.common_schema import Token
 from src.main.pkg.schema.user_schema import (
@@ -20,14 +20,14 @@ from src.main.pkg.schema.user_schema import (
     UserFilterForm,
 )
 from src.main.pkg.service.impl.service_base_impl import ServiceBaseImpl
-from src.main.pkg.service.user_service import UserServiceBase
-from src.main.pkg.type.user_do import UserDO
-from src.main.pkg.util import security_util
-from src.main.pkg.util.excel_util import export_excel
-from src.main.pkg.util.security_util import get_password_hash, verify_password
+from src.main.pkg.service.user_service import UserService
+from src.main.pkg.model.user_model import UserDO
+from src.main.pkg.common.util import security_util
+from src.main.pkg.common.util.excel_util import export_excel
+from src.main.pkg.common.util.security_util import get_password_hash, verify_password
 
 
-class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserServiceBase):
+class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
     """
     Implementation of the UserService interface.
     """

@@ -7,7 +7,7 @@ from pydantic import BaseModel, field_validator
 from sqlmodel import Field
 
 from src.main.pkg.schema.common_schema import BasePage
-from src.main.pkg.type.user_do import UserDO
+from src.main.pkg.model.user_model import UserDO
 
 
 class RefreshToken(BaseModel):
