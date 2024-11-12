@@ -2,7 +2,7 @@ import os
 import sys
 import argparse
 
-from src.main.pkg.common.config.config_manager import load_config
+from src.main.app.common.config.config_manager import load_config
 
 # Add the project path to the system path for module imports
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +13,7 @@ sys.path.insert(0, project_path)
 
 # Run the server
 def run():
-    from src.main.pkg import server
+    from src.main.app import server
 
     server.run()
 
