@@ -1,9 +1,9 @@
 server:
-  name: DaFeng
+  name: DaFengServer
   host: 0.0.0.0
   port: 19001
   version: 0.1.0
-  app_desc: Da feng helps us work more easily and happily
+  app_desc: Da feng helps us work more easily and happily.
   api_version: /v1
   workers: 8
 

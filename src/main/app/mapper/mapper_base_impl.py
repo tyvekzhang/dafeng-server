@@ -78,7 +78,7 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         db_session = db_session or self.db.session
         statement = select(self.model).where(self.model.id == id)
         exec_response = await db_session.exec(statement)
-        return exec_response.scalar_one_or_none()
+        return exec_response.one_or_none()
 
     async def select_by_ids(
         self, *, ids: List[Any], db_session: AsyncSession = None

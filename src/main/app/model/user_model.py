@@ -2,12 +2,12 @@
 
 from typing import Optional
 
-from sqlmodel import Field, Column, String, SQLModel, Integer
+from sqlmodel import Field, Column, String, Integer
 
 from src.main.app.model.model_base import ModelBase, ModelExt
 
 
-class UserBase(SQLModel):
+class UserBase:
     username: str = Field(
         sa_column=Column(
             String(32), index=True, unique=True, nullable=True, comment="用户名"

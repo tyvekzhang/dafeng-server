@@ -12,10 +12,10 @@ class DatabaseBase(SQLModel):
         sa_column=Column(String(32), index=True, nullable=True, comment="数据库名称")
     )
     character_set: str = Field(
-        sa_column=Column(String(16), nullable=True, comment="字符编码")
+        sa_column=Column(String(32), nullable=True, comment="字符编码")
     )
     collation: str = Field(
-        sa_column=Column(String(16), nullable=True, comment="排序规则")
+        sa_column=Column(String(32), nullable=True, comment="排序规则")
     )
 
 

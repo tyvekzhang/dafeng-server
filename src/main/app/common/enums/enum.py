@@ -19,6 +19,8 @@ class ResponseCode(Enum):
     DB_UNKNOWN_ERROR = (400, "Db unknown error")
     AUTH_FAILED = (403, "Username or password error")
     PARAMETER_CHECK_ERROR = (402, "Parameter error")
+    DATABASE_ALREADY_EXIST = (409, "Database already exist")
+    UNSUPPORTED_DIALECT_ERROR = (400, "Database already exist")
     TEMPLATE_NOT_FOUND_ERROR = (500, "Template not found")
     USER_NAME_EXISTS = (100, "Username already exists")
     ROLE_ALREADY_EXISTS = (101, "Assign role already exists")

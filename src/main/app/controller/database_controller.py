@@ -1,24 +1,34 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from fastapi import APIRouter
-from sqlalchemy import inspect
-from sqlalchemy import text
+from sqlmodel import inspect, text
 
 from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import SystemException
 from src.main.app.common import result
-from src.main.app.common.session.db_engine import get_async_engine
+from src.main.app.common.session.db_engine import get_cached_async_engine
+from src.main.app.mapper.database_mapper import databaseMapper
+from src.main.app.model.database_model import DatabaseDO
+from src.main.app.schema.database_schema import DatabaseAdd
+from src.main.app.service.database_service import DatabaseService
+from src.main.app.service.impl.database_service_impl import DatabaseServiceImpl
 
-engine = get_async_engine()
+database_router = APIRouter()
+database_service: DatabaseService = DatabaseServiceImpl(mapper=databaseMapper)
 
-table_router = APIRouter()
+
+@database_router.post("/add")
+async def add_database(data: DatabaseAdd):
+    record = DatabaseDO(**data.model_dump())
+    await database_service.add(data=record)
+    return result.success()
 
 
-@table_router.get("/version")
-async def get_database_version() -> Dict:
+@database_router.get("/version")
+async def get_database_version(connection_id: Optional[int] = None) -> Dict:
+    engine = await get_cached_async_engine(connection_id=connection_id)
     async with engine.connect() as conn:
         dialect_name = engine.dialect.name.lower()
-
         if dialect_name == "sqlite":
             version_info = await conn.execute(text("SELECT sqlite_version();"))
         elif dialect_name in ("mysql", "mariadb"):
@@ -31,13 +41,13 @@ async def get_database_version() -> Dict:
                 f"Unknown database dialect: {dialect_name}. "
                 + ResponseCode.DB_UNKNOWN_ERROR.msg,
             )
-
         version = str((version_info.fetchone())[0]).split("-")[0]
-    return result.success({f"{dialect_name}": version})
+    return result.success({"version_schema": f"{dialect_name}:{version}"})
 
 
-@table_router.get("/tables")
-async def tables() -> Dict:
+@database_router.get("/tables")
+async def get_tables(database_id: Optional[int] = None) -> Dict:
+    engine = await get_cached_async_engine(database_id=database_id)
     async with engine.connect() as conn:
         table_names = await conn.run_sync(
             lambda sync_conn: inspect(sync_conn).get_table_names()
@@ -65,8 +75,9 @@ async def tables() -> Dict:
     return result.success(table_info)
 
 
-@table_router.get("/{table_name}/info")
-async def get_table_fields(table_name: str) -> Dict:
+@database_router.get("/{database_id}/{table_name}/info")
+async def get_table_fields(table_name: str, database_id: int) -> Dict:
+    engine = await get_cached_async_engine(database_id=database_id)
     async with engine.connect() as conn:
         dialect_name = engine.dialect.name.lower()
         columns = await conn.run_sync(
@@ -90,7 +101,7 @@ async def get_table_fields(table_name: str) -> Dict:
         fields.append(
             {
                 "name": column["name"],
-                "model": str(column["model"]),
+                "type": str(column["type"]),
                 "nullable": column["nullable"],
                 "indexed": column["name"] in indexed_columns,
                 "comment": column.get("comment", column["name"]),

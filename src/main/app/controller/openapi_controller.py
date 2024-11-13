@@ -12,8 +12,8 @@ from src.main.app.server import app
 
 def get_static_dir() -> str:
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    base_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
-    static_dir = os.path.join(base_dir, "common/static")
+    base_dir = os.path.abspath(os.path.join(current_dir, os.pardir, os.pardir))
+    static_dir = os.path.join(base_dir, f"resource{os.sep}static")
     return static_dir
 
 
