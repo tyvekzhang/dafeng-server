@@ -3,15 +3,17 @@
 import os
 from typing import Any
 from jinja2 import Template
-from src.main.app.common.enums.enum import ResponseCode, ConstantCode
+from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import SystemException
 
 base_dir: str = os.path.dirname(os.path.abspath(__file__))
-resource_dir: str = os.path.join(base_dir, os.pardir, os.pardir, "resource")
-home_template_dir: str = os.path.join(os.path.abspath(resource_dir), "template")
+resource_dir: str = os.path.abspath(
+    os.path.join(base_dir, os.pardir, os.pardir, os.pardir, "resource")
+)
+home_template_dir: str = os.path.join(resource_dir, "template")
 
 
-def load_template(
+def load_template_file(
     template_name: str, module: str = "default", sub_module: str = ""
 ) -> Template:
     """
@@ -40,7 +42,7 @@ def load_template(
             ResponseCode.TEMPLATE_NOT_FOUND_ERROR.code,
             f"{ResponseCode.TEMPLATE_NOT_FOUND_ERROR.msg}: {template_path}",
         )
-    with open(template_path, "r", encoding=ConstantCode.UTF_8.value) as f:
+    with open(template_path, "r", encoding="UTF-8") as f:
         return Template(f.read())
 
 
@@ -76,4 +78,6 @@ def load_and_render_template(
     Raises:
         SystemException: If template not found or rendering fails.
     """
-    return render_template(load_template(template_name, module, sub_module), **context)
+    return render_template(
+        load_template_file(template_name, module, sub_module), **context
+    )

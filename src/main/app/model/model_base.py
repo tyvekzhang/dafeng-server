@@ -17,9 +17,6 @@ class ModelBase(_SQLModel):
     id: int = Field(
         default_factory=snowflake_id,
         primary_key=True,
-        index=True,
-        nullable=False,
-        unique=True,
         sa_type=BigInteger,
         sa_column_kwargs={"comment": "主键"},
     )

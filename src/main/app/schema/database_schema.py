@@ -1,4 +1,8 @@
+from typing import Optional
+
 from pydantic import BaseModel, constr
+
+from src.main.app.schema.common_schema import PageBase
 
 # SQL templates for different databases
 DB_CREATE_TEMPLATES = {
@@ -19,14 +23,14 @@ DB_CREATE_TEMPLATES = {
 
 # Database creation request model
 class DatabaseAdd(BaseModel):
-    connection_id: int = None
+    connection_id: int
     database_name: constr(min_length=1, max_length=63)
-    character_set: str = "utf8mb4"
-    collation: str = "utf8mb4_unicode_ci"
+    character_set: Optional[str] = None
+    collation: Optional[str] = None
 
 
-class DatabaseQuery(BaseModel):
-    pass
+class DatabaseQuery(PageBase):
+    connection_id: int
 
 
 class DatabaseExport(BaseModel):
@@ -39,3 +43,9 @@ class DatabaseQueryForm(BaseModel):
 
 class DatabaseModify(BaseModel):
     pass
+
+
+class MySQLSchema(BaseModel):
+    schema_name: str
+    default_character_set_name: str
+    default_collation_name: str

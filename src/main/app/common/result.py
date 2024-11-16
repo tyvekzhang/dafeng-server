@@ -12,9 +12,9 @@ DEFAULT_FAIL_CODE: int = -1
 DEFAULT_SUCCESS_MSG: str = "success"
 
 
-class BaseResponse(BaseModel, Generic[T]):
+class ResponseBase(BaseModel, Generic[T]):
     """
-    Base response model for API responses.
+    Response base model for API responses.
 
     Attributes:
         msg: Response message
@@ -22,9 +22,9 @@ class BaseResponse(BaseModel, Generic[T]):
         data: Optional response data of generic model T
     """
 
-    data: Optional[T] = None
     msg: str = DEFAULT_SUCCESS_MSG
     code: Optional[int] = DEFAULT_SUCCESS_CODE
+    data: Optional[T] = None
 
 
 def success(

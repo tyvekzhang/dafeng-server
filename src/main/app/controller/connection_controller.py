@@ -4,14 +4,17 @@ from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Query, UploadFile, Form
 from src.main.app.common import result
+from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.model.connection_model import ConnectionDO
+from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.connection_schema import (
     ConnectionAdd,
     ConnectionExport,
     ConnectionQueryForm,
     ConnectionModify,
+    ConnectionQuery,
 )
 from src.main.app.schema.user_schema import Ids
 from src.main.app.service.connection_service import ConnectionService
@@ -23,22 +26,43 @@ connection_service: ConnectionService = ConnectionServiceImpl(mapper=connectionM
 
 
 @connection_router.post("/add")
-async def add(
-    data: ConnectionAdd,
-) -> Dict:
+async def add_connection(
+    connection_add: ConnectionAdd,
+) -> ResponseBase[int]:
     """
     Connection add.
 
     Args:
-        data: Data required for add.
+        connection_add: Data required for add.
 
     Returns:
         BaseResponse with new connection's ID.
     """
     connection: ConnectionDO = await connection_service.save(
-        record=ConnectionDO(**data.model_dump())
+        data=ConnectionDO(**connection_add.model_dump())
     )
-    return result.success(data=connection.id)
+    return ResponseBase(data=connection.id)
+
+
+@connection_router.get("/connections")
+async def list_connections(
+    connection_query: Annotated[ConnectionQuery, Query()],
+) -> ResponseBase[PaginationResponse]:
+    """
+    Filter connections with pagination.
+
+    Args:
+        connection_query: Pagination and filter info to query
+
+    Returns:
+        BaseResponse with list and total count.
+    """
+    records, total_count = await connection_service.list_connections(
+        data=connection_query
+    )
+    return ResponseBase(
+        data=PaginationResponse(records=records, total_count=total_count)
+    )
 
 
 @connection_router.post("/recover")
@@ -54,7 +78,7 @@ async def recover(
     Returns:
         BaseResponse with connection's ID.
     """
-    connection: ConnectionDO = await connection_service.save(record=data)
+    connection: ConnectionDO = await connection_service.save(data=data)
     return result.success(data=connection.id)
 
 
@@ -88,25 +112,6 @@ async def import_connection(
     return result.success(data=f"Success import count: {success_count}")
 
 
-@connection_router.get("/connections")
-async def connections(
-    connection_filter_form: Annotated[ConnectionQueryForm, Query()],
-) -> Dict:
-    """
-    Filter connections with pagination.
-
-    Args:
-        connection_filter_form: Pagination and filter info to query
-
-    Returns:
-        ConnectionQuery list and total count.
-    """
-    records, total_count = await connection_service.retrieve_ordered_records(
-        data=connection_filter_form
-    )
-    return result.success(data={"records": records, "total_count": total_count})
-
-
 @connection_router.get("/export")
 async def export(
     data: Annotated[ConnectionQueryForm, Query()],
@@ -137,7 +142,7 @@ async def modify(
         Success result message
     """
     await connection_service.modify_by_id(
-        record=ConnectionDO(**data.model_dump(exclude_unset=True))
+        data=ConnectionDO(**data.model_dump(exclude_unset=True))
     )
     return result.success()
 
@@ -148,7 +153,7 @@ async def batch_modify(ids: Ids, data: ConnectionModify) -> Dict:
     if len(cleaned_data) == 0:
         return result.fail("Please fill in the modify information")
 
-    await connection_service.batch_modify_by_ids(ids=ids.ids, record=cleaned_data)
+    await connection_service.batch_modify_by_ids(ids=ids.ids, data=cleaned_data)
     return result.success()
 
 

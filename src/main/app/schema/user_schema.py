@@ -6,7 +6,7 @@ from typing import Optional, List
 from pydantic import BaseModel, field_validator
 from sqlmodel import Field
 
-from src.main.app.schema.common_schema import BasePage
+from src.main.app.schema.common_schema import PageBase
 from src.main.app.model.user_model import UserDO
 
 
@@ -58,7 +58,7 @@ class UserQuery(UserDO):
     pass
 
 
-class UserFilterForm(BasePage):
+class UserFilterForm(PageBase):
     """
     UserFilterForm schema
     """

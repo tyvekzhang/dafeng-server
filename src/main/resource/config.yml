@@ -8,7 +8,7 @@ server:
   workers: 8
 
 database:
-  dialog: sqlite
+  dialect: sqlite
   # When use sqlite do not need to set url and default in src/main/resource/alembic/db/server.db
   # Url format: driver://user:pass@localhost:port/dbname
   url: ""

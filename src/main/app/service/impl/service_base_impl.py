@@ -16,11 +16,11 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
     def __init__(self, mapper: M):
         self.mapper = mapper
 
-    async def save(self, *, record: T) -> T:
-        return await self.mapper.insert(record=record)
+    async def save(self, *, data: T) -> T:
+        return await self.mapper.insert(record=data)
 
-    async def batch_save(self, *, records: List[T]) -> int:
-        return await self.mapper.batch_insert(records=records)
+    async def batch_save(self, *, datas: List[T]) -> int:
+        return await self.mapper.batch_insert(records=datas)
 
     async def retrieve_by_id(self, *, id: Union[int, str]) -> T:
         return await self.mapper.select_by_id(id=id)
@@ -28,7 +28,7 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
     async def retrieve_by_ids(self, *, ids: Union[List[int], List[str]]) -> List[T]:
         return await self.mapper.select_by_ids(ids=ids)
 
-    async def retrieve_records(
+    async def retrieve_datas(
         self, *, page: int, size: int, **kwargs
     ) -> Tuple[
         List[T],
@@ -36,7 +36,7 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
     ]:
         return await self.mapper.select_pagination(page=page, size=size, **kwargs)
 
-    async def retrieve_ordered_records(
+    async def retrieve_ordered_datas(
         self, *, page: int, size: int, order_by: str, sort_order: str, **kwargs
     ) -> Tuple[
         List[T],
@@ -46,8 +46,8 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
             page=page, size=size, order_by=order_by, sort_order=sort_order, **kwargs
         )
 
-    async def modify_by_id(self, *, record: T) -> None:
-        affect_row: int = await self.mapper.update_by_id(record=record)
+    async def modify_by_id(self, *, data: T) -> None:
+        affect_row: int = await self.mapper.update_by_id(record=data)
         if affect_row != 1:
             raise SystemException(
                 ResponseCode.PARAMETER_ERROR.code,
@@ -55,9 +55,9 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
             )
 
     async def batch_modify_by_ids(
-        self, *, ids: Union[List[int], List[str]], record: Dict, db_session: Any = None
+        self, *, ids: Union[List[int], List[str]], data: Dict, db_session: Any = None
     ) -> None:
-        affect_row: int = await self.mapper.batch_update_by_ids(ids=ids, record=record)
+        affect_row: int = await self.mapper.batch_update_by_ids(ids=ids, record=data)
         if len(ids) != affect_row:
             raise SystemException(
                 ResponseCode.PARAMETER_ERROR.code,

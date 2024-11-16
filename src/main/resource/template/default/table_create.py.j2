@@ -1,0 +1,73 @@
+"""{{ class_name }} data object"""
+
+from datetime import date, datetime, time
+from decimal import Decimal
+from typing import Optional
+from sqlmodel import (
+    Field,
+    Column,
+    SQLModel,
+    String,
+    Integer,
+    BigInteger,
+    SmallInteger,
+    Boolean,
+    Float,
+    Double,
+    Numeric,
+    Date,
+    DateTime,
+    Time,
+    LargeBinary,
+    JSON,
+    Index,
+    UniqueConstraint,
+    PrimaryKeyConstraint
+)
+
+from src.main.app.model.model_base import ModelBase, ModelExt
+from sqlalchemy.ext.asyncio import create_async_engine
+
+
+class {{ class_name }}Base(SQLModel):
+    {% for field in field_metadata %}
+    {{ field.name }}: {% if not field.not_null %}Optional[{{ field.server_type }}]{% else %}{{ field.server_type }}{% endif %} = Field(
+        sa_column=Column(
+           {{ field.modeltype }}{% if field.length %}({{ field.length }}){% elif field.decimals %}({{ field.length }}, {{ field.decimals }}){% endif %},
+            {% if not field.not_null %}nullable=True{% else %}nullable=False{% endif %},
+            {% if field.default is not none %}default={{ field.default }},{% endif %}
+            comment="{{ field.remark }}"
+        )
+    )
+    {% endfor %}
+
+
+class {{ class_name }}DO(ModelExt, {{ class_name }}Base, ModelBase, table=True):
+    __tablename__ = "{{ table_name }}"
+    __table_args__ = (
+        {% if index_metadata %}
+        {% for index in index_metadata %}
+        {% if index.type == "unique" %}
+        UniqueConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %}
+        {% elif index.type == "primary" %}
+        PrimaryKeyConstraint({{ index.field  }}, name="{{ index.name }}"){% if not loop.last or comment %},{% endif %}
+        {% else %}
+        Index("{{ index.name }}", {{ index.field  }}){% if not loop.last or comment %},{% endif %}
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% if comment %}
+        {"comment": "{{ comment }}"}
+        {% endif %}
+    )
+
+async def create_db_and_tables():
+    engine = create_async_engine(url="mysql+aiomysql://root:123456@localhost:3306/df")
+    async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
+
+
+if __name__ == "__main__":
+    import asyncio
+
+    asyncio.run(create_db_and_tables())

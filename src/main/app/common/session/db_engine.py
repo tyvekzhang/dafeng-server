@@ -1,4 +1,3 @@
-import os
 from threading import Lock
 from typing import Dict, Union
 
@@ -51,8 +50,7 @@ async def get_cached_async_engine(
     cache_key = str(connection_id) + str(database_id)
     # Get database config
     database_config = get_database_config()
-    if connection_id is None and database_id is None:
-        return async_engine
+
     # Return cached engine if exists
     with _lock:
         if cache_key in _engine_map:
@@ -84,7 +82,7 @@ async def get_cached_async_engine(
                 f"{ResponseCode.UNSUPPORTED_DIALECT_ERROR.msg}: {database_type}",
             )
         if database is not None:
-            url = str(url) + os.sep + database.database_name
+            url = str(url) + "/" + database.database_name
 
         # Create new engine if not cached
         new_engine = create_async_engine(

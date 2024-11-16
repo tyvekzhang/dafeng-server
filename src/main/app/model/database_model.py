@@ -1,21 +1,23 @@
 """Database data object"""
 
+from typing import Optional
+
 from sqlmodel import Field, Column, String, SQLModel, BigInteger
 from src.main.app.model.model_base import ModelBase, ModelExt
 
 
 class DatabaseBase(SQLModel):
     connection_id: int = Field(
-        sa_column=Column(BigInteger, nullable=True, comment="连接id")
+        sa_column=Column(BigInteger, index=True, nullable=False, comment="数据库连接id")
     )
     database_name: str = Field(
-        sa_column=Column(String(32), index=True, nullable=True, comment="数据库名称")
+        sa_column=Column(String(32), nullable=False, comment="数据库名称")
     )
-    character_set: str = Field(
-        sa_column=Column(String(32), nullable=True, comment="字符编码")
+    character_set: Optional[str] = Field(
+        default=None, sa_column=Column(String(32), comment="字符编码")
     )
-    collation: str = Field(
-        sa_column=Column(String(32), nullable=True, comment="排序规则")
+    collation: Optional[str] = Field(
+        default=None, sa_column=Column(String(32), comment="排序规则")
     )
 
 

@@ -1,6 +1,6 @@
 """Common schema"""
 
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from pydantic import BaseModel
 
@@ -25,30 +25,37 @@ class CurrentUser(BaseModel):
     id: int
 
 
-class BasePage(BaseModel):
+class PageBase(BaseModel):
     """
-    Paging schema
+    PageBase schema
     """
 
     page: Optional[int] = 1
     size: Optional[int] = 10
     count: Optional[bool] = True
+    order_by: Optional[str] = None
+    sort_order: Optional[str] = None
 
 
-class FilterParams(BasePage):
+class FilterParams(PageBase):
     """
-    UserFilterParams schema
+    FilterParams schema
     """
 
     filter_by: Optional[Dict[str, Any]] = None
     like: Optional[Dict[str, str]] = None
 
 
-class BaseParams(BaseModel):
+class ModelBaseParams(BaseModel):
     """
-    BaseParams for all data object
+    ModelBaseParams for all data object
     """
 
     id: int
     create_time: int
     update_time: Optional[int] = None
+
+
+class PaginationResponse(BaseModel):
+    records: List[Any] = None
+    total_count: int = 0

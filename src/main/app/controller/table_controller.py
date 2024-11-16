@@ -1,17 +1,23 @@
 """Table operation controller"""
 
+import subprocess
+import sys
 from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Query, UploadFile, Form
 from src.main.app.common import result
+from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.table_mapper import tableMapper
 from src.main.app.model.table_model import TableDO
+from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.table_schema import (
     TableAdd,
     TableExport,
     TableQueryForm,
     TableModify,
+    TableQuery,
+    TableGenerate,
 )
 from src.main.app.schema.user_schema import Ids
 from src.main.app.service.table_service import TableService
@@ -23,7 +29,7 @@ table_service: TableService = TableServiceImpl(mapper=tableMapper)
 
 
 @table_router.post("/add")
-async def add(
+async def add_table(
     data: TableAdd,
 ) -> Dict:
     """
@@ -35,8 +41,46 @@ async def add(
     Returns:
         BaseResponse with new table's ID.
     """
-    table: TableDO = await table_service.save(record=TableDO(**data.model_dump()))
+    table: TableDO = await table_service.save(data=TableDO(**data.model_dump()))
     return result.success(data=table.id)
+
+
+@table_router.get("/tables")
+async def list_tables(
+    table_query: Annotated[TableQuery, Query()],
+) -> ResponseBase[PaginationResponse]:
+    """
+    Filter tables with pagination.
+
+    Args:
+        table_query: Pagination and filter info to query
+
+    Returns:
+        BaseResponse with list and total count.
+    """
+    table_list, total_count = await table_service.list_tables(data=table_query)
+
+    return ResponseBase(
+        data=PaginationResponse(records=table_list, total_count=total_count)
+    )
+
+
+@table_router.post("/generate")
+async def generate_table(table_generate: TableGenerate) -> Dict:
+    await table_service.generate_table(table_generate)
+    return result.success()
+
+
+@table_router.post("/run_script")
+async def run_script(script_path: str):
+    try:
+        # 使用 subprocess 执行 Python 脚本
+        result = subprocess.run(
+            [sys.executable, script_path], capture_output=True, text=True, check=True
+        )
+        return {"stdout": result.stdout, "stderr": result.stderr}
+    except subprocess.CalledProcessError as e:
+        return {"error": str(e), "stdout": e.stdout, "stderr": e.stderr}
 
 
 @table_router.post("/recover")
@@ -52,7 +96,7 @@ async def recover(
     Returns:
         BaseResponse with table's ID.
     """
-    table: TableDO = await table_service.save(record=data)
+    table: TableDO = await table_service.save(data=data)
     return result.success(data=table.id)
 
 
@@ -82,25 +126,6 @@ async def import_table(
     """
     success_count = await table_service.import_table(file=file)
     return result.success(data=f"Success import count: {success_count}")
-
-
-@table_router.get("/tables")
-async def tables(
-    table_filter_form: Annotated[TableQueryForm, Query()],
-) -> Dict:
-    """
-    Filter tables with pagination.
-
-    Args:
-        table_filter_form: Pagination and filter info to query
-
-    Returns:
-        TableQuery list and total count.
-    """
-    records, total_count = await table_service.retrieve_ordered_records(
-        data=table_filter_form
-    )
-    return result.success(data={"records": records, "total_count": total_count})
 
 
 @table_router.get("/export")
@@ -133,7 +158,7 @@ async def modify(
         Success result message
     """
     await table_service.modify_by_id(
-        record=TableDO(**data.model_dump(exclude_unset=True))
+        data=TableDO(**data.model_dump(exclude_unset=True))
     )
     return result.success()
 
@@ -144,7 +169,7 @@ async def batch_modify(ids: Ids, data: TableModify) -> Dict:
     if len(cleaned_data) == 0:
         return result.fail("Please fill in the modify information")
 
-    await table_service.batch_modify_by_ids(ids=ids.ids, record=cleaned_data)
+    await table_service.batch_modify_by_ids(ids=ids.ids, data=cleaned_data)
     return result.success()
 
 

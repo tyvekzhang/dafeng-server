@@ -46,7 +46,7 @@ class ServerConfig:
 class DatabaseConfig:
     def __init__(
         self,
-        dialog: str = "sqlite",
+        dialect: str = "sqlite",
         db_name="df.db",
         url: str = "",
         pool_recycle: int = 20,
@@ -56,17 +56,19 @@ class DatabaseConfig:
         Initializes database configuration with a default database model.
 
         Args:
-            dialog (str): The model of database. Default is 'sqlite'.
+            dialect (str): The model of database. Default is 'sqlite'.
             db_name (str): The name of sqlite database. Default is 'server.db'.
             url (str): The url of database. Default is 'src/main/resource/alembic/db/server.db'.
             pool_recycle (int): The pool size of database. Default is 20.
             echo_sql (bool): Whether to echo sql statements. Default is True.
         """
-        self.dialog = dialog
+        self.dialect = dialect
         self.db_name = db_name
-        if dialog == "sqlite" and url == "":
+        if dialect == "sqlite" and url == "":
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            db_dir = os.path.join(base_dir, "..", "..", "resource", "alembic", "db")
+            db_dir = os.path.join(
+                base_dir, os.pardir, os.pardir, os.pardir, "resource", "alembic", "db"
+            )
             db_dir = os.path.abspath(db_dir)
             if not os.path.exists(db_dir):
                 os, makedirs(db_dir)
