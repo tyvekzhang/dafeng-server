@@ -26,7 +26,7 @@ from sqlmodel import (
 )
 
 from src.main.app.model.model_base import ModelBase, ModelExt
-from sqlalchemy.ext.asyncio import create_async_engine
+from src.main.app.common.session.db_engine import get_engine_by_database_id
 
 
 class {{ class_name }}Base(SQLModel):
@@ -61,8 +61,8 @@ class {{ class_name }}DO(ModelExt, {{ class_name }}Base, ModelBase, table=True):
         {% endif %}
     )
 
-async def create_db_and_tables():
-    engine = create_async_engine(url="mysql+aiomysql://root:123456@localhost:3306/df")
+async def main():
+    engine = await get_engine_by_database_id(env="dev", database_id={{ database_id }})
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
@@ -70,4 +70,4 @@ async def create_db_and_tables():
 if __name__ == "__main__":
     import asyncio
 
-    asyncio.run(create_db_and_tables())
+    asyncio.run(main())

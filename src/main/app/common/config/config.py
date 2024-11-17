@@ -49,8 +49,11 @@ class DatabaseConfig:
         dialect: str = "sqlite",
         db_name="df.db",
         url: str = "",
-        pool_recycle: int = 20,
+        pool_size: int = 10,
+        max_overflow: int = 20,
+        pool_recycle: int = 1800,
         echo_sql: bool = True,
+        pool_pre_ping: bool = True,
     ) -> None:
         """
         Initializes database configuration with a default database model.
@@ -59,8 +62,11 @@ class DatabaseConfig:
             dialect (str): The model of database. Default is 'sqlite'.
             db_name (str): The name of sqlite database. Default is 'server.db'.
             url (str): The url of database. Default is 'src/main/resource/alembic/db/server.db'.
-            pool_recycle (int): The pool size of database. Default is 20.
+            pool_size (int): The pool size of database. Default is 10.
+            max_overflow (int): The max overflow of database. Default is 20.
+            pool_recycle (int): The pool recycle of database. Default is 1800 sec.
             echo_sql (bool): Whether to echo sql statements. Default is True.
+            pool_pre_ping (bool): Whether to pre ping. Default is True.
         """
         self.dialect = dialect
         self.db_name = db_name
@@ -75,8 +81,11 @@ class DatabaseConfig:
             bd_path = os.path.join(db_dir, self.db_name)
             url = "sqlite+aiosqlite:///" + str(bd_path)
         self.url = url
+        self.pool_size = pool_size
+        self.max_overflow = max_overflow
         self.pool_recycle = pool_recycle
         self.echo_sql = echo_sql
+        self.pool_pre_ping = pool_pre_ping
 
     def __repr__(self) -> str:
         """

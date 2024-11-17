@@ -5,8 +5,10 @@ import subprocess
 import sys
 from typing import List
 
-from sqlmodel import MetaData
+from sqlmodel import MetaData, inspect
 
+from src.main.app.common.enums.enum import ResponseCode
+from src.main.app.common.exception.exception import SystemException
 from src.main.app.common.session.db_engine import get_cached_async_engine
 from src.main.app.common.util.field_type_mapping_util import (
     mysql_map2sqlmodel_type,
@@ -73,6 +75,19 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
         )
 
     async def generate_table(self, table_generate: TableGenerate) -> None:
+        database_id = table_generate.database_id
+        engine = await get_cached_async_engine(database_id=database_id)
+
+        table_name = table_generate.table_name
+        async with engine.connect() as conn:
+            tables = await conn.run_sync(
+                lambda sync_conn: inspect(sync_conn).get_table_names()
+            )
+            if table_name in tables:
+                raise SystemException(
+                    ResponseCode.TABLE_EXISTS_ERROR.code,
+                    f"{ResponseCode.TABLE_EXISTS_ERROR.msg}: {table_name}",
+                )
         template = load_template_file(template_name="table_create.py.j2")
         if table_generate.class_name is None:
             table_name_split = table_generate.table_name.split("_")
@@ -99,6 +114,9 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
         dest_path = os.path.join(dest_dir, file_name)
         with open(dest_path, "w", encoding="UTF-8") as f:
             f.write(rendered_content)
-        subprocess.run(
-            [sys.executable, dest_path], capture_output=True, text=True, check=True
-        )
+        try:
+            subprocess.run(
+                [sys.executable, dest_path], capture_output=True, text=True, check=True
+            )
+        except:
+            pass

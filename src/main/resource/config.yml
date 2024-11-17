@@ -12,8 +12,11 @@ database:
   # When use sqlite do not need to set url and default in src/main/resource/alembic/db/server.db
   # Url format: driver://user:pass@localhost:port/dbname
   url: ""
-  pool_recycle: 20
+  pool_size: 10
+  max_overflow: 20
+  pool_recycle: 1800
   echo_sql: True
+  pool_pre_ping: True
 
 security:
   enable: True

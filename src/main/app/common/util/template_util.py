@@ -5,11 +5,8 @@ from typing import Any
 from jinja2 import Template
 from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import SystemException
+from src.main.app.common.util.work_path_util import resource_dir
 
-base_dir: str = os.path.dirname(os.path.abspath(__file__))
-resource_dir: str = os.path.abspath(
-    os.path.join(base_dir, os.pardir, os.pardir, os.pardir, "resource")
-)
 home_template_dir: str = os.path.join(resource_dir, "template")
 
 

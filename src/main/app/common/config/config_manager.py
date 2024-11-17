@@ -1,3 +1,4 @@
+import os
 from argparse import Namespace
 
 from src.main.app.common.config.config import (
@@ -7,7 +8,12 @@ from src.main.app.common.config.config import (
     DatabaseConfig,
 )
 from src.main.app.common.config.config_loader import ConfigLoader
-from src.main.app.common.exception.exception import ConfigNotInitialisedException
+from src.main.app.common.enums.enum import ResponseCode
+from src.main.app.common.exception.exception import (
+    ConfigNotInitialisedException,
+    SystemException,
+)
+from src.main.app.common.util.work_path_util import resource_dir
 
 config: Config
 
@@ -30,6 +36,18 @@ def load_config(args: Namespace) -> None:
     config_loader = ConfigLoader(env, config_file)
     config_dict = config_loader.load_config()
     config = Config(config_dict)
+
+
+def get_database_url(*, env: str = "dev"):
+    assert env in ("dev", "prod", "local")
+    config_path = os.path.join(resource_dir, f"config-{env}.yml")
+    config_dict = ConfigLoader.load_yaml_file(config_path)
+    if "database" not in config_dict:
+        raise SystemException(
+            ResponseCode.PARAMETER_ERROR.code,
+            f"{ResponseCode.PARAMETER_ERROR.msg}: {env}",
+        )
+    return config_dict["database"]["url"]
 
 
 def get_config() -> Config:

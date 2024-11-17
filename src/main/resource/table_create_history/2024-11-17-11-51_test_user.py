@@ -26,7 +26,7 @@ from sqlmodel import (
 )
 
 from src.main.app.model.model_base import ModelBase, ModelExt
-from sqlalchemy.ext.asyncio import create_async_engine
+from src.main.app.common.session.db_engine import get_engine_by_database_id
 
 
 class UserBase(SQLModel):
@@ -107,10 +107,12 @@ class UserDO(ModelExt, UserBase, ModelBase, table=True):
     )
 
 async def main():
-    engine = create_async_engine(url="mysql+aiomysql://root:123456@localhost:3306/df")
+    engine = await get_engine_by_database_id(env="dev", database_id=5467156516865)
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
 
+
 if __name__ == "__main__":
     import asyncio
+
     asyncio.run(main())
