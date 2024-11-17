@@ -5,7 +5,7 @@ server:
   version: 0.1.0
   app_desc: Da feng helps us work more easily and happily.
   api_version: /v1
-  workers: 8
+  workers: 2
 
 database:
   dialect: sqlite

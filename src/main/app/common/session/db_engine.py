@@ -24,14 +24,22 @@ async_engine: AsyncEngine
 def get_async_engine():
     global async_engine
     database_config = get_database_config()
-    async_engine = create_async_engine(
-        url=database_config.url,
-        echo=database_config.echo_sql,
-        pool_size=database_config.pool_size,
-        max_overflow=database_config.max_overflow,
-        pool_recycle=database_config.pool_recycle,
-        pool_pre_ping=True,
-    )
+    if database_config.dialect.lower() == "sqlite":
+        async_engine = create_async_engine(
+            url=database_config.url,
+            echo=database_config.echo_sql,
+            pool_recycle=database_config.pool_recycle,
+            pool_pre_ping=True,
+        )
+    else:
+        async_engine = create_async_engine(
+            url=database_config.url,
+            echo=database_config.echo_sql,
+            pool_size=database_config.pool_size,
+            max_overflow=database_config.max_overflow,
+            pool_recycle=database_config.pool_recycle,
+            pool_pre_ping=True,
+        )
     return async_engine
 
 

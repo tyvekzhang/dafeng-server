@@ -49,6 +49,8 @@ class ConfigLoader:
         Returns:
             Dict: The merged dictionary.
         """
+        if override_dict is None:
+            return base_dict
         for key, value in override_dict.items():
             if isinstance(value, dict) and key in base_dict:
                 # If the value is a dictionary, recursively merge it
