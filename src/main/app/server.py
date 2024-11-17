@@ -39,11 +39,15 @@ def register_optional_modules() -> None:
 
 # Start the Uvicorn server
 def start_server(server_config: ServerConfig) -> None:
+    app_name="src.main.app.server:app"
+    host = server_config.host
+    port = server_config.port
+    workers = server_config.workers
     uvicorn.run(
-        app=app,
-        host=server_config.host,
-        port=server_config.port,
-        workers=server_config.workers,
+        app=app_name,
+        host=host,
+        port=port,
+        workers=workers,
     )
 
 
