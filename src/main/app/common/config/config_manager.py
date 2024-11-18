@@ -1,16 +1,12 @@
 import os
-from argparse import Namespace
+from functools import lru_cache
 
 from src.main.app.common.config.config import (
     Config,
-    ServerConfig,
-    SecurityConfig,
-    DatabaseConfig,
 )
 from src.main.app.common.config.config_loader import ConfigLoader
 from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import (
-    ConfigNotInitialisedException,
     SystemException,
 )
 from src.main.app.common.util.work_path_util import resource_dir
@@ -18,7 +14,8 @@ from src.main.app.common.util.work_path_util import resource_dir
 config: Config
 
 
-def load_config(args: Namespace) -> None:
+@lru_cache
+def load_config() -> Config:
     """
     Loads the configuration based on the provided command-line arguments.
 
@@ -30,12 +27,13 @@ def load_config(args: Namespace) -> None:
         Config: A configuration object populated with the loaded settings.
     """
     global config
-    env = args.env
+    env = os.getenv("ENV", "dev")
 
-    config_file = args.config_file
+    config_file = os.getenv("CONFIG_FILE", None)
     config_loader = ConfigLoader(env, config_file)
     config_dict = config_loader.load_config()
     config = Config(config_dict)
+    return config
 
 
 def get_database_url(*, env: str = "dev"):
@@ -48,33 +46,3 @@ def get_database_url(*, env: str = "dev"):
             f"{ResponseCode.PARAMETER_ERROR.msg}: {env}",
         )
     return config_dict["database"]["url"]
-
-
-def get_config() -> Config:
-    """
-    Return config content
-    """
-    if not config:
-        raise ConfigNotInitialisedException
-    return config
-
-
-def get_server_config() -> ServerConfig:
-    """
-    Return server config content
-    """
-    return config.server
-
-
-def get_security_config() -> SecurityConfig:
-    """
-    Return security config content
-    """
-    return config.security
-
-
-def get_database_config() -> DatabaseConfig:
-    """
-    Return database config content
-    """
-    return config.database

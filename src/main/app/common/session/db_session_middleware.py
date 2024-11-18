@@ -45,18 +45,14 @@ def create_middleware_and_session_proxy():
             session_args = session_args or {}
 
             if not custom_engine and not db_url:
-                raise ValueError(
-                    "You need to pass a db_url or a custom_engine parameter."
-                )
+                raise ValueError("You need to pass a db_url or a custom_engine parameter.")
             if not custom_engine:
                 engine = create_async_engine(db_url, **engine_args)
             else:
                 engine = custom_engine
 
             nonlocal _Session
-            _Session = async_sessionmaker(
-                engine, class_=AsyncSession, expire_on_commit=False, **session_args
-            )
+            _Session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False, **session_args)
 
         async def dispatch(self, request: Request, call_next: RequestResponseEndpoint):
             async with DBSession(commit_on_exit=self.commit_on_exit):
@@ -94,9 +90,7 @@ def create_middleware_and_session_proxy():
             try:
                 if exc_type is not None:
                     await session.rollback()
-                elif (
-                    self.commit_on_exit
-                ):  # Note: Changed this to elif to avoid commit after rollback
+                elif self.commit_on_exit:  # Note: Changed this to elif to avoid commit after rollback
                     await session.commit()
             finally:
                 await session.close()

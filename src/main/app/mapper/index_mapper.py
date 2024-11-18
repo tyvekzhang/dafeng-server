@@ -10,9 +10,7 @@ from src.main.app.model.index_model import IndexDO
 
 
 class IndexMapper(SqlModelMapper[IndexDO]):
-    async def select_by_table_id(
-        self, table_id: int, db_session: Union[AsyncSession, None] = None
-    ) -> List[IndexDO]:
+    async def select_by_table_id(self, table_id: int, db_session: Union[AsyncSession, None] = None) -> List[IndexDO]:
         db_session = db_session or self.db.session
         statement = select(self.model).where(self.model.table_id == table_id)
         exec_result = await db_session.exec(statement)

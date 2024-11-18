@@ -84,14 +84,10 @@ class DatabaseServiceImpl(ServiceBaseImpl[DatabaseMapper, DatabaseDO], DatabaseS
             database_records = [MySQLSchema(**row) for row in rows]
         new_add_databases = []
         need_delete_ids = []
-        records: List[DatabaseDO] = await self.mapper.select_by_connection_id(
-            connection_id=connection_id
-        )
+        records: List[DatabaseDO] = await self.mapper.select_by_connection_id(connection_id=connection_id)
         exist_database_names = set()
         if records is not None:
-            exist_database_names = {
-                record.database_name: record.id for record in records
-            }
+            exist_database_names = {record.database_name: record.id for record in records}
         for record in database_records:
             if record.schema_name not in exist_database_names:
                 new_add_databases.append(

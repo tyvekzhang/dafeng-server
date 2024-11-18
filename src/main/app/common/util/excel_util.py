@@ -9,9 +9,7 @@ from pydantic import BaseModel
 from starlette.responses import StreamingResponse
 
 
-async def export_excel(
-    schema: Type[BaseModel], file_name: str, records: List[BaseModel] = []
-) -> StreamingResponse:
+async def export_excel(schema: Type[BaseModel], file_name: str, records: List[BaseModel] = []) -> StreamingResponse:
     """
     Export a template or data as an Excel file with Microsoft YaHei font for all cells and auto-width headers.
     """
@@ -19,9 +17,7 @@ async def export_excel(
     user_export_df = pd.DataFrame(columns=field_names)
     if records:
         data_dicts = [item.model_dump() for item in records]
-        user_export_df = pd.concat(
-            [user_export_df, pd.DataFrame(data_dicts)], ignore_index=True
-        )
+        user_export_df = pd.concat([user_export_df, pd.DataFrame(data_dicts)], ignore_index=True)
 
     filename = f"{file_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.xlsx"
     stream = io.BytesIO()

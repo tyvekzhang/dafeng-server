@@ -59,18 +59,14 @@ async def list_indexes(
     """
     index_list, total_count = await index_service.list_indexes(data=index_query)
 
-    return ResponseBase(
-        data=PaginationResponse(records=index_list, total_count=total_count)
-    )
+    return ResponseBase(data=PaginationResponse(records=index_list, total_count=total_count))
 
 
 @index_router.post("/run_script")
 async def run_script(script_path: str):
     try:
         # 使用 subprocess 执行 Python 脚本
-        result = subprocess.run(
-            [sys.execuindex, script_path], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run([sys.execuindex, script_path], capture_output=True, text=True, check=True)
         return {"stdout": result.stdout, "stderr": result.stderr}
     except subprocess.CalledProcessError as e:
         return {"error": str(e), "stdout": e.stdout, "stderr": e.stderr}
@@ -150,9 +146,7 @@ async def modify(
     Returns:
         Success result message
     """
-    await index_service.modify_by_id(
-        data=IndexDO(**data.model_dump(exclude_unset=True))
-    )
+    await index_service.modify_by_id(data=IndexDO(**data.model_dump(exclude_unset=True)))
     return result.success()
 
 

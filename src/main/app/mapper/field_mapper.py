@@ -10,9 +10,7 @@ from src.main.app.model.table_model import TableDO
 
 
 class FieldMapper(SqlModelMapper[FieldDO]):
-    async def select_by_table_id(
-        self, table_id: int, db_session: Union[AsyncSession, None] = None
-    ) -> List[TableDO]:
+    async def select_by_table_id(self, table_id: int, db_session: Union[AsyncSession, None] = None) -> List[TableDO]:
         db_session = db_session or self.db.session
         statement = select(self.model).where(self.model.table_id == table_id)
         exec_result = await db_session.exec(statement)

@@ -6,7 +6,7 @@ from fastapi.openapi.docs import (
     get_swagger_ui_oauth2_redirect_html,
 )
 from fastapi.staticfiles import StaticFiles
-from src.main.app.common.config.config_manager import get_server_config
+from src.main.app.common.config.config_manager import load_config
 from src.main.app.server import app
 
 
@@ -25,7 +25,7 @@ async def custom_swagger_ui_html():
     return get_swagger_ui_html(
         swagger_favicon_url="/static/favicon.png",
         openapi_url=app.openapi_url,
-        title=get_server_config().name,
+        title=load_config().server.name,
         oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
         swagger_js_url="/static/swagger-ui-bundle.js",
         swagger_css_url="/static/swagger-ui.css",
@@ -42,6 +42,6 @@ async def redoc_html():
     return get_redoc_html(
         redoc_favicon_url="/static/favicon.png",
         openapi_url=app.openapi_url,
-        title=get_server_config().name,
+        title=load_config().server.name,
         redoc_js_url="/static/redoc.standalone.js",
     )

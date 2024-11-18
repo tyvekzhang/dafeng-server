@@ -50,9 +50,7 @@ async def list_databases(
     """
     databases, total_count = await database_service.list_databases(data=database_query)
 
-    return ResponseBase(
-        data=PaginationResponse(records=databases, total_count=total_count)
-    )
+    return ResponseBase(data=PaginationResponse(records=databases, total_count=total_count))
 
 
 @database_router.get("/version")
@@ -69,8 +67,7 @@ async def get_database_version(database_id: Optional[int] = None) -> Dict:
         else:
             raise SystemException(
                 ResponseCode.DB_UNKNOWN_ERROR.code,
-                f"Unknown database dialect: {dialect_name}. "
-                + ResponseCode.DB_UNKNOWN_ERROR.msg,
+                f"Unknown database dialect: {dialect_name}. " + ResponseCode.DB_UNKNOWN_ERROR.msg,
             )
         version = str((version_info.fetchone())[0]).split("-")[0]
     return result.success({"version_schema": f"{dialect_name}:{version}"})
@@ -81,18 +78,12 @@ async def get_table_fields(table_name: str, database_id: int) -> Dict:
     engine = await get_cached_async_engine(database_id=database_id)
     async with engine.connect() as conn:
         dialect_name = engine.dialect.name.lower()
-        columns = await conn.run_sync(
-            lambda sync_conn: inspect(sync_conn).get_columns(table_name)
-        )
+        columns = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_columns(table_name))
         if dialect_name != "sqlite":
-            table_options = await conn.run_sync(
-                lambda sync_conn: inspect(sync_conn).get_table_options(table_name)
-            )
+            table_options = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_table_options(table_name))
         else:
             table_options = {}
-        indexes = await conn.run_sync(
-            lambda sync_conn: inspect(sync_conn).get_indexes(table_name)
-        )
+        indexes = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_indexes(table_name))
     indexed_columns = set()
     for index in indexes:
         for col in index["column_names"]:

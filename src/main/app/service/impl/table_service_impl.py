@@ -40,9 +40,7 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
                 table_info.append((table_name, table.comment))
         new_add_tables = []
         need_delete_ids = []
-        records: List[TableDO] = await self.mapper.select_by_database_id(
-            database_id=database_id
-        )
+        records: List[TableDO] = await self.mapper.select_by_database_id(database_id=database_id)
         exist_table_names = set()
         if records is not None:
             exist_table_names = {record.name: record.id for record in records}
@@ -80,9 +78,7 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
 
         table_name = table_generate.table_name
         async with engine.connect() as conn:
-            tables = await conn.run_sync(
-                lambda sync_conn: inspect(sync_conn).get_table_names()
-            )
+            tables = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_table_names())
             if table_name in tables:
                 raise SystemException(
                     ResponseCode.TABLE_EXISTS_ERROR.code,
@@ -108,15 +104,11 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
         )
         rendered_content = render_template(template, **table_generate.model_dump())
         dest_dir = os.path.join(resource_dir, "table_create_history")
-        file_name = (
-            f"{get_current_time("%Y-%m-%d-%H-%M")}_{table_generate.table_name}.py"
-        )
+        file_name = f"{get_current_time("%Y-%m-%d-%H-%M")}_{table_generate.table_name}.py"
         dest_path = os.path.join(dest_dir, file_name)
         with open(dest_path, "w", encoding="UTF-8") as f:
             f.write(rendered_content)
         try:
-            subprocess.run(
-                [sys.executable, dest_path], capture_output=True, text=True, check=True
-            )
+            subprocess.run([sys.executable, dest_path], capture_output=True, text=True, check=True)
         except:
             pass

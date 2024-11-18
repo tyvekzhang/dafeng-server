@@ -189,9 +189,7 @@ async def modify(
     Returns:
         Success result message
     """
-    await user_service.modify_by_id(
-        record=UserDO(**data.model_dump(exclude_unset=True))
-    )
+    await user_service.modify_by_id(record=UserDO(**data.model_dump(exclude_unset=True)))
     return result.success()
 
 
@@ -199,9 +197,7 @@ async def modify(
 async def batch_modify(ids: Ids, data: UserBatchUpdate) -> Dict:
     password = data.password
     if password is not None:
-        if len(password) < 6 or not re.search(
-            r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$", password
-        ):
+        if len(password) < 6 or not re.search(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$", password):
             raise SystemException(
                 ResponseCode.PASSWORD_VALID_ERROR.code,
                 ResponseCode.PASSWORD_VALID_ERROR.msg,

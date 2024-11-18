@@ -72,9 +72,7 @@ class DatabaseConfig:
         self.db_name = db_name
         if dialect == "sqlite" and url == "":
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            db_dir = os.path.join(
-                base_dir, os.pardir, os.pardir, os.pardir, "resource", "alembic", "db"
-            )
+            db_dir = os.path.join(base_dir, os.pardir, os.pardir, os.pardir, "resource", "alembic", "db")
             db_dir = os.path.abspath(db_dir)
             if not os.path.exists(db_dir):
                 os, makedirs(db_dir)
@@ -148,39 +146,19 @@ class SecurityConfig:
 
 
 class Config:
-    _instance = None
-
-    def __new__(cls, config_dict=None):
-        if cls._instance is None:
-            cls._instance = super(Config, cls).__new__(cls)
-            cls._instance.__initialized = False
-        return cls._instance
-
     def __init__(self, config_dict=None):
-        if self.__initialized:
-            return
-
-        self.server = ServerConfig()
-        self.database = DatabaseConfig()
-        self.security = SecurityConfig()
-
-        if config_dict is not None:
-            self.initialize(config_dict)
-
-        self.__initialized = True
-
-    def initialize(self, config_dict):
-        """
-        Initializes the main configuration using a dictionary as the configuration source.
-        """
         if "server" in config_dict:
             self.server = ServerConfig(**config_dict["server"])
-
+        else:
+            self.server = ServerConfig()
         if "database" in config_dict:
             self.database = DatabaseConfig(**config_dict["database"])
-
+        else:
+            self.database = DatabaseConfig()
         if "security" in config_dict:
             self.security = SecurityConfig(**config_dict["security"])
+        else:
+            self.security = SecurityConfig()
 
     def __repr__(self) -> str:
         """

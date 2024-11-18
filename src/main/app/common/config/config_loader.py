@@ -15,9 +15,7 @@ class ConfigLoader:
         """
         if base_config_file is None:
             base_dir = os.path.dirname(os.path.abspath(__file__))
-            config_path = os.path.join(
-                base_dir, os.pardir, os.pardir, os.pardir, "resource", "config.yml"
-            )
+            config_path = os.path.join(base_dir, os.pardir, os.pardir, os.pardir, "resource", "config.yml")
             base_config_file = os.path.abspath(config_path)
             self.default_flag = True
         self.base_config_file = base_config_file
@@ -76,9 +74,7 @@ class ConfigLoader:
                 environment = self.env
             env_config_file = f"config-{environment}.yml"
             # Replace the base config file name with the environment-specific one
-            env_config_path = self.base_config_file.replace(
-                "config.yml", env_config_file
-            )
+            env_config_path = self.base_config_file.replace("config.yml", env_config_file)
             if os.path.exists(env_config_path):
                 env_config = self.load_yaml_file(env_config_path)
                 self.config = self.merge_dicts(self.config, env_config)

@@ -23,12 +23,8 @@ def upgrade():
     op.create_table(
         "sys_connection",
         sa.Column("id", sa.BigInteger(), nullable=False, comment="主键"),
-        sa.Column(
-            "connection_name", sa.String(length=32), nullable=False, comment="连接名称"
-        ),
-        sa.Column(
-            "database_type", sa.String(length=16), nullable=False, comment="数据库类型"
-        ),
+        sa.Column("connection_name", sa.String(length=32), nullable=False, comment="连接名称"),
+        sa.Column("database_type", sa.String(length=16), nullable=False, comment="数据库类型"),
         sa.Column(
             "database_ext",
             sa.String(length=64),
@@ -47,15 +43,9 @@ def upgrade():
     op.create_table(
         "sys_database",
         sa.Column("id", sa.BigInteger(), nullable=False, comment="主键"),
-        sa.Column(
-            "connection_id", sa.BigInteger(), nullable=False, comment="数据库连接id"
-        ),
-        sa.Column(
-            "database_name", sa.String(length=32), nullable=False, comment="数据库名称"
-        ),
-        sa.Column(
-            "character_set", sa.String(length=32), nullable=True, comment="字符编码"
-        ),
+        sa.Column("connection_id", sa.BigInteger(), nullable=False, comment="数据库连接id"),
+        sa.Column("database_name", sa.String(length=32), nullable=False, comment="数据库名称"),
+        sa.Column("character_set", sa.String(length=32), nullable=True, comment="字符编码"),
         sa.Column("collation", sa.String(length=32), nullable=True, comment="排序规则"),
         sa.Column("create_time", sa.BigInteger(), nullable=True, comment="创建时间"),
         sa.Column("update_time", sa.BigInteger(), nullable=True, comment="更新时间"),
@@ -90,9 +80,7 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
         comment="表字段信息表",
     )
-    op.create_index(
-        op.f("ix_sys_field_table_id"), "sys_field", ["table_id"], unique=False
-    )
+    op.create_index(op.f("ix_sys_field_table_id"), "sys_field", ["table_id"], unique=False)
     op.create_table(
         "sys_index",
         sa.Column("id", sa.BigInteger(), nullable=False, comment="主键"),
@@ -117,18 +105,14 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
         comment="表结构信息",
     )
-    op.create_index(
-        op.f("ix_sys_table_database_id"), "sys_table", ["database_id"], unique=False
-    )
+    op.create_index(op.f("ix_sys_table_database_id"), "sys_table", ["database_id"], unique=False)
     op.create_table(
         "sys_user",
         sa.Column("id", sa.BigInteger(), nullable=False, comment="主键"),
         sa.Column("username", sa.String(length=32), nullable=False, comment="用户名"),
         sa.Column("password", sa.String(length=63), nullable=False, comment="密码"),
         sa.Column("nickname", sa.String(length=32), nullable=False, comment="昵称"),
-        sa.Column(
-            "avatar_url", sa.String(length=63), nullable=True, comment="头像地址"
-        ),
+        sa.Column("avatar_url", sa.String(length=63), nullable=True, comment="头像地址"),
         sa.Column(
             "status",
             sa.Integer(),
@@ -141,9 +125,7 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
         comment="用户信息表",
     )
-    op.create_index(
-        "idx_status_nickname", "sys_user", ["status", "nickname"], unique=False
-    )
+    op.create_index("idx_status_nickname", "sys_user", ["status", "nickname"], unique=False)
     op.create_index(op.f("ix_sys_user_username"), "sys_user", ["username"], unique=True)
     # ### end Alembic commands ###
 

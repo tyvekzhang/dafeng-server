@@ -38,9 +38,7 @@ async def add_connection(
     Returns:
         BaseResponse with new connection's ID.
     """
-    connection: ConnectionDO = await connection_service.save(
-        data=ConnectionDO(**connection_add.model_dump())
-    )
+    connection: ConnectionDO = await connection_service.save(data=ConnectionDO(**connection_add.model_dump()))
     return ResponseBase(data=connection.id)
 
 
@@ -57,12 +55,8 @@ async def list_connections(
     Returns:
         BaseResponse with list and total count.
     """
-    records, total_count = await connection_service.list_connections(
-        data=connection_query
-    )
-    return ResponseBase(
-        data=PaginationResponse(records=records, total_count=total_count)
-    )
+    records, total_count = await connection_service.list_connections(data=connection_query)
+    return ResponseBase(data=PaginationResponse(records=records, total_count=total_count))
 
 
 @connection_router.post("/recover")
@@ -90,9 +84,7 @@ async def export_template() -> StreamingResponse:
     Returns:
         StreamingResponse with connection field
     """
-    return await export_excel(
-        schema=ConnectionExport, file_name="connection_import_template"
-    )
+    return await export_excel(schema=ConnectionExport, file_name="connection_import_template")
 
 
 @connection_router.post("/import")
@@ -141,9 +133,7 @@ async def modify(
     Returns:
         Success result message
     """
-    await connection_service.modify_by_id(
-        data=ConnectionDO(**data.model_dump(exclude_unset=True))
-    )
+    await connection_service.modify_by_id(data=ConnectionDO(**data.model_dump(exclude_unset=True)))
     return result.success()
 
 

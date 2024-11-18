@@ -18,9 +18,7 @@ class DatabaseMapper(SqlModelMapper[DatabaseDO]):
         exec_result = await db_session.exec(statement)
         return exec_result.all()
 
-    async def delete_by_connection_id(
-        self, connection_id: int, db_session: Union[AsyncSession, None] = None
-    ) -> int:
+    async def delete_by_connection_id(self, connection_id: int, db_session: Union[AsyncSession, None] = None) -> int:
         db_session = db_session or self.db.session
         statement = delete(self.model).where(self.model.connection_id == connection_id)
         exec_result = await db_session.exec(statement)

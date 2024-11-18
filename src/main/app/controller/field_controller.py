@@ -56,9 +56,7 @@ async def list_fields(
         BaseResponse with list and total count.
     """
     records, total_count = await field_service.list_fields(data=field_query)
-    return ResponseBase(
-        data=PaginationResponse(records=records, total_count=total_count)
-    )
+    return ResponseBase(data=PaginationResponse(records=records, total_count=total_count))
 
 
 @field_router.post("/recover")
@@ -135,9 +133,7 @@ async def modify(
     Returns:
         Success result message
     """
-    await field_service.modify_by_id(
-        data=FieldDO(**data.model_dump(exclude_unset=True))
-    )
+    await field_service.modify_by_id(data=FieldDO(**data.model_dump(exclude_unset=True)))
     return result.success()
 
 

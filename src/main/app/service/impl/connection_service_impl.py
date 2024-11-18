@@ -1,7 +1,7 @@
 """Connection domain service impl"""
 
 from src.main.app.common.config.config_manager import (
-    get_database_config,
+    load_config,
 )
 from src.main.app.common.exception.exception import SystemException
 from src.main.app.mapper.connection_mapper import ConnectionMapper
@@ -14,9 +14,7 @@ from src.main.app.service.connection_service import ConnectionService
 from src.main.app.service.impl.service_base_impl import ServiceBaseImpl
 
 
-class ConnectionServiceImpl(
-    ServiceBaseImpl[ConnectionMapper, ConnectionDO], ConnectionService
-):
+class ConnectionServiceImpl(ServiceBaseImpl[ConnectionMapper, ConnectionDO], ConnectionService):
     """
     Implementation of the ConnectionService interface.
     """
@@ -40,8 +38,7 @@ class ConnectionServiceImpl(
             count=data.count,
         )
         if total_count == 0:
-            pass
-            database_config = get_database_config()
+            database_config = load_config().database
             dialect = database_config.dialect
             url = database_config.url
             connection_do: ConnectionDO

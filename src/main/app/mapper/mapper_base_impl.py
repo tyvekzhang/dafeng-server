@@ -41,9 +41,7 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         db_session.add(record)
         return record
 
-    async def batch_insert(
-        self, *, records: List[Any], db_session: AsyncSession = None
-    ) -> int:
+    async def batch_insert(self, *, records: List[Any], db_session: AsyncSession = None) -> int:
         """
         Inserts multiple records into the database in a single batch.
 
@@ -56,15 +54,11 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         """
         db_session = db_session or self.db.session
         orm_records = [self.model.model_validate(record) for record in records]
-        statement = insert(self.model).values(
-            [record.model_dump() for record in orm_records]
-        )
+        statement = insert(self.model).values([record.model_dump() for record in orm_records])
         exec_response = await db_session.exec(statement)
         return exec_response.rowcount
 
-    async def select_by_id(
-        self, *, id: Any, db_session: AsyncSession = None
-    ) -> Union[ModelType, SchemaType]:
+    async def select_by_id(self, *, id: Any, db_session: AsyncSession = None) -> Union[ModelType, SchemaType]:
         """
         Select a single record by its ID.
 
@@ -80,9 +74,7 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         exec_response = await db_session.exec(statement)
         return exec_response.one_or_none()
 
-    async def select_by_ids(
-        self, *, ids: List[Any], db_session: AsyncSession = None
-    ) -> List[Any]:
+    async def select_by_ids(self, *, ids: List[Any], db_session: AsyncSession = None) -> List[Any]:
         """
         Select records by a list of ID.
 
@@ -195,17 +187,9 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         if order_by is None or order_by not in columns:
             order_by = "id"
         if sort_order is None or sort_order == SortEnum.descending:
-            query = (
-                query.offset((page - 1) * size)
-                .limit(size)
-                .order_by(columns[order_by].desc())
-            )
+            query = query.offset((page - 1) * size).limit(size).order_by(columns[order_by].desc())
         else:
-            query = (
-                query.offset((page - 1) * size)
-                .limit(size)
-                .order_by(columns[order_by].acs())
-            )
+            query = query.offset((page - 1) * size).limit(size).order_by(columns[order_by].acs())
         total_count = 0
         if "count" in kwargs and kwargs["count"]:
             count_query = select(func.count()).select_from(count_query.subquery())
@@ -216,9 +200,7 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         records = exec_response.all()
         return records, total_count
 
-    async def update_by_id(
-        self, *, record: Any, db_session: AsyncSession = None
-    ) -> int:
+    async def update_by_id(self, *, record: Any, db_session: AsyncSession = None) -> int:
         """
         Update a single record by its ID.
 
@@ -233,9 +215,7 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         exec_response = await db_session.exec(update_query)
         return exec_response.rowcount
 
-    async def batch_update_by_ids(
-        self, *, ids: List[Any], record: dict, db_session: AsyncSession = None
-    ) -> int:
+    async def batch_update_by_ids(self, *, ids: List[Any], record: dict, db_session: AsyncSession = None) -> int:
         """
         Update multiple records by their IDs.
 
@@ -264,9 +244,7 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         exec_response = await db_session.exec(statement)
         return exec_response.rowcount
 
-    async def batch_delete_by_ids(
-        self, *, ids: List[Any], db_session: AsyncSession = None
-    ) -> int:
+    async def batch_delete_by_ids(self, *, ids: List[Any], db_session: AsyncSession = None) -> int:
         """
         Delete multiple records by their IDs.
 

@@ -26,7 +26,7 @@ class UserMapper(SqlModelMapper[UserDO]):
         """
         db_session = db_session or self.db.session
         user = await db_session.exec(select(UserDO).where(UserDO.username == username))
-        return user.scalar_one_or_none()
+        return user.one_or_none()
 
     async def get_user_by_usernames(
         self, *, usernames: list[str], db_session: Union[AsyncSession, None] = None

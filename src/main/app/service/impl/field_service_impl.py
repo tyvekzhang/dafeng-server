@@ -36,17 +36,11 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
         index_name_id_map = {}
         field_records = await self.mapper.select_by_table_id(table_id=table_id)
         if field_records is not None:
-            field_name_id_map = {
-                field_record.name: field_record.id for field_record in field_records
-            }
+            field_name_id_map = {field_record.name: field_record.id for field_record in field_records}
         engine = await get_cached_async_engine(database_id=table_record.database_id)
         async with engine.connect() as conn:
-            columns = await conn.run_sync(
-                lambda sync_conn: inspect(sync_conn).get_columns(table_name)
-            )
-            indexes = await conn.run_sync(
-                lambda sync_conn: inspect(sync_conn).get_indexes(table_name)
-            )
+            columns = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_columns(table_name))
+            indexes = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_indexes(table_name))
         indexed_columns = set()
         for index in indexes:
             for col in index["column_names"]:
@@ -98,9 +92,7 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
 
         index_records = await indexMapper.select_by_table_id(table_id=table_id)
         if index_records is not None:
-            index_name_id_map = {
-                index_record.name: index_record.id for index_record in index_records
-            }
+            index_name_id_map = {index_record.name: index_record.id for index_record in index_records}
         # {'column_names': ['status', 'nickname'], 'name': 'idx_status_nickname', 'unique': False}
         new_add_index_records = []
         index_name_set = set()

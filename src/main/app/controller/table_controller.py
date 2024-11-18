@@ -60,9 +60,7 @@ async def list_tables(
     """
     table_list, total_count = await table_service.list_tables(data=table_query)
 
-    return ResponseBase(
-        data=PaginationResponse(records=table_list, total_count=total_count)
-    )
+    return ResponseBase(data=PaginationResponse(records=table_list, total_count=total_count))
 
 
 @table_router.post("/generate")
@@ -75,9 +73,7 @@ async def generate_table(table_generate: TableGenerate) -> Dict:
 async def run_script(script_path: str):
     try:
         # 使用 subprocess 执行 Python 脚本
-        result = subprocess.run(
-            [sys.executable, script_path], capture_output=True, text=True, check=True
-        )
+        result = subprocess.run([sys.executable, script_path], capture_output=True, text=True, check=True)
         return {"stdout": result.stdout, "stderr": result.stderr}
     except subprocess.CalledProcessError as e:
         return {"error": str(e), "stdout": e.stdout, "stderr": e.stderr}
@@ -157,9 +153,7 @@ async def modify(
     Returns:
         Success result message
     """
-    await table_service.modify_by_id(
-        data=TableDO(**data.model_dump(exclude_unset=True))
-    )
+    await table_service.modify_by_id(data=TableDO(**data.model_dump(exclude_unset=True)))
     return result.success()
 
 

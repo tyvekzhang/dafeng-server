@@ -8,7 +8,7 @@ from fastapi import UploadFile
 from typing import Optional, List
 import pandas as pd
 
-from src.main.app.common.config.config import Config
+from src.main.app.common.config.config_manager import load_config
 from src.main.app.common.enums.enum import ResponseCode, TokenTypeEnum
 from src.main.app.common.exception.exception import ServiceException, SystemException
 from src.main.app.mapper.user_mapper import UserMapper
@@ -66,32 +66,22 @@ class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
 
     @classmethod
     async def generate_tokens(cls, user_id: int) -> Token:
-        config = Config()
+        config = load_config()
 
         # generate access token
-        access_token_expires = timedelta(
-            minutes=config.security.access_token_expire_minutes
-        )
-        access_token = security_util.create_token(
-            subject=user_id, token_type=TokenTypeEnum.access
-        )
+        access_token_expires = timedelta(minutes=config.security.access_token_expire_minutes)
+        access_token = security_util.create_token(subject=user_id, token_type=TokenTypeEnum.access)
 
         # generate refresh token
-        refresh_token_expires = timedelta(
-            days=config.security.refresh_token_expire_days
-        )
+        refresh_token_expires = timedelta(days=config.security.refresh_token_expire_days)
         refresh_token = security_util.create_token(
             subject=user_id,
             token_type=TokenTypeEnum.refresh,
             expires_delta=refresh_token_expires,
         )
 
-        access_token_expires_at = int(
-            (datetime.now() + access_token_expires).timestamp()
-        )
-        refresh_token_expires_at = int(
-            (datetime.now() + refresh_token_expires).timestamp()
-        )
+        access_token_expires_at = int((datetime.now() + access_token_expires).timestamp())
+        refresh_token_expires_at = int((datetime.now() + refresh_token_expires).timestamp())
 
         return Token(
             access_token=access_token,
@@ -164,9 +154,7 @@ class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
         )
         return [UserQuery(**user.model_dump()) for user in results], total_count
 
-    async def export_user(
-        self, params: UserFilterForm, file_name: str = "user_export"
-    ) -> StreamingResponse:
+    async def export_user(self, params: UserFilterForm, file_name: str = "user_export") -> StreamingResponse:
         """
         Export user record to an Excel file.
 
@@ -181,9 +169,7 @@ class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
         records = []
         for user in user_pages:
             records.append(UserQuery(**user.model_dump()))
-        return await export_excel(
-            schema=UserQuery, file_name=file_name, records=records
-        )
+        return await export_excel(schema=UserQuery, file_name=file_name, records=records)
 
     async def import_user(self, file: UploadFile) -> int:
         """
@@ -224,9 +210,7 @@ class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
                 )
 
         # Check if any usernames already exist
-        existing_users: List[UserDO] = await self.mapper.get_user_by_usernames(
-            usernames=user_name_list
-        )
+        existing_users: List[UserDO] = await self.mapper.get_user_by_usernames(usernames=user_name_list)
 
         if existing_users:
             existing_usernames = [user.username for user in existing_users]

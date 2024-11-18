@@ -10,9 +10,7 @@ from src.main.app.common.util.work_path_util import resource_dir
 home_template_dir: str = os.path.join(resource_dir, "template")
 
 
-def load_template_file(
-    template_name: str, module: str = "default", sub_module: str = ""
-) -> Template:
+def load_template_file(template_name: str, module: str = "default", sub_module: str = "") -> Template:
     """
     Load template.
 
@@ -29,9 +27,7 @@ def load_template_file(
     """
     module_template_dir: str = os.path.join(home_template_dir, module)
     sub_module_template_dir: str = (
-        module_template_dir
-        if not sub_module
-        else os.path.join(module_template_dir, sub_module)
+        module_template_dir if not sub_module else os.path.join(module_template_dir, sub_module)
     )
     template_path: str = os.path.join(sub_module_template_dir, template_name)
     if not os.path.exists(template_path):
@@ -57,9 +53,7 @@ def render_template(template: Template, **context: Any) -> str:
     return template.render(**context)
 
 
-def load_and_render_template(
-    template_name: str, module: str = "default", sub_module: str = "", **context: Any
-) -> str:
+def load_and_render_template(template_name: str, module: str = "default", sub_module: str = "", **context: Any) -> str:
     """
     Load and render template.
 
@@ -75,6 +69,4 @@ def load_and_render_template(
     Raises:
         SystemException: If template not found or rendering fails.
     """
-    return render_template(
-        load_template_file(template_name, module, sub_module), **context
-    )
+    return render_template(load_template_file(template_name, module, sub_module), **context)

@@ -26,3 +26,4 @@ default = true
 [tool.ruff]
 include = ["src/**/*.py"]
 exclude = ["doc/**/*.py"]
+line-length = 120

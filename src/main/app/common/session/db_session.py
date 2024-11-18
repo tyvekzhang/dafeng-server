@@ -18,9 +18,7 @@ async def db_session(*, env: str, db_url: str = None, engine=None) -> AsyncSessi
         if db_url is None:
             db_url = get_database_url(env=env)
         engine = create_async_engine(db_url, echo=True)
-    async_session = async_sessionmaker(
-        bind=engine, class_=AsyncSession, autocommit=False, autoflush=True
-    )
+    async_session = async_sessionmaker(bind=engine, class_=AsyncSession, autocommit=False, autoflush=True)
     async with async_session() as session:
         yield session
     await engine.dispose()

@@ -11,8 +11,7 @@ from multipart.exceptions import DecodeError
 from passlib.context import CryptContext
 from starlette import status
 
-from src.main.app.common.config.config import Config
-from src.main.app.common.config.config_manager import get_security_config
+from src.main.app.common.config.config_manager import load_config
 from src.main.app.schema.common_schema import CurrentUser
 
 
@@ -20,7 +19,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def decode_token(token: str):
-    config = Config()
+    config = load_config()
     """Decode JWT and return payload"""
     key = config.security.secret_key
     return jwt.decode(token, key, algorithms=[config.security.algorithm])
@@ -33,10 +32,8 @@ def get_user_id(token: str) -> int:
 
 
 def get_oauth2_scheme() -> OAuth2PasswordBearer:
-    config = Config()
-    oauth2_scheme = OAuth2PasswordBearer(
-        tokenUrl=f"{config.server.api_version}/user/login"
-    )
+    config = load_config()
+    oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{config.server.api_version}/user/login")
     return oauth2_scheme
 
 
@@ -51,7 +48,7 @@ def get_current_user() -> Callable[[], CurrentUser]:
     def current_user(
         access_token: str = Depends(get_oauth2_scheme()),
     ) -> CurrentUser:
-        security = get_security_config()
+        security = load_config().security
         if not security.enable:
             user_id = 1
             return CurrentUser(id=user_id)
@@ -79,20 +76,12 @@ def create_token(
     token_type: str = None,
 ) -> str:
     """Create a JWT token"""
-    config = Config()
+    config = load_config()
     expire = int(
-        (
-            datetime.now()
-            + (
-                expires_delta
-                or timedelta(minutes=config.security.access_token_expire_minutes)
-            )
-        ).timestamp()
+        (datetime.now() + (expires_delta or timedelta(minutes=config.security.access_token_expire_minutes))).timestamp()
     )
     to_encode = {"exp": expire, "sub": str(subject), "model": token_type}
-    return jwt.encode(
-        to_encode, config.security.secret_key, algorithm=config.security.algorithm
-    )
+    return jwt.encode(to_encode, config.security.secret_key, algorithm=config.security.algorithm)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -107,10 +96,8 @@ def get_password_hash(password: str) -> str:
 
 def get_payload(token: str):
     """Get payload from token"""
-    config = Config()
-    return jwt.decode(
-        token, config.security.secret_key, algorithms=config.security.algorithm
-    )
+    config = load_config()
+    return jwt.decode(token, config.security.secret_key, algorithms=config.security.algorithm)
 
 
 def is_token_valid(token: str) -> bool:

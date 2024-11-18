@@ -17,9 +17,7 @@ class IndexBase(SQLModel):
     name: str = Field(sa_column=Column(String(32), nullable=False, comment="索引名称"))
     field: str = Field(sa_column=Column(String(63), nullable=False, comment="索引字段"))
     type: str = Field(sa_column=Column(String(16), nullable=False, comment="索引类型"))
-    remark: Optional[str] = Field(
-        default=None, sa_column=Column(String(255), comment="备注")
-    )
+    remark: Optional[str] = Field(default=None, sa_column=Column(String(255), comment="备注"))
 
 
 class IndexDO(ModelExt, IndexBase, ModelBase, table=True):

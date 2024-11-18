@@ -4,7 +4,7 @@ from typing import Dict, Union
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from sqlalchemy.pool import NullPool
 from sqlmodel import select
-from src.main.app.common.config.config_manager import get_database_config
+from src.main.app.common.config.config_manager import load_config
 from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import SystemException
 from src.main.app.common.session.db_session import db_session
@@ -23,7 +23,7 @@ async_engine: AsyncEngine
 
 def get_async_engine():
     global async_engine
-    database_config = get_database_config()
+    database_config = load_config().database
     if database_config.dialect.lower() == "sqlite":
         async_engine = create_async_engine(
             url=database_config.url,
@@ -70,9 +70,7 @@ async def get_cached_async_engine(
             connection_id = database.connection_id
         connection: ConnectionDO = await connectionMapper.select_by_id(id=connection_id)
         if connection is None:
-            raise SystemException(
-                ResponseCode.PARAMETER_ERROR.code, ResponseCode.PARAMETER_ERROR.msg
-            )
+            raise SystemException(ResponseCode.PARAMETER_ERROR.code, ResponseCode.PARAMETER_ERROR.msg)
 
         url = get_database_url(database, connection)
 
@@ -102,18 +100,12 @@ async def get_engine_by_database_id(*, env: str, database_id: int):
         exec_response = await session.exec(statement)
         database: DatabaseDO = exec_response.one_or_none()
         if database is None:
-            raise SystemException(
-                ResponseCode.PARAMETER_ERROR.code, ResponseCode.PARAMETER_ERROR.msg
-            )
-        statement = select(ConnectionDO).where(
-            ConnectionDO.id == database.connection_id
-        )
+            raise SystemException(ResponseCode.PARAMETER_ERROR.code, ResponseCode.PARAMETER_ERROR.msg)
+        statement = select(ConnectionDO).where(ConnectionDO.id == database.connection_id)
         exec_response = await session.exec(statement)
         connection: ConnectionDO = exec_response.one_or_none()
         if connection is None:
-            raise SystemException(
-                ResponseCode.PARAMETER_ERROR.code, ResponseCode.PARAMETER_ERROR.msg
-            )
+            raise SystemException(ResponseCode.PARAMETER_ERROR.code, ResponseCode.PARAMETER_ERROR.msg)
         url = get_database_url(database, connection)
         engine = create_async_engine(
             url=url,
