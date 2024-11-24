@@ -15,7 +15,7 @@ class FieldAdd(BaseModel):
     length: Optional[int] = None
     decimals: Optional[int] = None
     not_null: Optional[bool] = None
-    key: Optional[bool] = None
+    index_col: Optional[bool] = None
     remark: Optional[str] = None
 
 
@@ -40,9 +40,9 @@ class FieldGenerate(BaseModel):
     type: str
     modeltype: Optional[str] = None
     server_type: Optional[str] = None
-    default: Optional[int] = None
+    default: Optional[str] = None
     length: Optional[int] = None
     decimals: Optional[int] = None
     not_null: Optional[bool] = None
-    key: Optional[bool] = None
+    index_col: Optional[bool] = None
     remark: Optional[str] = None

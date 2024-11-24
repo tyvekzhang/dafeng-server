@@ -62,7 +62,8 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
         if len(new_add_tables) > 0:
             await self.mapper.batch_insert(records=new_add_tables)
         if len(need_delete_ids) > 0:
-            await self.mapper.batch_delete_by_ids(ids=need_delete_ids)
+            pass
+            # await self.mapper.batch_delete_by_ids(ids=need_delete_ids)
         return await self.mapper.select_ordered_pagination(
             page=data.page,
             size=data.size,

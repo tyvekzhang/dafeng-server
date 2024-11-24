@@ -39,13 +39,24 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
             field_name_id_map = {field_record.name: field_record.id for field_record in field_records}
         engine = await get_cached_async_engine(database_id=table_record.database_id)
         async with engine.connect() as conn:
-            columns = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_columns(table_name))
-            indexes = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_indexes(table_name))
+            try:
+                columns = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_columns(table_name))
+                indexes = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_indexes(table_name))
+                pk_index = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_pk_constraint(table_name))
+            except:
+                columns = []
+                indexes = []
+                pk_index = []
+
         indexed_columns = set()
         for index in indexes:
             for col in index["column_names"]:
                 indexed_columns.add(col)
                 break
+        pk_index_columns = set()
+        if pk_index is not None:
+            pk_index_columns.add(pk_index["constrained_columns"][0])
+
         # {'comment': '年龄', 'default': None, 'name': 'age', 'nullable': True, 'type': DECIMAL(precision=10, scale=2)}
         new_add_field_records = []
         column_name_set = set()
@@ -77,7 +88,7 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
                     length=length,
                     decimals=decimals,
                     not_null=not_null,
-                    key=column["name"] in indexed_columns,
+                    index_col=name in indexed_columns or name in pk_index_columns,
                     remark=column.get("comment", column["name"]),
                 )
             )

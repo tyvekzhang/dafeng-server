@@ -162,7 +162,7 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
             page : The page number to retrieve (1-indexed)
             size : The number of records per page
             order_by : The column to order by
-            sort_order : The sort order (ascending or descending)
+            sort_order : The sort order (ascending or ascending)
             db_session : The database session to use
             **kwargs: Additional filter criteria
         """
@@ -186,10 +186,10 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         columns = self.model.__table__.columns
         if order_by is None or order_by not in columns:
             order_by = "id"
-        if sort_order is None or sort_order == SortEnum.descending:
-            query = query.offset((page - 1) * size).limit(size).order_by(columns[order_by].desc())
+        if sort_order is None or sort_order == SortEnum.ascending:
+            query = query.offset((page - 1) * size).limit(size).order_by(columns[order_by].asc())
         else:
-            query = query.offset((page - 1) * size).limit(size).order_by(columns[order_by].acs())
+            query = query.offset((page - 1) * size).limit(size).order_by(columns[order_by].desc())
         total_count = 0
         if "count" in kwargs and kwargs["count"]:
             count_query = select(func.count()).select_from(count_query.subquery())
