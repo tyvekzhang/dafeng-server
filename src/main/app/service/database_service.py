@@ -5,7 +5,7 @@ from typing import Tuple, List, Any
 
 from src.main.app.schema.database_schema import DatabaseQuery
 from src.main.app.service.service_base import ServiceBase
-from src.main.app.model.database_model import DatabaseDO
+from src.main.app.model.db_database_model import DatabaseDO
 
 
 class DatabaseService(ServiceBase[DatabaseDO], ABC):

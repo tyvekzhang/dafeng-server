@@ -9,7 +9,7 @@ from src.main.app.common import result
 from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.table_mapper import tableMapper
-from src.main.app.model.table_model import TableDO
+from src.main.app.model.db_table_model import TableDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.table_schema import (
     TableAdd,

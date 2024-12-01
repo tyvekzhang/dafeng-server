@@ -9,7 +9,8 @@ from src.main.app.controller.connection_controller import connection_router
 from src.main.app.controller.table_controller import table_router
 from src.main.app.controller.field_controller import field_router
 from src.main.app.controller.index_controller import index_router
-
+from src.main.app.controller.gen_table_column_controller import gen_table_column_router
+from src.main.app.controller.gen_table_controller import gen_table_router
 
 def create_router() -> APIRouter:
     router = APIRouter()
@@ -20,4 +21,6 @@ def create_router() -> APIRouter:
     router.include_router(table_router, tags=["table"], prefix="/table")
     router.include_router(field_router, tags=["field"], prefix="/field")
     router.include_router(index_router, tags=["index"], prefix="/index")
+    router.include_router(gen_table_router, tags=["genTable"], prefix="/gen-table")
+    router.include_router(gen_table_column_router, tags=["genTableColumn"], prefix="/gen-table-column")
     return router

@@ -10,9 +10,9 @@ from src.main.app.common.util.string_util import parse_type_params
 from src.main.app.mapper.field_mapper import FieldMapper
 from src.main.app.mapper.index_mapper import indexMapper
 from src.main.app.mapper.table_mapper import tableMapper
-from src.main.app.model.field_model import FieldDO
-from src.main.app.model.index_model import IndexDO
-from src.main.app.model.table_model import TableDO
+from src.main.app.model.db_field_model import FieldDO
+from src.main.app.model.db_index_model import IndexDO
+from src.main.app.model.db_table_model import TableDO
 from src.main.app.schema.field_schema import FieldQuery
 from src.main.app.service.field_service import FieldService
 from src.main.app.service.impl.service_base_impl import ServiceBaseImpl
@@ -61,6 +61,7 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
         new_add_field_records = []
         column_name_set = set()
         for column in columns:
+            print(columns)
             name = column["name"]
             column_name_set.add(name)
             if name in field_name_id_map:
@@ -88,7 +89,7 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
                     length=length,
                     decimals=decimals,
                     not_null=not_null,
-                    index_col=name in indexed_columns or name in pk_index_columns,
+                    primary_key=name in pk_index_columns,
                     remark=column.get("comment", column["name"]),
                 )
             )

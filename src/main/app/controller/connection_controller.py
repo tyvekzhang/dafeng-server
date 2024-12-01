@@ -7,7 +7,7 @@ from src.main.app.common import result
 from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.connection_mapper import connectionMapper
-from src.main.app.model.connection_model import ConnectionDO
+from src.main.app.model.db_connection_model import ConnectionDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.connection_schema import (
     ConnectionAdd,

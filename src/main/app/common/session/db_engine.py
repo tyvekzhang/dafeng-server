@@ -11,8 +11,8 @@ from src.main.app.common.session.db_session import db_session
 from src.main.app.common.util.work_path_util import db_path
 from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.mapper.database_mapper import databaseMapper
-from src.main.app.model.connection_model import ConnectionDO
-from src.main.app.model.database_model import DatabaseDO
+from src.main.app.model.db_connection_model import ConnectionDO
+from src.main.app.model.db_database_model import DatabaseDO
 
 # Global engine cache with thread safety
 _engine_map: Dict[str, AsyncEngine] = {}

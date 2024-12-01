@@ -9,7 +9,7 @@ from src.main.app.common import result
 from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.index_mapper import indexMapper
-from src.main.app.model.index_model import IndexDO
+from src.main.app.model.db_index_model import IndexDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.index_schema import (
     IndexAdd,

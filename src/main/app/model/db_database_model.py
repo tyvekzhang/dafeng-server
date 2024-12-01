@@ -14,5 +14,5 @@ class DatabaseBase(SQLModel):
 
 
 class DatabaseDO(ModelExt, DatabaseBase, ModelBase, table=True):
-    __tablename__ = "sys_database"
+    __tablename__ = "db_database"
     __table_args__ = ({"comment": "数据库信息表"},)

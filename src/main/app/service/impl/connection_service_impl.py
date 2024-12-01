@@ -5,7 +5,7 @@ from src.main.app.common.config.config_manager import (
 )
 from src.main.app.common.exception.exception import SystemException
 from src.main.app.mapper.connection_mapper import ConnectionMapper
-from src.main.app.model.connection_model import ConnectionDO
+from src.main.app.model.db_connection_model import ConnectionDO
 from src.main.app.schema.connection_schema import (
     ConnectionQuery,
     ConnectionQueryResponse,

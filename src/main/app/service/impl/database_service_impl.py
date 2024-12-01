@@ -8,7 +8,7 @@ from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import SystemException
 from src.main.app.common.session.db_engine import get_cached_async_engine
 from src.main.app.mapper.database_mapper import DatabaseMapper
-from src.main.app.model.database_model import DatabaseDO
+from src.main.app.model.db_database_model import DatabaseDO
 from src.main.app.schema.database_schema import (
     DB_CREATE_TEMPLATES,
     DatabaseQuery,

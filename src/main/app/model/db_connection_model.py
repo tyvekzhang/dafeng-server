@@ -17,5 +17,5 @@ class ConnectionBase(SQLModel):
 
 
 class ConnectionDO(ModelExt, ConnectionBase, ModelBase, table=True):
-    __tablename__ = "sys_connection"
+    __tablename__ = "db_connection"
     __table_args__ = ({"comment": "连接信息表"},)

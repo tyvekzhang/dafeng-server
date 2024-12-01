@@ -1,7 +1,7 @@
 """Index domain service impl"""
 
 from src.main.app.mapper.index_mapper import IndexMapper
-from src.main.app.model.index_model import IndexDO
+from src.main.app.model.db_index_model import IndexDO
 from src.main.app.schema.index_schema import IndexQuery
 from src.main.app.service.impl.service_base_impl import ServiceBaseImpl
 from src.main.app.service.index_service import IndexService

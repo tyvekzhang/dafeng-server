@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from src.main.app.schema.field_schema import FieldQuery
 from src.main.app.service.service_base import ServiceBase
-from src.main.app.model.field_model import FieldDO
+from src.main.app.model.db_field_model import FieldDO
 
 
 class FieldService(ServiceBase[FieldDO], ABC):

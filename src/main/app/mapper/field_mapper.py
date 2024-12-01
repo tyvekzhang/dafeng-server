@@ -5,8 +5,8 @@ from typing import Union, List
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.main.app.mapper.mapper_base_impl import SqlModelMapper
-from src.main.app.model.field_model import FieldDO
-from src.main.app.model.table_model import TableDO
+from src.main.app.model.db_field_model import FieldDO
+from src.main.app.model.db_table_model import TableDO
 
 
 class FieldMapper(SqlModelMapper[FieldDO]):

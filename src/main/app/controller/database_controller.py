@@ -9,7 +9,7 @@ from src.main.app.common import result
 from src.main.app.common.result import ResponseBase
 from src.main.app.common.session.db_engine import get_cached_async_engine
 from src.main.app.mapper.database_mapper import databaseMapper
-from src.main.app.model.database_model import DatabaseDO
+from src.main.app.model.db_database_model import DatabaseDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.database_schema import DatabaseAdd, DatabaseQuery
 from src.main.app.service.database_service import DatabaseService

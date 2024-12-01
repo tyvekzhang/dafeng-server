@@ -18,7 +18,7 @@ from src.main.app.common.util.template_util import load_template_file, resource_
 from src.main.app.common.util.time_util import get_current_time
 from src.main.app.controller.template_controller import render_template
 from src.main.app.mapper.table_mapper import TableMapper
-from src.main.app.model.table_model import TableDO
+from src.main.app.model.db_table_model import TableDO
 from src.main.app.schema.table_schema import TableQuery, TableAdd, TableGenerate
 from src.main.app.service.impl.service_base_impl import ServiceBaseImpl
 from src.main.app.service.table_service import TableService

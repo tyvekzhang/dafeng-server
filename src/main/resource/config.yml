@@ -27,3 +27,9 @@ security:
   refresh_token_expire_days: 30
   white_list_routes: /v1/probe/liveness, /v1/probe/readiness, /v1/user/login, /v1/user/register, /v1/user/refreshTokens, /v1/user/export
   backend_cors_origins: http://127.0.0.1:8200, http://localhost:8200, http://localhost
+
+gen:
+  author: "admin"
+  package_name: "com.singularity.modules.reading"
+  auto_remove_pre: False
+  table_prefix: "read"

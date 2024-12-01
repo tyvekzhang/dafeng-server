@@ -282,6 +282,13 @@ async def menus():
                     "name": "代码生成",
                     "hideMenu": False,
                     "path": "/tool/code",
+                },
+                {
+                    "key": "db",
+                    "icon": "db",
+                    "name": "数据库管理",
+                    "hideMenu": False,
+                    "path": "/tool/db",
                 }
             ],
         },

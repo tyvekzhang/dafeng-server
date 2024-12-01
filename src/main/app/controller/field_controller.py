@@ -7,7 +7,7 @@ from src.main.app.common import result
 from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.field_mapper import fieldMapper
-from src.main.app.model.field_model import FieldDO
+from src.main.app.model.db_field_model import FieldDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.field_schema import (
     FieldAdd,
