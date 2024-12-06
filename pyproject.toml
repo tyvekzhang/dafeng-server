@@ -3,7 +3,7 @@ name = "dafeng-server"
 version = "0.1.0"
 description = "Da feng helps us work more easily and happily"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 dependencies = [
     "fastapi[standard]>=0.115.3",
     "sqlmodel>=0.0.22",
@@ -16,6 +16,11 @@ dependencies = [
     "pandas>=2.2.3",
     "xlsxwriter>=3.2.0",
     "openpyxl>=3.1.5",
+    "markdown>=3.7",
+    "beautifulsoup4>=4.12.3",
+    "asyncpg>=0.30.0",
+    "psycopg2>=2.9.10",
+    "requests>=2.32.3",
 ]
 
 [[tool.uv.index]]

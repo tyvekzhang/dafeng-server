@@ -1,8 +1,8 @@
 """init__table
 
-Revision ID: 438ef5a7cb67
+Revision ID: 5dbb5e3ea778
 Revises: 
-Create Date: 2024-12-01 16:09:19.052522
+Create Date: 2024-12-06 11:17:55.853711
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = '438ef5a7cb67'
+revision = '5dbb5e3ea778'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -88,6 +88,24 @@ def upgrade():
     comment='表结构信息'
     )
     op.create_index(op.f('ix_db_table_database_id'), 'db_table', ['database_id'], unique=False)
+    op.create_table('gen_field',
+    sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
+    sa.Column('db_field_id', sa.BigInteger(), nullable=False, comment='数据库字段id'),
+    sa.Column('field_name', sa.String(length=64), nullable=True, comment='字段名称'),
+    sa.Column('field_type', sa.String(length=64), nullable=True, comment='字段类型'),
+    sa.Column('creatable', sa.Boolean(), nullable=True, comment='是否创建字段(0否,1是)'),
+    sa.Column('queryable', sa.Boolean(), nullable=True, comment='是否查询字段(0否,1是)'),
+    sa.Column('listable', sa.Boolean(), nullable=True, comment='是否列表字段(0否,1是)'),
+    sa.Column('modifiable', sa.Boolean(), nullable=True, comment='是否修改字段(0否,1是)'),
+    sa.Column('query_type', sa.String(length=64), nullable=True, comment='查询方式（等于、不等于、大于、小于、范围）'),
+    sa.Column('html_type', sa.String(length=64), nullable=True, comment='显示类型(文本框、文本域、下拉框、复选框、单选框、日期控件)'),
+    sa.Column('dict_type', sa.String(length=64), nullable=True, comment='字典类型'),
+    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.PrimaryKeyConstraint('id'),
+    comment='代码生成字段表'
+    )
+    op.create_index(op.f('ix_gen_field_db_field_id'), 'gen_field', ['db_field_id'], unique=False)
     op.create_table('gen_table',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('db_table_id', sa.BigInteger(), nullable=False, comment='数据库表ID'),
@@ -110,21 +128,6 @@ def upgrade():
     comment='代码生成业务表'
     )
     op.create_index(op.f('ix_gen_table_db_table_id'), 'gen_table', ['db_table_id'], unique=False)
-    op.create_table('gen_table_field',
-    sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
-    sa.Column('db_field_id', sa.BigInteger(), nullable=False, comment='数据库字段id'),
-    sa.Column('creatable', sa.Boolean(), nullable=True, comment='是否创建字段(0否,1是)'),
-    sa.Column('queryable', sa.Boolean(), nullable=True, comment='是否查询字段(0否,1是)'),
-    sa.Column('listable', sa.Boolean(), nullable=True, comment='是否列表字段(0否,1是)'),
-    sa.Column('modifiable', sa.Boolean(), nullable=True, comment='是否修改字段(0否,1是)'),
-    sa.Column('html_type', sa.String(length=64), nullable=True, comment='显示类型(文本框、文本域、下拉框、复选框、单选框、日期控件)'),
-    sa.Column('dict_type', sa.String(length=64), nullable=True, comment='字典类型'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
-    sa.PrimaryKeyConstraint('id'),
-    comment='代码生成字段表'
-    )
-    op.create_index(op.f('ix_gen_table_field_db_field_id'), 'gen_table_field', ['db_field_id'], unique=False)
     op.create_table('sys_user',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('username', sa.String(length=32), nullable=False, comment='用户名'),
@@ -148,10 +151,10 @@ def downgrade():
     op.drop_index(op.f('ix_sys_user_username'), table_name='sys_user')
     op.drop_index('idx_status_nickname', table_name='sys_user')
     op.drop_table('sys_user')
-    op.drop_index(op.f('ix_gen_table_field_db_field_id'), table_name='gen_table_field')
-    op.drop_table('gen_table_field')
     op.drop_index(op.f('ix_gen_table_db_table_id'), table_name='gen_table')
     op.drop_table('gen_table')
+    op.drop_index(op.f('ix_gen_field_db_field_id'), table_name='gen_field')
+    op.drop_table('gen_field')
     op.drop_index(op.f('ix_db_table_database_id'), table_name='db_table')
     op.drop_table('db_table')
     op.drop_table('db_index')

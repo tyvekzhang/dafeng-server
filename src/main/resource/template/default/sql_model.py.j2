@@ -35,7 +35,7 @@ class {{ class_name }}Base(SQLModel):
            {{ field.modeltype }}{% if field.length %}({{ field.length }}){% elif field.decimals %}({{ field.length }}, {{ field.decimals }}){% endif %},
             {% if not field.not_null %}nullable=True{% else %}nullable=False{% endif %},
             {% if field.default is not none %}default={{ field.default }},{% endif %}
-            comment="{{ field.remark }}"
+            comment="{{ field.comment }}"
         )
     )
     {% endfor %}

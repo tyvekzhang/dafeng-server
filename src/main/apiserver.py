@@ -15,7 +15,7 @@ parser.add_argument(
     "-e",
     "--env",
     type=str,
-    default="prod",
+    default="dev",
     help="Specify the environment for the project",
 )
 parser.add_argument(

@@ -6,8 +6,8 @@ from fastapi import APIRouter, Query, UploadFile, Form
 from src.main.app.common import result
 from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
-from src.main.app.mapper.gen_table_column_mapper import genTableColumnMapper
-from src.main.app.model.gen_table_field_model import GenTableColumnDO
+from src.main.app.mapper.gen_field_mapper import genFieldMapper
+from src.main.app.model.gen_field_model import GenFieldDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.gen_table_column_schema import (
     GenTableColumnAdd,
@@ -22,7 +22,7 @@ from src.main.app.service.impl.gen_table_column_service_impl import GenTableColu
 from starlette.responses import StreamingResponse
 
 gen_table_column_router = APIRouter()
-gen_table_column_service: GenTableColumnService = GenTableColumnServiceImpl(mapper=genTableColumnMapper)
+gen_table_column_service: GenTableColumnService = GenTableColumnServiceImpl(mapper=genFieldMapper)
 
 
 @gen_table_column_router.post("/add")
@@ -38,7 +38,7 @@ async def add_gen_table_column(
     Returns:
         BaseResponse with new gen_table_column's ID.
     """
-    gen_table_column: GenTableColumnDO = await gen_table_column_service.save(data=GenTableColumnDO(**gen_table_column_add.model_dump()))
+    gen_table_column: GenFieldDO = await gen_table_column_service.save(data=GenFieldDO(**gen_table_column_add.model_dump()))
     return ResponseBase(data=gen_table_column.id)
 
 
@@ -61,7 +61,7 @@ async def list_gen_table_columns(
 
 @gen_table_column_router.post("/recover")
 async def recover(
-    data: GenTableColumnDO,
+    data: GenFieldDO,
 ) -> Dict:
     """
     GenTableColumn recover that be deleted.
@@ -72,7 +72,7 @@ async def recover(
     Returns:
         BaseResponse with gen_table_column's ID.
     """
-    gen_table_column: GenTableColumnDO = await gen_table_column_service.save(data=data)
+    gen_table_column: GenFieldDO = await gen_table_column_service.save(data=data)
     return result.success(data=gen_table_column.id)
 
 
@@ -133,7 +133,7 @@ async def modify(
     Returns:
         Success result message
     """
-    await gen_table_column_service.modify_by_id(data=GenTableColumnDO(**data.model_dump(exclude_unset=True)))
+    await gen_table_column_service.modify_by_id(data=GenFieldDO(**data.model_dump(exclude_unset=True)))
     return result.success()
 
 

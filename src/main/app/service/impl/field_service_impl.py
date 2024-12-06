@@ -60,8 +60,7 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
         # {'comment': '年龄', 'default': None, 'name': 'age', 'nullable': True, 'type': DECIMAL(precision=10, scale=2)}
         new_add_field_records = []
         column_name_set = set()
-        for column in columns:
-            print(columns)
+        for index, column in enumerate(columns):
             name = column["name"]
             column_name_set.add(name)
             if name in field_name_id_map:
@@ -69,28 +68,27 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
             type_str = str(column["type"])
             type_name, params = parse_type_params(type_str)
             length = None
-            decimals = None
+            scale = None
             if len(params) == 1:
                 length = int(list(params)[0])
             elif len(params) == 2:
                 length = int(list(params)[0])
-                decimals = int(list(params)[1])
+                scale = int(list(params)[1])
             type_name = sqlmodel_map_to_mysql_type(type_name)
             nullable = column["nullable"]
-            if nullable:
-                not_null = 0
-            else:
-                not_null = 1
             new_add_field_records.append(
                 FieldDO(
                     table_id=table_id,
                     name=name,
                     type=type_name,
                     length=length,
-                    decimals=decimals,
-                    not_null=not_null,
+                    scale=scale,
+                    default= column.get("default", None),
+                    comment= column.get("comment", None),
+                    nullable=nullable,
                     primary_key=name in pk_index_columns,
-                    remark=column.get("comment", column["name"]),
+                    autoincrement=column.get("autoincrement", False),
+                    sort=index
                 )
             )
         if len(new_add_field_records) > 0:
