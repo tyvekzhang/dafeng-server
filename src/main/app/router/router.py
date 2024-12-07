@@ -9,7 +9,7 @@ from src.main.app.controller.connection_controller import connection_router
 from src.main.app.controller.table_controller import table_router
 from src.main.app.controller.field_controller import field_router
 from src.main.app.controller.index_controller import index_router
-from src.main.app.controller.gen_table_column_controller import gen_table_column_router
+from src.main.app.controller.gen_field_controller import gen_table_column_router
 from src.main.app.controller.gen_table_controller import gen_table_router
 
 def create_router() -> APIRouter:

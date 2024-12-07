@@ -12,7 +12,7 @@ from src.main.app.schema.index_schema import IndexGenerate
 class TableAdd(BaseModel):
     database_id: int
     name: str
-    remark: Optional[str] = None
+    comment: Optional[str] = None
 
 
 class TableQuery(PageBase):

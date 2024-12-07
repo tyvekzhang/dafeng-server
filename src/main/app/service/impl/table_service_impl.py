@@ -51,7 +51,7 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
                         **TableAdd(
                             database_id=database_id,
                             name=table_name,
-                            remark=table_comment,
+                            comment=table_comment,
                         ).model_dump()
                     )
                 )

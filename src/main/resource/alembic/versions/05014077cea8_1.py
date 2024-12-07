@@ -1,8 +1,8 @@
-"""init__table
+"""1
 
-Revision ID: 5dbb5e3ea778
+Revision ID: 05014077cea8
 Revises: 
-Create Date: 2024-12-06 11:17:55.853711
+Create Date: 2024-12-07 15:07:24.154778
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = '5dbb5e3ea778'
+revision = '05014077cea8'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -109,11 +109,14 @@ def upgrade():
     op.create_table('gen_table',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('db_table_id', sa.BigInteger(), nullable=False, comment='数据库表ID'),
+    sa.Column('table_name', sa.String(length=64), nullable=True, comment='表名'),
     sa.Column('sub_table_name', sa.String(length=64), nullable=True, comment='关联子表的表名'),
     sa.Column('sub_table_fk_name', sa.String(length=64), nullable=True, comment='子表关联的外键名'),
     sa.Column('class_name', sa.String(length=64), nullable=True, comment='实体类名称'),
+    sa.Column('backend', sa.String(length=64), nullable=True, comment='后端语言'),
     sa.Column('tpl_category', sa.String(length=64), nullable=True, comment='使用的模板（crud单表操作 tree树表操作）'),
     sa.Column('tpl_web_type', sa.String(length=32), nullable=True, comment='前端模板类型'),
+    sa.Column('tpl_backend_type', sa.String(length=32), nullable=True, comment='后端模板类型'),
     sa.Column('package_name', sa.String(length=128), nullable=True, comment='生成包路径'),
     sa.Column('module_name', sa.String(length=32), nullable=True, comment='生成模块名'),
     sa.Column('business_name', sa.String(length=32), nullable=True, comment='生成业务名'),

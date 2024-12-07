@@ -9,7 +9,7 @@ from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.gen_field_mapper import genFieldMapper
 from src.main.app.model.gen_field_model import GenFieldDO
 from src.main.app.schema.common_schema import PaginationResponse
-from src.main.app.schema.gen_table_column_schema import (
+from src.main.app.schema.gen_field_schema import (
     GenTableColumnAdd,
     GenTableColumnExport,
     GenTableColumnQueryForm,

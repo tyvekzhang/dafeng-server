@@ -94,6 +94,11 @@ async def import_gen_table(
     await gen_table_service.import_gen_table(data=table_import)
     return result.success()
 
+@gen_table_router.get("/preview/{table_id}")
+async def preview_code(table_id: int) -> Dict:
+    res = await gen_table_service.preview_code(table_id)
+    return result.success(res)
+
 
 @gen_table_router.get("/export")
 async def export(

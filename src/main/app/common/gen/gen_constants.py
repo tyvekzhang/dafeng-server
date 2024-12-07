@@ -56,3 +56,6 @@ class GenConstants:
 
     # Requirement flag
     REQUIRE = "1"
+
+    JAVA = "java"
+    MYBATIS = "mybatis"

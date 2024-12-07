@@ -41,8 +41,7 @@ def main():
     host = server_config.host
     port = server_config.port
     workers = server_config.workers
-    reload = True if workers == 1 else False
-    uvicorn.run(app=app_name, host=host, port=port, workers=workers, reload=reload)
+    uvicorn.run(app=app_name, host=host, port=port, workers=workers)
 
 
 if __name__ == "__main__":

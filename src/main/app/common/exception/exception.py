@@ -88,3 +88,15 @@ class ConfigNotInitialisedException(Exception):
         """
 
         super().__init__(detail)
+
+class ParameterException(Exception):
+    """
+    Exception raised when parameter is error.
+    """
+
+    def __init__(self):
+        detail = """
+        Parameter error, please try again later.
+        """
+
+        super().__init__(detail)

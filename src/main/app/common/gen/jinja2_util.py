@@ -1,49 +1,64 @@
 import json
 from datetime import datetime
 
+from src.main.app.common.enums.enum import ConstantCode
+from src.main.app.common.gen.gen_constants import GenConstants
+from src.main.app.schema.gen_table_schema import TableGen
+
+
 class Jinja2Utils:
     PROJECT_PATH = "main/java"
     MYBATIS_PATH = "main/resources/mapper"
     DEFAULT_PARENT_MENU_ID = "3"
 
     @staticmethod
-    def prepare_context(gen_table):
+    def prepare_context(table_gen: TableGen):
         """
         设置模板变量信息
         """
-        module_name = gen_table.get("moduleName")
-        business_name = gen_table.get("businessName")
-        package_name = gen_table.get("packageName")
-        tpl_category = gen_table.get("tplCategory")
-        function_name = gen_table.get("functionName", "【请填写功能名称】")
+        gen_table = table_gen.gen_table
+
+        package_name = gen_table.package_name
+        import_list = Jinja2Utils.get_import_list(table_gen)
+        function_name = gen_table.function_name
+        table_name = gen_table.table_name
+        author = gen_table.function_author
+        date_time = datetime.now().strftime("%Y-%m-%d")
+        class_name = Jinja2Utils.capitalize(gen_table.class_name)
+        fields = table_gen.fields
+        module_name = gen_table.module_name
+        business_name = gen_table.business_name
+
+        tpl_category = gen_table.tpl_category
+
 
         context = {
-            "tplCategory": tpl_category,
-            "tableName": gen_table.get("tableName"),
-            "functionName": function_name,
-            "ClassName": gen_table.get("className"),
-            "className": Jinja2Utils.uncapitalize(gen_table.get("className")),
-            "moduleName": module_name,
-            "BusinessName": Jinja2Utils.capitalize(business_name),
-            "businessName": business_name,
-            "basePackage": Jinja2Utils.get_package_prefix(package_name),
-            "packageName": package_name,
-            "author": gen_table.get("functionAuthor"),
-            "datetime": datetime.now().strftime("%Y-%m-%d"),
-            "pkColumn": gen_table.get("pkColumn"),
-            "importList": Jinja2Utils.get_import_list(gen_table),
-            "permissionPrefix": Jinja2Utils.get_permission_prefix(module_name, business_name),
-            "columns": gen_table.get("columns"),
-            "table": gen_table,
-            "dicts": Jinja2Utils.get_dicts(gen_table),
+            "package_name": package_name,
+            "import_list": import_list,
+            "function_name": function_name,
+            "table_name": table_name,
+            "author": author,
+            "datetime": date_time,
+            "class_name": class_name,
+            "fields": fields,
+            # "tpl_category": tpl_category,
+            # "module_name": module_name,
+            # "business_name": Jinja2Utils.capitalize(business_name),
+            # "base_package": Jinja2Utils.get_package_prefix(package_name),
+            # "pkColumn": gen_table.get("pkColumn"),
+            # "import_list": Jinja2Utils.get_import_list(gen_table),
+            # "permission_prefix": Jinja2Utils.get_permission_prefix(module_name, business_name),
+            # "fields": table_gen.fields,
+            # "table": gen_table,
+            # "dicts": Jinja2Utils.get_dicts(gen_table),
         }
 
-        Jinja2Utils.set_menu_context(context, gen_table)
-
-        if tpl_category == "tree":
-            Jinja2Utils.set_tree_context(context, gen_table)
-        elif tpl_category == "sub":
-            Jinja2Utils.set_sub_context(context, gen_table)
+        # Jinja2Utils.set_menu_context(context, gen_table)
+        #
+        # if tpl_category == "tree":
+        #     Jinja2Utils.set_tree_context(context, gen_table)
+        # elif tpl_category == "sub":
+        #     Jinja2Utils.set_sub_context(context, gen_table)
 
         return context
 
@@ -92,9 +107,11 @@ class Jinja2Utils:
         })
 
     @staticmethod
-    def get_template_list(tpl_category, tpl_web_type):
+    def get_template_list(backend: str, tpl_backend_type: str, tpl_category: str, tpl_web_type: str):
         """
         获取模板信息
+        :param backend: 后端语言, java, python, go, rust...
+        :param tpl_backend_type: 后端语言使用的模板类型, mybatis, mybatis-plus...
         :param tpl_category: 模板类别 (如 CRUD、TREE、SUB 等)
         :param tpl_web_type: 前端类型 (如 vue 或 element-plus)
         :return: 模板列表
@@ -102,25 +119,21 @@ class Jinja2Utils:
         use_web_type = "vm/vue"
         if tpl_web_type == "element-plus":
             use_web_type = "vm/vue/v3"
-
+        entity_tpl = "jinja2/java/mybatis_plus/entity.java.j2"
+        if backend == GenConstants.JAVA:
+            if tpl_backend_type == GenConstants.MYBATIS:
+                entity_tpl = "jinja2/java/mybatis/entity.java.j2"
         templates = [
-            "vm/java/domain.java.vm",
-            "vm/java/mapper.java.j2",
-            "vm/java/service.java.j2",
-            "vm/java/serviceImpl.java.j2",
-            "vm/java/controller.java.j2",
-            "vm/xml/mapper.xml.vm",
-            "vm/sql/sql.vm",
-            "vm/js/api.js.vm",
+            entity_tpl,
         ]
 
-        if tpl_category == "crud":
-            templates.append(f"{use_web_type}/index.vue.vm")
-        elif tpl_category == "tree":
-            templates.append(f"{use_web_type}/index-tree.vue.vm")
-        elif tpl_category == "sub":
-            templates.append(f"{use_web_type}/index.vue.vm")
-            templates.append("vm/java/sub-domain.java.j2")
+        # if tpl_category == "crud":
+        #     templates.append(f"{use_web_type}/index.vue.vm")
+        # elif tpl_category == "tree":
+        #     templates.append(f"{use_web_type}/index-tree.vue.vm")
+        # elif tpl_category == "sub":
+        #     templates.append(f"{use_web_type}/index.vue.vm")
+        #     templates.append("vm/java/sub-entity.java.j2")
 
         return templates
 
@@ -142,7 +155,7 @@ class Jinja2Utils:
 
         if "domain.java.vm" in template:
             file_name = f"{java_path}/domain/{class_name}.java"
-        elif "sub-domain.java.j2" in template and gen_table.get("tplCategory") == "sub":
+        elif "sub-entity.java.j2" in template and gen_table.get("tplCategory") == "sub":
             sub_class_name = gen_table.get("subTable").get("className")
             file_name = f"{java_path}/domain/{sub_class_name}.java"
         elif "mapper.java.j2" in template:
@@ -177,18 +190,18 @@ class Jinja2Utils:
         """
         根据列类型获取导入包
         """
-        columns = gen_table.get("columns", [])
-        sub_gen_table = gen_table.get("subTable")
+        fields = gen_table.fields
+
+        sub_gen_table = gen_table.sub_table
         import_list = set()
 
         if sub_gen_table:
             import_list.add("java.util.List")
 
-        for column in columns:
-            if not column.get("isSuperColumn") and column.get("javaType") == "Date":
+        for field in fields:
+            if field.gen_field.field_type == "Date":
                 import_list.add("java.util.Date")
-                import_list.add("com.fasterxml.jackson.annotation.JsonFormat")
-            elif not column.get("isSuperColumn") and column.get("javaType") == "BigDecimal":
+            elif field.gen_field.field_type == "BigDecimal":
                 import_list.add("java.math.BigDecimal")
 
         return list(import_list)

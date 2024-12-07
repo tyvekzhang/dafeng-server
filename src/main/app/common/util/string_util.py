@@ -76,6 +76,12 @@ class StringUtils:
             return []
         return s.split(",")
 
+    @staticmethod
+    def process_code_string(code: str) -> str:
+        if is_empty(code):
+            return ""
+        return code.replace('\\n', '\n')
+
 
 NULLSTR = ""
 SEPARATOR = '_'

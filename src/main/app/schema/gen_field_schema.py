@@ -4,6 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from src.main.app.model.db_field_model import FieldDO
+from src.main.app.model.gen_field_model import GenFieldDO
 from src.main.app.schema.common_schema import PageBase
 
 
@@ -29,3 +31,8 @@ class GenTableColumnQueryForm(BaseModel):
 
 class GenTableColumnModify(BaseModel):
     pass
+
+
+class FieldGen(BaseModel):
+    field: FieldDO
+    gen_field: GenFieldDO

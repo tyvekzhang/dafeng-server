@@ -11,3 +11,7 @@ class GenTableService(ServiceBase[GenTableDO], ABC):
     @abstractmethod
     async def import_gen_table(self, data: TableImport):...
 
+    @abstractmethod
+    async def preview_code(self, table_id: int):...
+
+
