@@ -20,7 +20,7 @@ class FieldBase(SQLModel):
     type: str = Field(sa_column=Column(String(32), nullable=False, comment="字段类型"))
     length: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="总长度"))
     scale: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="小数长度"))
-    default: Optional[str] = Field(default=None, sa_column=Column(String(32), comment="默认值"))
+    default: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="默认值"))
     comment: Optional[str] = Field(default=None, sa_column=Column(String(255), comment="备注"))
     nullable: Optional[int] = Field(default=1, sa_column=Column(Boolean, comment="允许为空(0否,1是)"))
     primary_key: Optional[int] = Field(default=0, sa_column=Column(Boolean, comment="主键(0否,1是)"))

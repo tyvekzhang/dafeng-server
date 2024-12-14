@@ -120,11 +120,19 @@ class Jinja2Utils:
         if tpl_web_type == "element-plus":
             use_web_type = "vm/vue/v3"
         entity_tpl = "jinja2/java/mybatis_plus/entity.java.j2"
+        mapper_tpl = "jinja2/java/mybatis_plus/mapper.java.j2"
+        service_tpl = "jinja2/java/mybatis_plus/service.java.j2"
+        serviceimpl_tpl = "jinja2/java/mybatis_plus/serviceImpl.java.j2"
+        controller_tpl = "jinja2/java/mybatis_plus/controller.java.j2"
         if backend == GenConstants.JAVA:
             if tpl_backend_type == GenConstants.MYBATIS:
                 entity_tpl = "jinja2/java/mybatis/entity.java.j2"
         templates = [
             entity_tpl,
+            mapper_tpl,
+            service_tpl,
+            serviceimpl_tpl,
+            controller_tpl,
         ]
 
         # if tpl_category == "crud":
@@ -139,22 +147,23 @@ class Jinja2Utils:
 
 
     @staticmethod
-    def get_file_name(template, gen_table):
+    def get_file_name(template, table_gen):
         """
         获取文件名
         """
+        gen_table = table_gen.gen_table
         file_name = ""
-        package_name = gen_table.get("packageName")
-        module_name = gen_table.get("moduleName")
-        class_name = gen_table.get("className")
-        business_name = gen_table.get("businessName")
+        package_name = gen_table.package_name
+        module_name = gen_table.module_name
+        class_name = gen_table.class_name
+        business_name = gen_table.business_name
 
         java_path = f"{Jinja2Utils.PROJECT_PATH}/{package_name.replace('.', '/')}"
         mybatis_path = f"{Jinja2Utils.MYBATIS_PATH}/{module_name}"
         vue_path = "vue"
 
-        if "domain.java.vm" in template:
-            file_name = f"{java_path}/domain/{class_name}.java"
+        if "entity.java.j2" in template:
+            file_name = f"{java_path}/entity/{class_name}.java"
         elif "sub-entity.java.j2" in template and gen_table.get("tplCategory") == "sub":
             sub_class_name = gen_table.get("subTable").get("className")
             file_name = f"{java_path}/domain/{sub_class_name}.java"

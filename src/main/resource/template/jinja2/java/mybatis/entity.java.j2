@@ -11,18 +11,18 @@ import com.baomidou.mybatisplus.annotation.TableName;
 
 /**
  * <p>
- * {{ function_name }}对象{{ table_name }}
+ * {{ function_name }}对象 {{ table_name }}
  * </p>
  *
  * @author {{ author }}
- * @since {{ datetime }}
+ * @date {{ datetime }}
  */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("{{ table_name }}")
-public class {{ class_name }}DO implements Serializable {
+public class {{ class_name }} implements Serializable {
 
     private static final long serialVersionUID = 1L;
     {% for field in fields %}

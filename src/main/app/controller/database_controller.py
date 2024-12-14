@@ -19,7 +19,7 @@ database_router = APIRouter()
 database_service: DatabaseService = DatabaseServiceImpl(mapper=databaseMapper)
 
 
-@database_router.post("/add")
+@database_router.post("/create")
 async def add_database(database_add: DatabaseAdd) -> ResponseBase[int]:
     """
     Database add.

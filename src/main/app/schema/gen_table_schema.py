@@ -18,7 +18,15 @@ class GenTableQuery(PageBase):
 
 
 class GenTableQueryResponse(BaseModel):
-    pass
+    id: int
+    connectionName: str
+    databaseName: str
+    tableId: int
+    tableName: str
+    entity: str
+    tableComment: Optional[str] = None
+    createTime: int
+
 
 
 class GenTableExport(BaseModel):

@@ -1,4 +1,4 @@
-.PHONY: help install lint test start image push docker-compose-start deploy-k8s doc pypi clean
+.PHONY: help install lint test start image push docker-compose-start deploy-k8s doc pypi clean db
 
 tag ?= v0.1.0
 releaseName = dafeng-server
@@ -19,6 +19,7 @@ help:
 	@echo "  doc                   Make doc for this project."
 	@echo "  pypi                  Build and publish to pypi."
 	@echo "  clean                 Remove temporary files."
+	@echo "  db                    Upgrade db structure."
 	@echo "Use 'make <target>' to run a specific command."
 
 install:
@@ -73,3 +74,6 @@ doc:
 pypi:
 	uv build; \
 	uv publish
+db:
+	alembic revision --autogenerate; \
+    alembic upgrade head

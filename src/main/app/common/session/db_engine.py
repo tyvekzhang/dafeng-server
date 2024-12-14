@@ -126,6 +126,16 @@ def get_database_url(database: DatabaseDO, connection: ConnectionDO) -> str:
         url = f"mysql+aiomysql://{username}:{password}@{host}:{port}"
         if database is not None:
             url = str(url) + "/" + database.database_name
+    elif database_type=="postgresql":
+        host = connection.host
+        port = connection.port
+        username = connection.username
+        password = connection.password
+        url = f"postgresql+asyncpg://{username}:{password}@{host}:{port}"
+        if database is not None:
+            url = str(url) + "/" + database.database_name
+        else:
+            url = str(url) + "/" + connection.connection_database
     else:
         raise SystemException(
             ResponseCode.UNSUPPORTED_DIALECT_ERROR.code,

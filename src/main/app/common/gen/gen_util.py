@@ -1,9 +1,10 @@
+import os
 import re
 from typing import List
 
 from src.main.app.common.config.config_manager import load_config
 from src.main.app.common.gen.gen_constants import GenConstants
-from src.main.app.common.util.string_util import StringUtils
+from src.main.app.common.util.string_util import StringUtils, is_empty
 from src.main.app.model.db_field_model import FieldDO
 from src.main.app.model.db_table_model import TableDO
 from src.main.app.model.gen_field_model import GenFieldDO
@@ -133,3 +134,18 @@ class GenUtils:
             return int(length)
         else:
             return 0
+
+    @staticmethod
+    def trim_jinja2_name(name: str) -> str:
+        if is_empty(name):
+            return ""
+            # Get the base name of the file (without directory)
+        base_name = os.path.basename(name)
+
+        # Split the base name and extension
+        name_without_extension, _ = os.path.splitext(base_name)
+
+        # Split again to remove the .j2 extension if present
+        name_without_j2, _ = os.path.splitext(name_without_extension)
+
+        return name_without_j2

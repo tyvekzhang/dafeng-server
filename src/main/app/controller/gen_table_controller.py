@@ -1,11 +1,13 @@
 """GenTable operation controller"""
-
+from datetime import datetime
+from io import BytesIO
 from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Query, UploadFile, Form
 from src.main.app.common import result
 from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
+from src.main.app.common.util.time_util import get_current_time, get_date_time
 from src.main.app.mapper.gen_table_mapper import genTableMapper
 from src.main.app.model.gen_table_model import GenTableDO
 from src.main.app.schema.common_schema import PaginationResponse
@@ -42,7 +44,7 @@ async def add_gen_table(
     return ResponseBase(data=gen_table.id)
 
 
-@gen_table_router.get("/gen_tables")
+@gen_table_router.get("/list")
 async def list_gen_tables(
     gen_table_query: Annotated[GenTableQuery, Query()],
 ) -> ResponseBase[PaginationResponse]:
@@ -98,6 +100,26 @@ async def import_gen_table(
 async def preview_code(table_id: int) -> Dict:
     res = await gen_table_service.preview_code(table_id)
     return result.success(res)
+
+
+@gen_table_router.get("/download/{table_id}")
+async def preview_code(table_id: int) -> StreamingResponse:
+    # 生成代码
+    data = await gen_table_service.download_code(table_id)
+
+    # 创建一个字节流
+    mem = BytesIO(data)
+    mem.seek(0)
+
+    # 定义一个生成器函数来流式传输数据
+    def iterfile():
+        yield from mem
+
+    # 创建响应
+    response = StreamingResponse(iterfile(), media_type="application/zip")
+    response.headers["Content-Disposition"] = f"attachment; filename=generated_code_{get_date_time()}.zip"
+
+    return response
 
 
 @gen_table_router.get("/export")

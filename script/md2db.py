@@ -72,7 +72,7 @@ def extract_content(text):
     content = re.sub(r'\n+', '\n\n', content)
     content = content.replace('\n\n', '\\n\\n').replace('\n', ' ')
     sentences = re.split(r'(?<=[.!?]) +|(\\n\\n)', content)
-    sentences = [s for s in sentences if s]  # 过滤掉空字符串
+    sentences = [s for s in sentences if s]
     result_sen = []
     for sentence in sentences:
         if sentence == '\\n\\n':

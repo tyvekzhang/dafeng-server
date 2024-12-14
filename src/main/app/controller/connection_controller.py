@@ -14,7 +14,7 @@ from src.main.app.schema.connection_schema import (
     ConnectionExport,
     ConnectionQueryForm,
     ConnectionModify,
-    ConnectionQuery,
+    ConnectionQuery, ConnectionQueryResponse,
 )
 from src.main.app.schema.user_schema import Ids
 from src.main.app.service.connection_service import ConnectionService
@@ -25,7 +25,7 @@ connection_router = APIRouter()
 connection_service: ConnectionService = ConnectionServiceImpl(mapper=connectionMapper)
 
 
-@connection_router.post("/add")
+@connection_router.post("/create")
 async def add_connection(
     connection_add: ConnectionAdd,
 ) -> ResponseBase[int]:
@@ -57,6 +57,16 @@ async def list_connections(
     """
     records, total_count = await connection_service.list_connections(data=connection_query)
     return ResponseBase(data=PaginationResponse(records=records, total_count=total_count))
+
+
+@connection_router.get("/query/{connection_id}")
+async def query_connections(
+    connection_id: int
+) -> ResponseBase[ConnectionQueryResponse]:
+    record = await connection_service.retrieve_by_id(id=connection_id)
+    if record is None:
+        return ResponseBase(data=record)
+    return ResponseBase(data=ConnectionQueryResponse(**record.model_dump()))
 
 
 @connection_router.post("/recover")
