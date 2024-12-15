@@ -29,7 +29,7 @@ security:
   backend_cors_origins: http://127.0.0.1:8200, http://localhost:8200, http://localhost
 
 gen:
-  author: "admin"
+  author: "tyvekzhang"
   package_name: "com.singularity.modules.reading"
-  auto_remove_pre: False
-  table_prefix: "read"
+  auto_remove_pre: True
+  table_prefix: "read,sys,acc"

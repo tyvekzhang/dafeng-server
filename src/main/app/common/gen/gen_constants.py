@@ -20,15 +20,15 @@ class GenConstants:
     COLUMNTYPE_TEXT = ["tinytext", "text", "mediumtext", "longtext"]
     COLUMNTYPE_TIME = ["datetime", "time", "date", "timestamp"]
     COLUMNTYPE_NUMBER = ["tinyint", "smallint", "mediumint", "int", "number", "integer",
-                         "bit", "bigint", "float", "double", "decimal"]
+                         "bit", "bigint", "float", "double", "decimal", "int2", "int4", "int8"]
 
     # Page settings for fields
     COLUMNNAME_NOT_EDIT = ["id", "create_by", "create_time", "del_flag"]
     COLUMNNAME_NOT_LIST = ["id", "create_by", "create_time", "del_flag", "update_by", "update_time"]
-    COLUMNNAME_NOT_QUERY = ["id", "create_by", "create_time", "del_flag", "update_by", "update_time", "remark"]
+    COLUMNNAME_NOT_QUERY = ["id", "create_by", "create_time", "del_flag", "update_by", "update_time", "comment"]
 
     # Base entity fields
-    BASE_ENTITY = ["createBy", "createTime", "updateBy", "updateTime", "remark"]
+    BASE_ENTITY = ["createBy", "createTime", "updateBy", "updateTime", "comment"]
     TREE_ENTITY = ["parentName", "parentId", "orderNum", "ancestors"]
 
     # HTML input types
@@ -49,6 +49,7 @@ class GenConstants:
     TYPE_DOUBLE = "Double"
     TYPE_BIGDECIMAL = "BigDecimal"
     TYPE_DATE = "Date"
+    TYPE_LOCALDATETIME = "LocalDateTime"
 
     # Query types
     QUERY_LIKE = "LIKE"

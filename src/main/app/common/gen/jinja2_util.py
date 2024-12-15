@@ -25,6 +25,8 @@ class Jinja2Utils:
         author = gen_table.function_author
         date_time = datetime.now().strftime("%Y-%m-%d")
         class_name = Jinja2Utils.capitalize(gen_table.class_name)
+        primary_key = table_gen.pk_field
+        router_name = Jinja2Utils.to_kebab_case(class_name)
         fields = table_gen.fields
         module_name = gen_table.module_name
         business_name = gen_table.business_name
@@ -40,6 +42,8 @@ class Jinja2Utils:
             "author": author,
             "datetime": date_time,
             "class_name": class_name,
+            "primary_key": primary_key,
+            "router_name": router_name,
             "fields": fields,
             # "tpl_category": tpl_category,
             # "module_name": module_name,
@@ -163,7 +167,7 @@ class Jinja2Utils:
         vue_path = "vue"
 
         if "entity.java.j2" in template:
-            file_name = f"{java_path}/entity/{class_name}.java"
+            file_name = f"{java_path}/entity/{class_name}DO.java"
         elif "sub-entity.java.j2" in template and gen_table.get("tplCategory") == "sub":
             sub_class_name = gen_table.get("subTable").get("className")
             file_name = f"{java_path}/domain/{sub_class_name}.java"
@@ -212,6 +216,8 @@ class Jinja2Utils:
                 import_list.add("java.util.Date")
             elif field.gen_field.field_type == "BigDecimal":
                 import_list.add("java.math.BigDecimal")
+            elif field.gen_field.field_type == "LocalDateTime":
+                import_list.add("java.time.LocalDateTime")
 
         return list(import_list)
 
@@ -317,3 +323,17 @@ class Jinja2Utils:
         if not name:
             return ""
         return name[0].upper() + name[1:]
+
+    @staticmethod
+    def to_kebab_case(name):
+        if not name:
+            return name
+        result = []
+        for i, c in enumerate(name):
+            if c.isupper():
+                if i != 0:
+                    result.append('-')
+                result.append(c.lower())
+            else:
+                result.append(c)
+        return ''.join(result)

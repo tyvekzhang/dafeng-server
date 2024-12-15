@@ -5,8 +5,10 @@ from sqlmodel import inspect
 from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import SystemException
 from src.main.app.common.session.db_engine import get_cached_async_engine
-from src.main.app.common.util.field_type_mapping_util import sqlmodel_map_to_mysql_type
+from src.main.app.common.util.field_type_mapping_util import sqlmodel_map_to_mysql_type, sqlmodel_map_to_pgsql_type
 from src.main.app.common.util.string_util import parse_type_params
+from src.main.app.mapper.connection_mapper import connectionMapper
+from src.main.app.mapper.database_mapper import databaseMapper
 from src.main.app.mapper.field_mapper import FieldMapper
 from src.main.app.mapper.index_mapper import indexMapper
 from src.main.app.mapper.table_mapper import tableMapper
@@ -25,21 +27,37 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
 
     async def list_fields(self, data: FieldQuery):
         table_id = data.table_id
+        # 查询表信息
         table_record: TableDO = await tableMapper.select_by_id(id=table_id)
         if table_record is None:
             raise SystemException(
                 ResponseCode.PARAMETER_ERROR.code,
                 f"{ResponseCode.PARAMETER_ERROR.msg}: {table_id}",
             )
-        table_name = table_record.name
+        database_record = await databaseMapper.select_by_id(id=table_record.database_id)
+        if database_record is None:
+            raise SystemException(
+                ResponseCode.PARAMETER_ERROR.code,
+                f"{ResponseCode.PARAMETER_ERROR.msg}: {database_record}",
+            )
+        connection_record = await connectionMapper.select_by_id(id=database_record.connection_id)
+        if connection_record is None:
+            raise SystemException(
+                ResponseCode.PARAMETER_ERROR.code,
+                f"{ResponseCode.PARAMETER_ERROR.msg}: {database_record}",
+            )
+        database_type = connection_record.database_type.lower()
         field_name_id_map = {}
         index_name_id_map = {}
+        # 通过表id查询字段信息
         field_records = await self.mapper.select_by_table_id(table_id=table_id)
         if field_records is not None:
             field_name_id_map = {field_record.name: field_record.id for field_record in field_records}
+        # 通过数据库id获取引擎
         engine = await get_cached_async_engine(database_id=table_record.database_id)
         async with engine.connect() as conn:
             try:
+                table_name = table_record.name
                 columns = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_columns(table_name))
                 indexes = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_indexes(table_name))
                 pk_index = await conn.run_sync(lambda sync_conn: inspect(sync_conn).get_pk_constraint(table_name))
@@ -74,7 +92,12 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
             elif len(params) == 2:
                 length = int(list(params)[0])
                 scale = int(list(params)[1])
-            type_name = sqlmodel_map_to_mysql_type(type_name)
+            if database_type == "mysql":
+                type_name = sqlmodel_map_to_mysql_type(type_name)
+            elif database_type == "postgresql":
+                type_name = sqlmodel_map_to_pgsql_type(type_name)
+            else:
+                raise
             nullable = column["nullable"]
             new_add_field_records.append(
                 FieldDO(

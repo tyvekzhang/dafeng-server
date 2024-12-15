@@ -8,7 +8,7 @@ from sqlmodel import (
     String,
     SQLModel,
     Integer,
-    Boolean,
+    SmallInteger,
     BigInteger,
 )
 from src.main.app.model.model_base import ModelBase, ModelExt
@@ -22,9 +22,9 @@ class FieldBase(SQLModel):
     scale: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="小数长度"))
     default: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="默认值"))
     comment: Optional[str] = Field(default=None, sa_column=Column(String(255), comment="备注"))
-    nullable: Optional[int] = Field(default=1, sa_column=Column(Boolean, comment="允许为空(0否,1是)"))
-    primary_key: Optional[int] = Field(default=0, sa_column=Column(Boolean, comment="主键(0否,1是)"))
-    autoincrement: Optional[int] = Field(default=0, sa_column=Column(Boolean, comment="自增(0否,1是)"))
+    nullable: Optional[int] = Field(default=None, sa_column=Column(SmallInteger, comment="允许为空(0否,1是)"))
+    primary_key: Optional[int] = Field(default=None, sa_column=Column(SmallInteger, comment="主键(0否,1是)"))
+    autoincrement: Optional[int] = Field(default=None, sa_column=Column(SmallInteger, comment="自增(0否,1是)"))
     sort: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="排序"))
 
 class FieldDO(ModelExt, FieldBase, ModelBase, table=True):

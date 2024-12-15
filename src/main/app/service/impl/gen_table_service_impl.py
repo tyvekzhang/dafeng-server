@@ -15,6 +15,7 @@ from src.main.app.mapper.field_mapper import fieldMapper
 from src.main.app.mapper.gen_field_mapper import genFieldMapper
 from src.main.app.mapper.gen_table_mapper import GenTableMapper
 from src.main.app.mapper.table_mapper import tableMapper
+from src.main.app.model.db_field_model import FieldDO
 from src.main.app.model.db_table_model import TableDO
 from src.main.app.model.gen_field_model import GenFieldDO
 from src.main.app.model.gen_table_model import GenTableDO
@@ -67,28 +68,7 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
     async def preview_code(self, table_id: int) -> Dict:
         data_map = OrderedDict()
         # 查询导入的表信息
-        gen_table: GenTableDO = await self.retrieve_by_id(id=table_id)
-        if gen_table is None:
-            raise ParameterException()
-        self.set_sub_table(gen_table=gen_table)
-        self.set_pk_column(gen_table=gen_table)
-        # 通过表id查询父字段信息
-        field_records = await fieldMapper.select_by_table_id(table_id=gen_table.db_table_id)
-        if field_records is None or len(field_records) == 0:
-            raise ParameterException()
-        field_list = [field_record.id for field_record in field_records]
-        # 通过字段的id查询子字段的信息
-        gen_field_records: List[GenFieldDO]= await genFieldMapper.select_by_db_field_ids(ids=field_list)
-        if gen_field_records is None or len(gen_field_records) == 0:
-            raise ParameterException()
-        id_field_dict = {gen_field_record.db_field_id: gen_field_record for gen_field_record in gen_field_records}
-        field_list = []
-        for field_record in field_records:
-            field = field_record
-            gen_field= id_field_dict.get(field.id)
-            field_gen = FieldGen(field=field, gen_field=gen_field)
-            field_list.append(field_gen)
-        table_gen: TableGen = TableGen(gen_table= gen_table, fields=field_list)
+        gen_table, table_gen = await self.generator_code(table_id)
         context = Jinja2Utils.prepare_context(table_gen)
         templates = Jinja2Utils.get_template_list(gen_table.backend, gen_table.tpl_backend_type, gen_table.tpl_category,   gen_table.tpl_web_type)
         for template in templates:
@@ -102,8 +82,8 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
         pass
 
 
-    def set_pk_column(self,*, gen_table: GenTableDO):
-        pass
+    def set_pk_column(self,*, gen_table: GenTableDO, table_gen: TableGen):
+        table_gen.pk_field = gen_table
 
 
     async def list_gen_tables(self, data: GenTableQuery):
@@ -149,11 +129,11 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
 
         return records, total_count
     async def generator_code(self, table_id: int):
+        # 查询导入的表信息
         gen_table: GenTableDO = await self.retrieve_by_id(id=table_id)
         if gen_table is None:
             raise ParameterException()
         self.set_sub_table(gen_table=gen_table)
-        self.set_pk_column(gen_table=gen_table)
         # 通过表id查询父字段信息
         field_records = await fieldMapper.select_by_table_id(table_id=gen_table.db_table_id)
         if field_records is None or len(field_records) == 0:
@@ -165,12 +145,17 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
             raise ParameterException()
         id_field_dict = {gen_field_record.db_field_id: gen_field_record for gen_field_record in gen_field_records}
         field_list = []
+        primary_key = ""
         for field_record in field_records:
             field = field_record
-            gen_field= id_field_dict.get(field.id)
+            gen_field: GenFieldDO= id_field_dict.get(field.id)
+            if gen_field.primary_key == 1:
+                field_record: FieldDO = await fieldMapper.select_by_id(id=gen_field.db_field_id)
+                primary_key = field_record.name
             field_gen = FieldGen(field=field, gen_field=gen_field)
             field_list.append(field_gen)
-        table_gen: TableGen = TableGen(gen_table= gen_table, fields=field_list)
+        table_gen: TableGen = TableGen(gen_table=gen_table, fields=field_list)
+        table_gen.pk_field = primary_key
         return gen_table, table_gen
     async def download_code(self, table_id: int):
         gen_table, table_gen = await self.generator_code(table_id)

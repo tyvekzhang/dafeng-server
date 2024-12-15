@@ -111,3 +111,28 @@ SQLMODEL_TO_MYSQL_TYPE_MAP = {
 def sqlmodel_map_to_mysql_type(sqlmodel_type: str) -> str:
     sqlmodel_type = sqlmodel_type.upper()
     return SQLMODEL_TO_MYSQL_TYPE_MAP.get(sqlmodel_type, "varchar")
+
+
+SQLMODEL_TO_PGSQL_TYPE_MAP = {
+    "BOOLEAN": "bool",
+    "SMALLINTEGER": "int2",
+    "SMALLINT": "int2",
+    "INTEGER": "int4",
+    "BIGINTEGER": "int8",
+    "BIGINT": "int8",
+    "NUMERIC": "numeric",
+    "FLOAT": "float8",
+    "DOUBLE": "float4",
+    "STRING": "varchar",
+    "TEXT": "text",
+    "DATE": "date",
+    "DATETIME": "timestamp",
+    "TIMESTAMP": "timestamp",
+    "TIME": "time",
+    "LARGEBINARY": "bytea",
+    "JSON": "jsonb",
+}
+
+def sqlmodel_map_to_pgsql_type(sqlmodel_type: str) -> str:
+    sqlmodel_type = sqlmodel_type.upper()
+    return SQLMODEL_TO_PGSQL_TYPE_MAP.get(sqlmodel_type, "varchar")

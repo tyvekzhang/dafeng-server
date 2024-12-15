@@ -1,17 +1,19 @@
 package {{ package_name }}.entity;
 {% for import in import_list %}
-import {{ import -}}
-{% endfor %}
+import {{ import }};
+{%- endfor %}
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.IdType;
 
 /**
  * <p>
- * {{ function_name }}对象{{ table_name }}
+ * {{ function_name }}对象 {{ table_name }}
  * </p>
  *
  * @author {{ author }}
@@ -23,12 +25,14 @@ import com.baomidou.mybatisplus.annotation.TableName;
 @AllArgsConstructor
 @TableName("{{ table_name }}")
 public class {{ class_name }}DO implements Serializable {
-
     private static final long serialVersionUID = 1L;
     {% for field in fields %}
     /**
      * {{ field.field.comment }}
      */
+    {%- if field.gen_field.primary_key == 1  %}
+    @TableId(value = "{{ primary_key }}", type = IdType.ASSIGN_ID)
+    {%- endif %}
     private {{ field.gen_field.field_type }} {{ field.gen_field.field_name }};
     {% endfor %}
 }

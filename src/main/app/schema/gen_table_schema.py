@@ -48,7 +48,7 @@ class TableGen(BaseModel):
     gen_table: Optional[GenTableDO]
     fields: Union[List[FieldGen], None]
     sub_table: Optional[GenTableDO] = None
-    pk_field: Optional[FieldGen] = None
+    pk_field: Optional[str] = None
     tree_code: Optional[str] = None
     tree_parent_code: Optional[str] = None
     tree_name: Optional[str] = None

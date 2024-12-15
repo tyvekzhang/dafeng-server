@@ -1,8 +1,8 @@
-"""1
+"""empty message
 
-Revision ID: 05014077cea8
+Revision ID: 7708b309aa6e
 Revises: 
-Create Date: 2024-12-07 15:07:24.154778
+Create Date: 2024-12-15 19:32:53.584095
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = '05014077cea8'
+revision = '7708b309aa6e'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,7 +24,7 @@ def upgrade():
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('connection_name', sa.String(length=32), nullable=False, comment='连接名称'),
     sa.Column('database_type', sa.String(length=16), nullable=False, comment='数据库类型'),
-    sa.Column('database_ext', sa.String(length=64), nullable=True, comment='数据库扩展信息'),
+    sa.Column('connection_database', sa.String(length=64), nullable=True, comment='连接数据库名称'),
     sa.Column('host', sa.String(length=16), nullable=True, comment='主机'),
     sa.Column('port', sa.Integer(), nullable=True, comment='端口号'),
     sa.Column('username', sa.String(length=32), nullable=True, comment='用户名'),
@@ -37,9 +37,16 @@ def upgrade():
     op.create_table('db_database',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('connection_id', sa.BigInteger(), nullable=False, comment='数据库连接id'),
-    sa.Column('database_name', sa.String(length=32), nullable=False, comment='数据库名称'),
-    sa.Column('character_set', sa.String(length=32), nullable=True, comment='字符编码'),
-    sa.Column('collation', sa.String(length=32), nullable=True, comment='排序规则'),
+    sa.Column('database_name', sa.String(length=64), nullable=False, comment='数据库名称'),
+    sa.Column('owner', sa.String(length=64), nullable=True, comment='拥有者'),
+    sa.Column('template', sa.String(length=64), nullable=True, comment='使用模板'),
+    sa.Column('encoding', sa.String(length=32), nullable=True, comment='字符编码'),
+    sa.Column('collation_order', sa.String(length=32), nullable=True, comment='排序规则'),
+    sa.Column('character_classification', sa.String(length=32), nullable=True, comment='字符分类'),
+    sa.Column('tablespace', sa.String(length=64), nullable=True, comment='表空间名称'),
+    sa.Column('connection_limit', sa.Integer(), nullable=True, comment='连接限制'),
+    sa.Column('allow_connection', sa.Boolean(), nullable=True, comment='是否允许连接'),
+    sa.Column('is_template', sa.Boolean(), nullable=True, comment='是否为模板数据库'),
     sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
     sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
@@ -53,7 +60,7 @@ def upgrade():
     sa.Column('type', sa.String(length=32), nullable=False, comment='字段类型'),
     sa.Column('length', sa.Integer(), nullable=True, comment='总长度'),
     sa.Column('scale', sa.Integer(), nullable=True, comment='小数长度'),
-    sa.Column('default', sa.String(length=32), nullable=True, comment='默认值'),
+    sa.Column('default', sa.String(length=64), nullable=True, comment='默认值'),
     sa.Column('comment', sa.String(length=255), nullable=True, comment='备注'),
     sa.Column('nullable', sa.Boolean(), nullable=True, comment='允许为空(0否,1是)'),
     sa.Column('primary_key', sa.Boolean(), nullable=True, comment='主键(0否,1是)'),
@@ -93,6 +100,7 @@ def upgrade():
     sa.Column('db_field_id', sa.BigInteger(), nullable=False, comment='数据库字段id'),
     sa.Column('field_name', sa.String(length=64), nullable=True, comment='字段名称'),
     sa.Column('field_type', sa.String(length=64), nullable=True, comment='字段类型'),
+    sa.Column('primary_key', sa.Boolean(), nullable=True, comment='是否主键(0否,1是)'),
     sa.Column('creatable', sa.Boolean(), nullable=True, comment='是否创建字段(0否,1是)'),
     sa.Column('queryable', sa.Boolean(), nullable=True, comment='是否查询字段(0否,1是)'),
     sa.Column('listable', sa.Boolean(), nullable=True, comment='是否列表字段(0否,1是)'),

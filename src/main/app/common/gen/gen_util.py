@@ -35,14 +35,14 @@ class GenUtils:
         # Set default type
         gen_field.field_type = GenConstants.TYPE_STRING
         gen_field.query_type = GenConstants.QUERY_EQ
+        gen_field.primary_key = field_record.primary_key
 
         if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_STR, data_type) or GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type):
-            # Set text area for string length over 500
-            field_length = GenUtils.get_field_length(gen_field.field_type)
-            html_type = GenConstants.HTML_TEXTAREA if field_length >= 500 or GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type) else GenConstants.HTML_INPUT
+            field_length = field_record.length
+            html_type = GenConstants.HTML_TEXTAREA if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type) or field_length >= 500 else GenConstants.HTML_INPUT
             gen_field.html_type = html_type
         elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TIME, data_type):
-            gen_field.field_type = GenConstants.TYPE_DATE
+            gen_field.field_type = GenConstants.TYPE_LOCALDATETIME
             gen_field.html_type = GenConstants.HTML_DATETIME
         elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_NUMBER, data_type):
             gen_field.html_type = GenConstants.HTML_INPUT
@@ -51,7 +51,7 @@ class GenUtils:
             length = field_record.length
             if scale is not None:
                 gen_field.field_type = GenConstants.TYPE_BIGDECIMAL
-            elif length is not None and length <= 10:
+            elif data_type == "int4" or data_type == "int2" or (length is not None and length <= 10):
                 gen_field.field_type = GenConstants.TYPE_INTEGER
             else:
                 gen_field.field_type = GenConstants.TYPE_LONG
