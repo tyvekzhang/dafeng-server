@@ -1,0 +1,60 @@
+import httpClient from '@/utils/http-client';
+import { Page, PageResult } from '@/types/common';
+import { {{class_name}}Query, {{class_name}}Create, {{class_name}}Modify, {{class_name}}Detail } from '@/types/{{kebab_case_class_name}}';
+
+/**
+ * 分页查询{{class_name}}
+ * @param page 分页参数
+ * @param {{lowercase_class_name}}Query 查询条件
+ * @returns 返回分页结果，包含{{class_name}}详情列表
+ */
+export function fetch{{class_name}}ByPage(page: Page, {{lowercase_class_name}}Query: {{class_name}}Query) {
+  return httpClient.post<PageResult<{{class_name}}Detail>>('/{{kebab_case_class_name}}/page', { ...page, ...{{lowercase_class_name}}Query });
+}
+
+/**
+ * 创建{{class_name}}
+ * @param {{lowercase_class_name}}Create 创建{{class_name}}的数据
+ * @returns 返回创建的{{class_name}}的ID
+ */
+export function create{{class_name}}({{lowercase_class_name}}Create: {{class_name}}Create) {
+  return httpClient.post<number>('/{{kebab_case_class_name}}/create', {{lowercase_class_name}}Create);
+}
+
+/**
+ * 批量创建{{class_name}}
+ * @param {{lowercase_class_name}}CreateList 批量创建{{class_name}}的数据
+ * @returns 返回创建{{class_name}}的ID
+ */
+export function batchCreate{{class_name}}({{lowercase_class_name}}CreateList: {{class_name}}Create[]) {
+  return httpClient.post<number[]>('/{{kebab_case_class_name}}/batch-create', {{lowercase_class_name}}CreateList);
+}
+
+/**
+ * 获取{{class_name}}详情
+ * @param id {{class_name}}的ID
+ * @returns 返回{{class_name}}的详细信息
+ */
+export function fetch{{class_name}}Detail(id: number) {
+  return httpClient.get<{{class_name}}Detail>(`/{{kebab_case_class_name}}/detail/${id}`);
+}
+
+/**
+ * 修改{{class_name}}信息
+ * @param {{lowercase_class_name}}Modify 更新的{{class_name}}数据
+ * @returns 无返回值
+ */
+export function modify{{class_name}}({{lowercase_class_name}}Modify: {{class_name}}Modify) {
+  return httpClient.put<void>(`/{{kebab_case_class_name}}/modify`, {{lowercase_class_name}}Modify);
+}
+
+/**
+ * 批量删除{{class_name}}
+ * @param ids 要删除的{{class_name}}ID数组
+ * @returns 无返回值
+ */
+export function batchRemove{{class_name}}(ids: number[]) {
+  return httpClient.delete<void>('/{{kebab_case_class_name}}/batch-remove', { data: ids });
+
+}
+

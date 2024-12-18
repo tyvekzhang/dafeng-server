@@ -25,8 +25,10 @@ class Jinja2Utils:
         author = gen_table.function_author
         date_time = datetime.now().strftime("%Y-%m-%d")
         class_name = Jinja2Utils.capitalize(gen_table.class_name)
+        lowercase_class_name = Jinja2Utils.uncapitalize(class_name)
         primary_key = table_gen.pk_field
         router_name = Jinja2Utils.to_kebab_case(class_name)
+        kebab_case_class_name = router_name
         fields = table_gen.fields
         module_name = gen_table.module_name
         business_name = gen_table.business_name
@@ -42,8 +44,10 @@ class Jinja2Utils:
             "author": author,
             "datetime": date_time,
             "class_name": class_name,
+            "lowercase_class_name": lowercase_class_name,
             "primary_key": primary_key,
             "router_name": router_name,
+            "kebab_case_class_name": kebab_case_class_name,
             "fields": fields,
             # "tpl_category": tpl_category,
             # "module_name": module_name,
@@ -128,6 +132,14 @@ class Jinja2Utils:
         service_tpl = "jinja2/java/mybatis_plus/service.java.j2"
         serviceimpl_tpl = "jinja2/java/mybatis_plus/serviceImpl.java.j2"
         controller_tpl = "jinja2/java/mybatis_plus/controller.java.j2"
+        create_tpl = "jinja2/java/command/create.java.j2"
+        modify_tpl = "jinja2/java/command/modify.java.j2"
+        query_tpl = "jinja2/java/command/query.java.j2"
+        detail_tpl = "jinja2/java/vo/detail.java.j2"
+        page_tpl = "jinja2/java/vo/page.java.j2"
+        converter_tpl = "jinja2/java/converter/converter.java.j2"
+        api_tpl = "jinja2/js/api.js.j2"
+        type_tpl = "jinja2/js/type.js.j2"
         if backend == GenConstants.JAVA:
             if tpl_backend_type == GenConstants.MYBATIS:
                 entity_tpl = "jinja2/java/mybatis/entity.java.j2"
@@ -137,6 +149,14 @@ class Jinja2Utils:
             service_tpl,
             serviceimpl_tpl,
             controller_tpl,
+            create_tpl,
+            modify_tpl,
+            query_tpl,
+            detail_tpl,
+            page_tpl,
+            converter_tpl,
+            api_tpl,
+            type_tpl,
         ]
 
         # if tpl_category == "crud":
@@ -164,7 +184,8 @@ class Jinja2Utils:
 
         java_path = f"{Jinja2Utils.PROJECT_PATH}/{package_name.replace('.', '/')}"
         mybatis_path = f"{Jinja2Utils.MYBATIS_PATH}/{module_name}"
-        vue_path = "vue"
+        client_path = "src"
+        kebab_case_class_name= Jinja2Utils.to_kebab_case(business_name)
 
         if "entity.java.j2" in template:
             file_name = f"{java_path}/entity/{class_name}DO.java"
@@ -179,14 +200,26 @@ class Jinja2Utils:
             file_name = f"{java_path}/service/impl/{class_name}ServiceImpl.java"
         elif "controller.java.j2" in template:
             file_name = f"{java_path}/controller/{class_name}Controller.java"
+        elif "converter.java.j2" in template:
+            file_name = f"{java_path}/converter/{class_name}Converter.java"
+        elif "create.java.j2" in template:
+            file_name = f"{java_path}/command/{class_name}Create.java"
+        elif "modify.java.j2" in template:
+            file_name = f"{java_path}/command/{class_name}Modify.java"
+        elif "query.java.j2" in template:
+            file_name = f"{java_path}/command/{class_name}Query.java"
+        elif "detail.java.j2" in template:
+            file_name = f"{java_path}/vo/{class_name}Detail.java"
+        elif "page.java.j2" in template:
+            file_name = f"{java_path}/vo/{class_name}Page.java"
         elif "mapper.xml.vm" in template:
             file_name = f"{mybatis_path}/{class_name}Mapper.xml"
         elif "sql.vm" in template:
             file_name = f"{business_name}Menu.sql"
-        elif "api.js.vm" in template:
-            file_name = f"{vue_path}/api/{module_name}/{business_name}.js"
-        elif "index.vue.vm" in template or "index-tree.vue.vm" in template:
-            file_name = f"{vue_path}/views/{module_name}/{business_name}/index.vue"
+        elif "api.js.j2" in template:
+            file_name = f"{client_path}/service/{kebab_case_class_name}.ts"
+        elif "type.js.j2" in template:
+            file_name = f"{client_path}/types/{kebab_case_class_name}.ts"
 
         return file_name
 

@@ -1,7 +1,21 @@
 package {{ package_name }}.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.singularity.common.model.ResponseResult;
+import com.singularity.common.wrapper.ResponseWrapper;
+import {{ package_name }}.command.{{class_name}}Create;
+import {{ package_name }}.command.{{class_name}}Modify;
+import {{ package_name }}.command.{{class_name}}Query;
+import {{ package_name }}.converter.{{class_name}}Converter;
+import {{ package_name }}.entity.{{class_name}}DO;
+import {{ package_name }}.service.I{{class_name}}Service;
+import {{ package_name }}.vo.{{class_name}}Detail;
+import {{ package_name }}.vo.{{class_name}}Page;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import java.util.List;
 
 /**
  * <p>
@@ -13,6 +27,85 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/{{ router_name }}")
-public class {{ class_name }}Controller {
+public class {{class_name}}Controller {
+    @Resource
+    private I{{class_name}}Service {{lowercase_class_name}}Service;
 
+    /**
+     * 分页获取{{class_name}}
+     * @param page 当前页码
+     * @param size 每页大小
+     * @param {{lowercase_class_name}}Query 查询条件
+     * @return 返回分页结果，包含{{class_name}}详情列表
+     */
+    @PostMapping("/page")
+    public ResponseResult fetch{{class_name}}ByPage(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestBody @Valid {{class_name}}Query {{lowercase_class_name}}Query) {
+        List<{{class_name}}DO> {{lowercase_class_name}}List = {{lowercase_class_name}}Service.fetch{{class_name}}ByPage(page, size, {{lowercase_class_name}}Query);
+        if (CollectionUtils.isEmpty({{lowercase_class_name}}List)) {
+            return ResponseResult.success();
+        }
+        List<{{class_name}}Page> {{lowercase_class_name}}PageList = {{lowercase_class_name}}List.stream().map({{class_name}}Converter.INSTANCE::{{lowercase_class_name}}DOTo{{class_name}}Page).toList();
+        return ResponseResult.success(ResponseWrapper.wrapperList({{lowercase_class_name}}PageList));
+    }
+
+    /**
+     * 创建{{class_name}}
+     * @param {{lowercase_class_name}}Create 创建{{class_name}}的数据
+     * @return 返回创建{{class_name}}的ID
+     */
+    @PostMapping("/create")
+    public ResponseResult create{{class_name}}(@RequestBody @Valid {{class_name}}Create {{lowercase_class_name}}Create) {
+        {{class_name}}DO {{lowercase_class_name}}DO = {{class_name}}Converter.INSTANCE.{{lowercase_class_name}}CreateTo{{class_name}}DO({{lowercase_class_name}}Create);
+        {{lowercase_class_name}}Service.save({{lowercase_class_name}}DO);
+        return ResponseResult.success({{lowercase_class_name}}DO.getId());
+    }
+
+    /**
+     * 批量创建{{class_name}}
+     * @param {{lowercase_class_name}}CreateList 创建{{class_name}}数据列表
+     * @return 返回创建{{class_name}}的ID列表
+     */
+    @PostMapping("/batch-create")
+    public ResponseResult batchCreate{{class_name}}(@RequestBody @Valid List<{{class_name}}Create> {{lowercase_class_name}}CreateList) {
+        List<{{class_name}}DO> {{lowercase_class_name}}DOList = {{lowercase_class_name}}CreateList.stream().map({{class_name}}Converter.INSTANCE::{{lowercase_class_name}}CreateTo{{class_name}}DO).toList();
+        {{lowercase_class_name}}Service.saveBatch({{lowercase_class_name}}DOList);
+        List<Long> ids = {{lowercase_class_name}}DOList.stream().map({{class_name}}DO::getId).collect(java.util.stream.Collectors.toList());
+        return ResponseResult.success(ids);
+    }
+
+    /**
+     * 获取{{class_name}}详情
+     * @param id {{class_name}}ID
+     * @return 返回{{class_name}}详细信息
+     */
+    @GetMapping("/detail/{id}")
+    public ResponseResult fetch{{class_name}}Detail(@PathVariable Long id) {
+        {{class_name}}DO {{lowercase_class_name}}DO = {{lowercase_class_name}}Service.getById(id);
+        {{class_name}}Detail {{lowercase_class_name}}Detail = {{class_name}}Converter.INSTANCE.{{lowercase_class_name}}DOTo{{class_name}}Detail({{lowercase_class_name}}DO);
+        return ResponseResult.success({{lowercase_class_name}}Detail);
+    }
+
+    /**
+     * 修改{{class_name}}信息
+     * @param {{lowercase_class_name}}Modify 更新的{{class_name}}数据
+     */
+    @PutMapping("/modify")
+    public ResponseResult modify{{class_name}}(@RequestBody @Valid {{class_name}}Modify {{lowercase_class_name}}Modify) {
+        {{class_name}}DO {{lowercase_class_name}}DO = {{class_name}}Converter.INSTANCE.{{lowercase_class_name}}ModifyTo{{class_name}}DO({{lowercase_class_name}}Modify);
+        {{lowercase_class_name}}Service.updateById({{lowercase_class_name}}DO);
+        return ResponseResult.success();
+    }
+
+    /**
+     * 批量删除{{class_name}}
+     * @param ids 要删除的{{class_name}}ID数组
+     */
+    @DeleteMapping("/batch-remove")
+    public ResponseResult batchRemove{{class_name}}(@RequestBody List<Long> ids) {
+        {{lowercase_class_name}}Service.removeBatchByIds(ids);
+        return ResponseResult.success();
+    }
 }

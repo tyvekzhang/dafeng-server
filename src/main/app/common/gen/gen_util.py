@@ -34,6 +34,7 @@ class GenUtils:
         gen_field.field_name = StringUtils.to_camel_case(field_name)
         # Set default type
         gen_field.field_type = GenConstants.TYPE_STRING
+        gen_field.js_type = GenConstants.TYPE_JS_STRING
         gen_field.query_type = GenConstants.QUERY_EQ
         gen_field.primary_key = field_record.primary_key
 
@@ -46,7 +47,7 @@ class GenUtils:
             gen_field.html_type = GenConstants.HTML_DATETIME
         elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_NUMBER, data_type):
             gen_field.html_type = GenConstants.HTML_INPUT
-
+            gen_field.js_type = GenConstants.TYPE_JS_NUMBER
             scale = field_record.scale
             length = field_record.length
             if scale is not None:
@@ -63,9 +64,13 @@ class GenUtils:
         if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_EDIT, field_name) and not field_record.primary_key:
             gen_field.modifiable = GenConstants.REQUIRE
 
-        # List field
+        # Page field
         if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_LIST, field_name) and not field_record.primary_key:
-            gen_field.listable = GenConstants.REQUIRE
+            gen_field.pageable = GenConstants.REQUIRE
+
+        # Detail field
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_LIST, field_name) and not field_record.primary_key:
+            gen_field.detailable = GenConstants.REQUIRE
 
         # Query field
         if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_QUERY, field_name) and not field_record.primary_key:

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * <p>
- * {{ function_name }}对象查询参数
+ * {{ function_name }}对象详情
  * </p>
  *
  * @author {{ author }}
@@ -19,14 +19,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class {{ class_name }}Query {
-    {%- for field in fields %}
-    {%- if field.gen_field.queryable == 1  %}
+public class {{ class_name }}Detail {
+    {% for field in fields %}
+    {%- if field.gen_field.pageable == 1  %}
     /**
      * {{ field.field.comment }}
      */
     private {{ field.gen_field.field_type }} {{ field.gen_field.field_name }};
-    {%- endif -%}
+    {%- endif %}
     {% endfor %}
-
 }

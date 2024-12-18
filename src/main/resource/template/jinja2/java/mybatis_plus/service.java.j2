@@ -1,7 +1,9 @@
 package {{ package_name }}.service;
 
-import {{ package_name }}.entity.{{ class_name }}DO;
+import java.util.List;
 import com.baomidou.mybatisplus.extension.service.IService;
+import {{ package_name }}.entity.{{ class_name }}DO;
+import {{ package_name }}.command.{{ class_name }}Query;
 
 /**
  * <p>
@@ -12,5 +14,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since {{ datetime }}
  */
 public interface I{{ class_name }}Service extends IService<{{ class_name }}DO> {
+    List<{{class_name}}DO> fetch{{class_name}}ByPage(int page, int size, {{class_name}}Query {{lowercase_class_name}}query);
 
 }

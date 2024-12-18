@@ -44,6 +44,9 @@ class GenConstants:
 
     # Data types
     TYPE_STRING = "String"
+    TYPE_JS_STRING = "string"
+    TYPE_JS_NUMBER = "number"
+    TYPE_JS_BOOLEAN = "boolean"
     TYPE_INTEGER = "Integer"
     TYPE_LONG = "Long"
     TYPE_DOUBLE = "Double"

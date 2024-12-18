@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 7708b309aa6e
+Revision ID: b9610d5f099a
 Revises: 
-Create Date: 2024-12-15 19:32:53.584095
+Create Date: 2024-12-18 15:58:05.416625
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = '7708b309aa6e'
+revision = 'b9610d5f099a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -62,9 +62,9 @@ def upgrade():
     sa.Column('scale', sa.Integer(), nullable=True, comment='小数长度'),
     sa.Column('default', sa.String(length=64), nullable=True, comment='默认值'),
     sa.Column('comment', sa.String(length=255), nullable=True, comment='备注'),
-    sa.Column('nullable', sa.Boolean(), nullable=True, comment='允许为空(0否,1是)'),
-    sa.Column('primary_key', sa.Boolean(), nullable=True, comment='主键(0否,1是)'),
-    sa.Column('autoincrement', sa.Boolean(), nullable=True, comment='自增(0否,1是)'),
+    sa.Column('nullable', sa.SmallInteger(), nullable=True, comment='允许为空(0否,1是)'),
+    sa.Column('primary_key', sa.SmallInteger(), nullable=True, comment='主键(0否,1是)'),
+    sa.Column('autoincrement', sa.SmallInteger(), nullable=True, comment='自增(0否,1是)'),
     sa.Column('sort', sa.Integer(), nullable=True, comment='排序'),
     sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
     sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
@@ -100,11 +100,13 @@ def upgrade():
     sa.Column('db_field_id', sa.BigInteger(), nullable=False, comment='数据库字段id'),
     sa.Column('field_name', sa.String(length=64), nullable=True, comment='字段名称'),
     sa.Column('field_type', sa.String(length=64), nullable=True, comment='字段类型'),
-    sa.Column('primary_key', sa.Boolean(), nullable=True, comment='是否主键(0否,1是)'),
-    sa.Column('creatable', sa.Boolean(), nullable=True, comment='是否创建字段(0否,1是)'),
-    sa.Column('queryable', sa.Boolean(), nullable=True, comment='是否查询字段(0否,1是)'),
-    sa.Column('listable', sa.Boolean(), nullable=True, comment='是否列表字段(0否,1是)'),
-    sa.Column('modifiable', sa.Boolean(), nullable=True, comment='是否修改字段(0否,1是)'),
+    sa.Column('js_type', sa.String(length=64), nullable=True, comment='JS类型'),
+    sa.Column('primary_key', sa.SmallInteger(), nullable=True, comment='是否主键(0否,1是)'),
+    sa.Column('creatable', sa.SmallInteger(), nullable=True, comment='是否创建字段(0否,1是)'),
+    sa.Column('queryable', sa.SmallInteger(), nullable=True, comment='是否查询字段(0否,1是)'),
+    sa.Column('pageable', sa.SmallInteger(), nullable=True, comment='是否列表字段(0否,1是)'),
+    sa.Column('detailable', sa.SmallInteger(), nullable=True, comment='是否详情字段(0否,1是)'),
+    sa.Column('modifiable', sa.SmallInteger(), nullable=True, comment='是否修改字段(0否,1是)'),
     sa.Column('query_type', sa.String(length=64), nullable=True, comment='查询方式（等于、不等于、大于、小于、范围）'),
     sa.Column('html_type', sa.String(length=64), nullable=True, comment='显示类型(文本框、文本域、下拉框、复选框、单选框、日期控件)'),
     sa.Column('dict_type', sa.String(length=64), nullable=True, comment='字典类型'),

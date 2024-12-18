@@ -1,107 +1,31 @@
-package {{ packageName }}.domain;
-
-{% for import in importList %}
+package {{ package_name }}.command;
+{% for import in import_list %}
 import {{ import }};
-{% endfor %}
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import com.ruoyi.common.core.annotation.Excel;
-{% if table.crud or table.sub %}
-import com.ruoyi.common.core.web.domain.BaseEntity;
-{% elif table.tree %}
-import com.ruoyi.common.core.web.domain.TreeEntity;
-{% endif %}
+{%- endfor %}
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * {{ functionName }}对象 {{ tableName }}
+ * <p>
+ * {{ function_name }}对象新增
+ * </p>
  *
  * @author {{ author }}
- * @date {{ datetime }}
+ * @since {{ datetime }}
  */
-{% if table.crud or table.sub %}
-{% set Entity = "BaseEntity" %}
-{% elif table.tree %}
-{% set Entity = "TreeEntity" %}
-{% endif %}
-public class {{ ClassName }} extends {{ Entity }}
-{
-    private static final long serialVersionUID = 1L;
-
-    {% for column in columns %}
-    {% if not table.isSuperColumn(column.javaField) %}
-    /** {{ column.columnComment }} */
-    {% if column.list %}
-    {% set parentheseIndex = column.columnComment.find("（") %}
-    {% if parentheseIndex != -1 %}
-    {% set comment = column.columnComment[:parentheseIndex] %}
-    {% else %}
-    {% set comment = column.columnComment %}
-    {% endif %}
-    {% if parentheseIndex != -1 %}
-    @Excel(name = "{{ comment }}", readConverterExp = "{{ column.readConverterExp() }}")
-    {% elif column.javaType == 'Date' %}
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "{{ comment }}", width = 30, dateFormat = "yyyy-MM-dd")
-    {% else %}
-    @Excel(name = "{{ comment }}")
-    {% endif %}
-    {% endif %}
-    private {{ column.javaType }} {{ column.javaField }};
-
-    {% endif %}
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class {{ class_name }}Create {
+    {%- for field in fields %}
+    {%- if field.gen_field.creatable == 1  %}
+    /**
+     * {{ field.field.comment }}
+     */
+    private {{ field.gen_field.field_type }} {{ field.gen_field.field_name }};
+    {%- endif -%}
     {% endfor %}
-
-    {% if table.sub %}
-    /** {{ table.subTable.functionName }}信息 */
-    private List<{{ subClassName }}> {{ subclassName }}List;
-
-    {% endif %}
-
-    {% for column in columns %}
-    {% if not table.isSuperColumn(column.javaField) %}
-    {% if column.javaField|length > 2 and column.javaField[1].isupper() %}
-    {% set AttrName = column.javaField %}
-    {% else %}
-    {% set AttrName = column.javaField[0].upper() + column.javaField[1:] %}
-    {% endif %}
-    public void set{{ AttrName }}({{ column.javaType }} {{ column.javaField }})
-    {
-        this.{{ column.javaField }} = {{ column.javaField }};
-    }
-
-    public {{ column.javaType }} get{{ AttrName }}()
-    {
-        return {{ column.javaField }};
-    }
-    {% endif %}
-    {% endfor %}
-
-    {% if table.sub %}
-    public List<{{ subClassName }}> get{{ subClassName }}List()
-    {
-        return {{ subclassName }}List;
-    }
-
-    public void set{{ subClassName }}List(List<{{ subClassName }}> {{ subclassName }}List)
-    {
-        this.{{ subclassName }}List = {{ subclassName }}List;
-    }
-    {% endif %}
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-        {% for column in columns %}
-        {% if column.javaField|length > 2 and column.javaField[1].isupper() %}
-        {% set AttrName = column.javaField %}
-        {% else %}
-        {% set AttrName = column.javaField[0].upper() + column.javaField[1:] %}
-        {% endif %}
-            .append("{{ column.javaField }}", get{{ AttrName }}())
-        {% endfor %}
-        {% if table.sub %}
-            .append("{{ subclassName }}List", get{{ subClassName }}List())
-        {% endif %}
-            .toString();
-    }
 }
