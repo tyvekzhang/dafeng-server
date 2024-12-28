@@ -37,6 +37,7 @@ class GenUtils:
         gen_field.js_type = GenConstants.TYPE_JS_STRING
         gen_field.query_type = GenConstants.QUERY_EQ
         gen_field.primary_key = field_record.primary_key
+        gen_field.comment = field_record.comment
 
         if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_STR, data_type) or GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type):
             field_length = field_record.length

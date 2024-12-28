@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b9610d5f099a
+Revision ID: 57b76db53e2a
 Revises: 
-Create Date: 2024-12-18 15:58:05.416625
+Create Date: 2024-12-24 21:18:07.320359
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = 'b9610d5f099a'
+revision = '57b76db53e2a'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -110,6 +110,7 @@ def upgrade():
     sa.Column('query_type', sa.String(length=64), nullable=True, comment='查询方式（等于、不等于、大于、小于、范围）'),
     sa.Column('html_type', sa.String(length=64), nullable=True, comment='显示类型(文本框、文本域、下拉框、复选框、单选框、日期控件)'),
     sa.Column('dict_type', sa.String(length=64), nullable=True, comment='字典类型'),
+    sa.Column('comment', sa.String(length=255), nullable=True, comment='备注'),
     sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
     sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),

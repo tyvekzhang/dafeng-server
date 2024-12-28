@@ -72,9 +72,12 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
         context = Jinja2Utils.prepare_context(table_gen)
         templates = Jinja2Utils.get_template_list(gen_table.backend, gen_table.tpl_backend_type, gen_table.tpl_category,   gen_table.tpl_web_type)
         for template in templates:
-            template_j2 = load_template_file(template)
-            rendered_template = template_j2.render(context)
-            data_map[GenUtils.trim_jinja2_name(template)] = rendered_template
+            try:
+                template_j2 = load_template_file(template)
+                rendered_template = template_j2.render(context)
+                data_map[GenUtils.trim_jinja2_name(template)] = rendered_template
+            except:
+                print(template)
         return data_map
 
 

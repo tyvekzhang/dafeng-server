@@ -85,7 +85,7 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
                     ResponseCode.TABLE_EXISTS_ERROR.code,
                     f"{ResponseCode.TABLE_EXISTS_ERROR.msg}: {table_name}",
                 )
-        template = load_template_file(template_name="table_create.py.j2")
+        template = load_template_file(template_name="default/table_create.py.j2")
         if table_generate.class_name is None:
             table_name_split = table_generate.table_name.split("_")
             if len(table_name_split) == 1:

@@ -36,6 +36,10 @@ class PageBase(BaseModel):
     order_by: Optional[str] = None
     sort_order: Optional[str] = None
 
+class PageQuery(BaseModel):
+    current: Optional[int] = 1
+    pageSize: Optional[int] = 10
+
 
 class FilterParams(PageBase):
     """
@@ -58,4 +62,4 @@ class ModelBaseParams(BaseModel):
 
 class PaginationResponse(BaseModel):
     records: List[Any] = None
-    total_count: int = 0
+    total: int = 0

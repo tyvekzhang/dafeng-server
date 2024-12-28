@@ -21,11 +21,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class {{ class_name }}Detail {
     {% for field in fields %}
-    {%- if field.gen_field.pageable == 1  %}
+    {%- if field.gen_field.detailable == 1  %}
     /**
      * {{ field.field.comment }}
      */
     private {{ field.gen_field.field_type }} {{ field.gen_field.field_name }};
-    {%- endif %}
+    {% endif -%}
     {% endfor %}
 }

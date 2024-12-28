@@ -1,5 +1,12 @@
 package {{ package_name }}.controller;
 
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import java.util.List;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.singularity.common.model.ResponseResult;
 import com.singularity.common.wrapper.ResponseWrapper;
 import {{ package_name }}.command.{{class_name}}Create;
@@ -10,12 +17,6 @@ import {{ package_name }}.entity.{{class_name}}DO;
 import {{ package_name }}.service.I{{class_name}}Service;
 import {{ package_name }}.vo.{{class_name}}Detail;
 import {{ package_name }}.vo.{{class_name}}Page;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
-import javax.validation.Valid;
-import java.util.List;
 
 /**
  * <p>
@@ -25,6 +26,7 @@ import java.util.List;
  * @author {{ author }}
  * @since {{ datetime }}
  */
+@Slf4j
 @RestController
 @RequestMapping("/{{ router_name }}")
 public class {{class_name}}Controller {
@@ -33,22 +35,21 @@ public class {{class_name}}Controller {
 
     /**
      * 分页获取{{class_name}}
-     * @param page 当前页码
-     * @param size 每页大小
+     * @param pageQuery 分页条件
      * @param {{lowercase_class_name}}Query 查询条件
      * @return 返回分页结果，包含{{class_name}}详情列表
      */
     @PostMapping("/page")
     public ResponseResult fetch{{class_name}}ByPage(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestBody PageQuery pageQuery,
             @RequestBody @Valid {{class_name}}Query {{lowercase_class_name}}Query) {
-        List<{{class_name}}DO> {{lowercase_class_name}}List = {{lowercase_class_name}}Service.fetch{{class_name}}ByPage(page, size, {{lowercase_class_name}}Query);
+        Page<{{class_name}}DO> {{lowercase_class_name}}Page = {{lowercase_class_name}}Service.fetch{{class_name}}ByPage(pageQuery.getCurrent(), pageQuery.getPageSize(), {{lowercase_class_name}}Query);
+        List<{{class_name}}DO> {{lowercase_class_name}}List = {{lowercase_class_name}}Page.getRecords();
         if (CollectionUtils.isEmpty({{lowercase_class_name}}List)) {
             return ResponseResult.success();
         }
         List<{{class_name}}Page> {{lowercase_class_name}}PageList = {{lowercase_class_name}}List.stream().map({{class_name}}Converter.INSTANCE::{{lowercase_class_name}}DOTo{{class_name}}Page).toList();
-        return ResponseResult.success(ResponseWrapper.wrapperList({{lowercase_class_name}}PageList));
+        return ResponseResult.success(ResponseWrapper.wrapperList({{lowercase_class_name}}PageList, {{lowercase_class_name}}Page.getTotal()));
     }
 
     /**

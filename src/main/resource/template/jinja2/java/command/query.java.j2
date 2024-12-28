@@ -20,13 +20,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class {{ class_name }}Query {
-    {%- for field in fields %}
+    {% for field in fields %}
     {%- if field.gen_field.queryable == 1  %}
     /**
      * {{ field.field.comment }}
      */
     private {{ field.gen_field.field_type }} {{ field.gen_field.field_name }};
-    {%- endif -%}
+    {% endif -%}
     {% endfor %}
-
 }

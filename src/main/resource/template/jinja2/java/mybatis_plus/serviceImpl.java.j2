@@ -1,5 +1,9 @@
 package {{ package_name }}.service.impl;
 
+import javax.annotation.Resource;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,10 +12,6 @@ import {{ package_name }}.command.{{ class_name }}Query;
 import {{ package_name }}.entity.{{ class_name }}DO;
 import {{ package_name }}.mapper.{{ class_name }}Mapper;
 import {{ package_name }}.service.I{{ class_name }}Service;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * <p>
@@ -21,15 +21,16 @@ import java.util.List;
  * @author {{ author }}
  * @since {{ datetime }}
  */
+@Slf4j
 @Service
 public class {{ class_name }}ServiceImpl extends ServiceImpl<{{ class_name }}Mapper, {{ class_name }}DO> implements I{{ class_name }}Service {
     @Resource
     private {{ class_name }}Mapper {{ lowercase_class_name }}Mapper;
 
     @Override
-    public List<{{ class_name }}DO> fetch{{ class_name }}ByPage(int page, int size, {{ class_name }}Query {{ lowercase_class_name }}query) {
+    public Page<{{ class_name }}DO> fetch{{ class_name }}ByPage(int current, int pageSize, {{ class_name }}Query {{ lowercase_class_name }}query) {
         // 构建分页对象
-        Page<{{ class_name }}DO> pageRequest = new Page<>(page, size);
+        Page<{{ class_name }}DO> pageRequest = new Page<>(current, pageSize);
         // 使用 LambdaQueryWrapper 构建查询条件
         LambdaQueryWrapper<{{ class_name }}DO> queryWrapper = {{ class_name }}DO.queryWrapper();
         // 动态添加查询条件
@@ -47,10 +48,8 @@ public class {{ class_name }}ServiceImpl extends ServiceImpl<{{ class_name }}Map
         {%- endif %}
         {%- endif -%}
         {% endfor %}
-        // 执行分页查询
-        Page<{{ class_name }}DO> resultPage = {{ lowercase_class_name }}Mapper.selectPage(pageRequest, queryWrapper);
-        // 返回查询结果
-        return resultPage.getRecords();
+        // 执行分页查询并返回
+        return {{ lowercase_class_name }}Mapper.selectPage(pageRequest, queryWrapper);
     }
 
 }

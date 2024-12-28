@@ -28,6 +28,7 @@ class GenFieldBase(SQLModel):
     query_type: Optional[str] = Field(default=0, sa_column=Column(String(64), comment="查询方式（等于、不等于、大于、小于、范围）"))
     html_type: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="显示类型(文本框、文本域、下拉框、复选框、单选框、日期控件)"))
     dict_type: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="字典类型"))
+    comment: Optional[str] = Field(default=None, sa_column=Column(String(255), comment="备注"))
 
 
 class GenFieldDO(ModelExt, GenFieldBase, ModelBase, table=True):

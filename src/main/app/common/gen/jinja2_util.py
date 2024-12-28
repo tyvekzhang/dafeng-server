@@ -121,12 +121,13 @@ class Jinja2Utils:
         :param backend: 后端语言, java, python, go, rust...
         :param tpl_backend_type: 后端语言使用的模板类型, mybatis, mybatis-plus...
         :param tpl_category: 模板类别 (如 CRUD、TREE、SUB 等)
-        :param tpl_web_type: 前端类型 (如 vue 或 element-plus)
+        :param tpl_web_type: 前端类型 (如 react 或 element-plus)
         :return: 模板列表
         """
-        use_web_type = "vm/vue"
+        index_tpl = "jinja2/react/index.tsx.j2"
+        index_create_tpl = "jinja2/react/components/indexCreate.tsx.j2"
         if tpl_web_type == "element-plus":
-            use_web_type = "vm/vue/v3"
+            use_web_type = "vm/react/v3"
         entity_tpl = "jinja2/java/mybatis_plus/entity.java.j2"
         mapper_tpl = "jinja2/java/mybatis_plus/mapper.java.j2"
         service_tpl = "jinja2/java/mybatis_plus/service.java.j2"
@@ -144,6 +145,7 @@ class Jinja2Utils:
             if tpl_backend_type == GenConstants.MYBATIS:
                 entity_tpl = "jinja2/java/mybatis/entity.java.j2"
         templates = [
+            index_create_tpl,
             entity_tpl,
             mapper_tpl,
             service_tpl,
@@ -157,14 +159,15 @@ class Jinja2Utils:
             converter_tpl,
             api_tpl,
             type_tpl,
+            index_tpl,
         ]
 
         # if tpl_category == "crud":
-        #     templates.append(f"{use_web_type}/index.vue.vm")
+        #     templates.append(f"{use_web_type}/index.react.vm")
         # elif tpl_category == "tree":
-        #     templates.append(f"{use_web_type}/index-tree.vue.vm")
+        #     templates.append(f"{use_web_type}/index-tree.react.vm")
         # elif tpl_category == "sub":
-        #     templates.append(f"{use_web_type}/index.vue.vm")
+        #     templates.append(f"{use_web_type}/index.react.vm")
         #     templates.append("vm/java/sub-entity.java.j2")
 
         return templates
