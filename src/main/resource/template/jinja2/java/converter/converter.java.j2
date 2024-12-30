@@ -1,13 +1,14 @@
 package {{ package_name }}.converter;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
+import {{ package_name }}.command.{{ class_name }}BatchModify;
 import {{ package_name }}.command.{{ class_name }}Create;
 import {{ package_name }}.command.{{ class_name }}Modify;
 import {{ package_name }}.command.{{ class_name }}Query;
 import {{ package_name }}.vo.{{ class_name }}Detail;
 import {{ package_name }}.vo.{{ class_name }}Page;
 import {{ package_name }}.entity.{{ class_name }}DO;
-import org.mapstruct.Mapper;
-import org.mapstruct.factory.Mappers;
 
 /**
  * <p>
@@ -30,5 +31,9 @@ public interface {{ class_name }}Converter {
     {{ class_name }}Detail {{ lowercase_class_name }}DOTo{{ class_name }}Detail ({{ class_name }}DO {{ lowercase_class_name }}DO);
 
     {{ class_name }}Page {{ lowercase_class_name }}DOTo{{ class_name }}Page ({{ class_name }}DO {{ lowercase_class_name }}DO);
+    
+    {{ class_name }}DO {{ lowercase_class_name }}BatchModifyTo{{ class_name }}DO({{ class_name }}BatchModify {{ lowercase_class_name }}BatchModify);
+
+    {{ class_name }}Create {{ lowercase_class_name }}DOTo{{ class_name }}Create({{ class_name }}DO {{ lowercase_class_name }}DO);
 
 }

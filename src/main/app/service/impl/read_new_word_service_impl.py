@@ -1,4 +1,6 @@
 """NewWord domain service impl"""
+import random
+from random import randint
 
 from src.main.app.common.config.config_manager import (
     load_config,

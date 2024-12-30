@@ -1,26 +1,31 @@
 package {{ package_name }}.controller;
 
-import javax.annotation.Resource;
-import javax.validation.Valid;
-import java.util.List;
+import com.singularity.common.model.ResponseResult;
+import com.singularity.common.utils.ExcelExportUtil;
+import {{ package_name }}.command.{{ class_name }}BatchModify;
+import {{ package_name }}.command.{{ class_name }}Create;
+import {{ package_name }}.command.{{ class_name }}Modify;
+import {{ package_name }}.command.{{ class_name }}Query;
+import {{ package_name }}.converter.{{ class_name }}Converter;
+import {{ package_name }}.entity.{{ class_name }}DO;
+import {{ package_name }}.service.I{{ class_name }}Service;
+import {{ package_name }}.vo.{{ class_name }}Detail;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
-import lombok.extern.slf4j.Slf4j;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.singularity.common.model.ResponseResult;
-import com.singularity.common.wrapper.ResponseWrapper;
-import {{ package_name }}.command.{{class_name}}Create;
-import {{ package_name }}.command.{{class_name}}Modify;
-import {{ package_name }}.command.{{class_name}}Query;
-import {{ package_name }}.converter.{{class_name}}Converter;
-import {{ package_name }}.entity.{{class_name}}DO;
-import {{ package_name }}.service.I{{class_name}}Service;
-import {{ package_name }}.vo.{{class_name}}Detail;
-import {{ package_name }}.vo.{{class_name}}Page;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
- * {{ function_name }} 前端控制器
+ * {{ function_name }}控制器
  * </p>
  *
  * @author {{ author }}
@@ -28,85 +33,139 @@ import {{ package_name }}.vo.{{class_name}}Page;
  */
 @Slf4j
 @RestController
-@RequestMapping("/{{ router_name }}")
-public class {{class_name}}Controller {
+@RequestMapping("/{{ kebab_case_class_name }}")
+public class {{ class_name }}Controller {
     @Resource
-    private I{{class_name}}Service {{lowercase_class_name}}Service;
+    private I{{ class_name }}Service {{ lowercase_class_name }}Service;
 
     /**
-     * 分页获取{{class_name}}
-     * @param pageQuery 分页条件
-     * @param {{lowercase_class_name}}Query 查询条件
-     * @return 返回分页结果，包含{{class_name}}详情列表
+     * 分页查询{{ class_name }}
+     *
+     * @param {{ lowercase_class_name }}Query 查询条件
+     * @return 返回分页结果，包含总数和{{ lowercase_class_name }}Page数据列表
      */
-    @PostMapping("/page")
-    public ResponseResult fetch{{class_name}}ByPage(
-            @RequestBody PageQuery pageQuery,
-            @RequestBody @Valid {{class_name}}Query {{lowercase_class_name}}Query) {
-        Page<{{class_name}}DO> {{lowercase_class_name}}Page = {{lowercase_class_name}}Service.fetch{{class_name}}ByPage(pageQuery.getCurrent(), pageQuery.getPageSize(), {{lowercase_class_name}}Query);
-        List<{{class_name}}DO> {{lowercase_class_name}}List = {{lowercase_class_name}}Page.getRecords();
-        if (CollectionUtils.isEmpty({{lowercase_class_name}}List)) {
-            return ResponseResult.success();
-        }
-        List<{{class_name}}Page> {{lowercase_class_name}}PageList = {{lowercase_class_name}}List.stream().map({{class_name}}Converter.INSTANCE::{{lowercase_class_name}}DOTo{{class_name}}Page).toList();
-        return ResponseResult.success(ResponseWrapper.wrapperList({{lowercase_class_name}}PageList, {{lowercase_class_name}}Page.getTotal()));
+    @GetMapping("/page")
+    public ResponseResult fetch{{ class_name }}ByPage(@ModelAttribute @Valid {{ class_name }}Query {{ lowercase_class_name }}Query) {
+        Map<String, Object> {{ lowercase_class_name }}PageMap = {{ lowercase_class_name }}Service.fetch{{ class_name }}ByPage({{ lowercase_class_name }}Query);
+        return ResponseResult.success({{ lowercase_class_name }}PageMap);
     }
 
     /**
-     * 创建{{class_name}}
-     * @param {{lowercase_class_name}}Create 创建{{class_name}}的数据
-     * @return 返回创建{{class_name}}的ID
+     * 获取{{ class_name }}详情
+     *
+     * @param id {{ class_name }}ID
+     * @return 返回{{ class_name }}详细信息
+     */
+    @GetMapping("/detail/{id}")
+    public ResponseResult fetch{{ class_name }}Detail(@PathVariable Long id) {
+        {{ class_name }}Detail {{ lowercase_class_name }}Detail = {{ lowercase_class_name }}Service.fetch{{ class_name }}Detail(id);
+        return ResponseResult.success({{ lowercase_class_name }}Detail);
+    }
+
+    /**
+     * 导出{{ class_name }}数据导入模板
+     *
+     * @param response HttpServletResponse
+     */
+    @GetMapping("/export-template")
+    public void export{{ class_name }}Template(HttpServletResponse response) throws IOException {
+        List<{{ class_name }}Create> emptyList = new ArrayList<>();
+        ExcelExportUtil.exportToExcel(response, emptyList, {{ class_name }}Create.class, "{{ function_name }}模板");
+    }
+
+    /**
+     * 导出{{ class_name }}数据
+     *
+     * @param response HttpServletResponse
+     * @param ids 要导出的{{ class_name }}的id列表
+     */
+    @GetMapping("/export")
+    public void export{{ class_name }}Page(HttpServletResponse response, @RequestParam List<Long> ids) throws IOException {
+        {{ lowercase_class_name }}Service.export{{ class_name }}Page(response, ids);
+    }
+
+    /**
+     * 创建{{ class_name }}
+     *
+     * @param {{ lowercase_class_name }}Create 创建{{ class_name }}的数据
+     * @return 返回创建{{ class_name }}的ID
      */
     @PostMapping("/create")
-    public ResponseResult create{{class_name}}(@RequestBody @Valid {{class_name}}Create {{lowercase_class_name}}Create) {
-        {{class_name}}DO {{lowercase_class_name}}DO = {{class_name}}Converter.INSTANCE.{{lowercase_class_name}}CreateTo{{class_name}}DO({{lowercase_class_name}}Create);
-        {{lowercase_class_name}}Service.save({{lowercase_class_name}}DO);
-        return ResponseResult.success({{lowercase_class_name}}DO.getId());
+    public ResponseResult create{{ class_name }}(@RequestBody @Valid {{ class_name }}Create {{ lowercase_class_name }}Create) {
+        {{ class_name }}DO {{ lowercase_class_name }}DO = {{ lowercase_class_name }}Service.create{{ class_name }}({{ lowercase_class_name }}Create);
+        return ResponseResult.success({{ lowercase_class_name }}DO.getId());
     }
 
     /**
-     * 批量创建{{class_name}}
-     * @param {{lowercase_class_name}}CreateList 创建{{class_name}}数据列表
-     * @return 返回创建{{class_name}}的ID列表
+     * 导入{{ class_name }}数据并进行校验
+     *
+     * @param file 上传的Excel文件
+     * @return 校验结果列表
+     */
+    @PostMapping("/import")
+    public ResponseResult import{{ class_name }}(@RequestParam("file") MultipartFile file) throws IOException {
+        List<{{ class_name }}Create> importResults = {{ lowercase_class_name }}Service.import{{ class_name }}s(file);
+        return ResponseResult.success(importResults);
+    }
+
+    /**
+     * 批量创建{{ class_name }}
+     *
+     * @param {{ lowercase_class_name }}CreateList 创建{{ class_name }}数据列表
+     * @return 返回创建{{ class_name }}的ID列表
      */
     @PostMapping("/batch-create")
-    public ResponseResult batchCreate{{class_name}}(@RequestBody @Valid List<{{class_name}}Create> {{lowercase_class_name}}CreateList) {
-        List<{{class_name}}DO> {{lowercase_class_name}}DOList = {{lowercase_class_name}}CreateList.stream().map({{class_name}}Converter.INSTANCE::{{lowercase_class_name}}CreateTo{{class_name}}DO).toList();
-        {{lowercase_class_name}}Service.saveBatch({{lowercase_class_name}}DOList);
-        List<Long> ids = {{lowercase_class_name}}DOList.stream().map({{class_name}}DO::getId).collect(java.util.stream.Collectors.toList());
+    public ResponseResult batchCreate{{ class_name }}(@RequestBody @Valid List<{{ class_name }}Create> {{ lowercase_class_name }}CreateList) {
+        List<{{ class_name }}DO> {{ lowercase_class_name }}DOList = {{ lowercase_class_name }}Service.batchCreate{{ class_name }}({{ lowercase_class_name }}CreateList);
+        if (CollectionUtils.isEmpty({{ lowercase_class_name }}DOList)) {
+            return ResponseResult.success();
+        }
+        List<Long> ids = {{ lowercase_class_name }}DOList.stream().map({{ class_name }}DO::getId).collect(java.util.stream.Collectors.toList());
         return ResponseResult.success(ids);
     }
 
     /**
-     * 获取{{class_name}}详情
-     * @param id {{class_name}}ID
-     * @return 返回{{class_name}}详细信息
+     * 移除{{ class_name }}
+     * @param id 要移除{{ class_name }}的Id
      */
-    @GetMapping("/detail/{id}")
-    public ResponseResult fetch{{class_name}}Detail(@PathVariable Long id) {
-        {{class_name}}DO {{lowercase_class_name}}DO = {{lowercase_class_name}}Service.getById(id);
-        {{class_name}}Detail {{lowercase_class_name}}Detail = {{class_name}}Converter.INSTANCE.{{lowercase_class_name}}DOTo{{class_name}}Detail({{lowercase_class_name}}DO);
-        return ResponseResult.success({{lowercase_class_name}}Detail);
-    }
-
-    /**
-     * 修改{{class_name}}信息
-     * @param {{lowercase_class_name}}Modify 更新的{{class_name}}数据
-     */
-    @PutMapping("/modify")
-    public ResponseResult modify{{class_name}}(@RequestBody @Valid {{class_name}}Modify {{lowercase_class_name}}Modify) {
-        {{class_name}}DO {{lowercase_class_name}}DO = {{class_name}}Converter.INSTANCE.{{lowercase_class_name}}ModifyTo{{class_name}}DO({{lowercase_class_name}}Modify);
-        {{lowercase_class_name}}Service.updateById({{lowercase_class_name}}DO);
+    @DeleteMapping("/remove/{id}")
+    public ResponseResult batchRemove{{ class_name }}(@PathVariable Long id) {
+        {{ lowercase_class_name }}Service.removeById(id);
         return ResponseResult.success();
     }
 
     /**
-     * 批量删除{{class_name}}
-     * @param ids 要删除的{{class_name}}ID数组
+     * 批量移除{{ class_name }}
+     * @param ids 要移除{{ class_name }}的ID数组
      */
     @DeleteMapping("/batch-remove")
-    public ResponseResult batchRemove{{class_name}}(@RequestBody List<Long> ids) {
-        {{lowercase_class_name}}Service.removeBatchByIds(ids);
+    public ResponseResult batchRemove{{ class_name }}(@RequestBody List<Long> ids) {
+        {{ lowercase_class_name }}Service.removeBatchByIds(ids);
         return ResponseResult.success();
     }
+
+    /**
+     * 更新{{ class_name }}信息
+     *
+     * @param {{ lowercase_class_name }}Modify 更新{{ class_name }}的数据
+     */
+    @PutMapping("/modify")
+    public ResponseResult modify{{ class_name }}(@RequestBody @Valid {{ class_name }}Modify {{ lowercase_class_name }}Modify) {
+        {{ class_name }}DO {{ lowercase_class_name }}DO = {{ class_name }}Converter.INSTANCE.{{ lowercase_class_name }}ModifyTo{{ class_name }}DO({{ lowercase_class_name }}Modify);
+        {{ lowercase_class_name }}Service.updateById({{ lowercase_class_name }}DO);
+        return ResponseResult.success();
+    }
+
+    /**
+     * 批量更新{{ class_name }}信息
+     *
+     * @param {{ lowercase_class_name }}BatchModify 批量更新{{ class_name }}的数据
+     */
+    @PutMapping("/batch-modify")
+    public ResponseResult batchModify{{ class_name }}(@RequestBody @Valid {{ class_name }}BatchModify {{ lowercase_class_name }}BatchModify) {
+        {{ class_name }}DO {{ lowercase_class_name }}DO = {{ class_name }}Converter.INSTANCE.{{ lowercase_class_name }}BatchModifyTo{{ class_name }}DO({{ lowercase_class_name }}BatchModify);
+        {{ lowercase_class_name }}Service.batchModify{{ class_name }}({{ lowercase_class_name }}DO, {{ lowercase_class_name }}BatchModify.getIds());
+        return ResponseResult.success();
+    }
+
 }

@@ -31,6 +31,13 @@ public class {{ class_name }}DO implements Serializable {
     public static final LambdaQueryWrapper<{{ class_name }}DO> queryWrapper(){
         return new LambdaQueryWrapper<>();
     }
+    
+    public static {{ class_name }}DO fillInTenantIdUserId({{ class_name }}DO {{ lowercase_class_name }}DO){
+        CurrentUser currentUser = SecurityUtil.getCurrentUser();
+        {{ lowercase_class_name }}DO.setTenantId(currentUser.getCurrentTenantId());
+        {{ lowercase_class_name }}DO.setUserId(currentUser.getUserId());
+        return {{ lowercase_class_name }}DO;
+    }
     {% for field in fields %}
     /**
      * {{ field.field.comment }}

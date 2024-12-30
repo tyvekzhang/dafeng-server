@@ -1,20 +1,80 @@
 package {{ package_name }}.service;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import {{ package_name }}.command.{{ class_name }}Create;
 import {{ package_name }}.entity.{{ class_name }}DO;
 import {{ package_name }}.command.{{ class_name }}Query;
+import {{ package_name }}.vo.{{ class_name }}Detail;
 
 /**
  * <p>
- * {{ function_name }} 服务接口
+ * {{ function_name }}服务接口
  * </p>
  *
  * @author {{ author }}
  * @since {{ datetime }}
  */
 public interface I{{ class_name }}Service extends IService<{{ class_name }}DO> {
-    Page<{{class_name}}DO> fetch{{class_name}}ByPage(int current, int pageSize, {{class_name}}Query {{lowercase_class_name}}query);
 
+    /**
+     * 分页查询{{ function_name }}
+     *
+     * @param {{ lowercase_class_name }}Query 查询条件
+     * @return 分页查询结果
+     */
+    Map<String, Object> fetch{{ class_name }}ByPage({{ class_name }}Query {{ lowercase_class_name }}Query);
+
+    /**
+     * 查询{{ function_name }}详情
+     *
+     * @param id {{ function_name }}id
+     * @return {{ function_name }}详情
+     */
+    {{ class_name }}Detail fetch{{ class_name }}Detail(Long id);
+
+    /**
+     * 导出{{ function_name }}页
+     *
+     * @param response Http响应
+     * @param ids      {{ function_name }}id列表
+     */
+    void export{{ class_name }}Page(HttpServletResponse response, List<Long> ids) throws IOException;
+
+    /**
+     * 创建{{ class_name }}
+     *
+     * @param {{ lowercase_class_name }}Create 创建{{ class_name }}的数据
+     * @return 返回{{ class_name }}记录
+     */
+    {{ class_name }}DO create{{ class_name }}({{ class_name }}Create {{ lowercase_class_name }}Create);
+
+    /**
+     * 导入{{ class_name }}数据并进行校验
+     *
+     * @param file 上传的Excel文件
+     * @return 校验结果列表
+     */
+    List<{{ class_name }}Create> import{{ class_name }}s(MultipartFile file) throws IOException;
+
+    /**
+     * 批量创建{{ class_name }}
+     *
+     * @param {{ lowercase_class_name }}CreateList 创建{{ class_name }}数据列表
+     * @return 返回创建{{ class_name }}的数据列表
+     */
+    List<{{ class_name }}DO> batchCreate{{ class_name }}(List<{{ class_name }}Create> {{ lowercase_class_name }}CreateList);
+
+    /**
+     * 批量更新{{ class_name }}信息
+     *
+     * @param {{ lowercase_class_name }}DO 批量更新{{ class_name }}的数据
+     * @param ids  要更新{{ class_name }}的ID数组
+     */
+    void batchModify{{ class_name }}({{ class_name }}DO {{ lowercase_class_name }}DO, List<Long> ids);
+    
 }

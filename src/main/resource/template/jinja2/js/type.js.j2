@@ -8,6 +8,22 @@ export interface {{class_name}}Create {
 }
 
 export interface {{class_name}}Modify {
+
+    /** 主键 */
+    id: number
+    {%- for field in fields %}
+    {%- if field.gen_field.modifiable == 1  %}
+    /** {{ field.field.comment }} */
+    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {% endif -%}
+    {% endfor %}
+}
+
+export interface {{class_name}}BatchModify {
+
+    /** 主键列表 */
+    ids: number[]
+
     {%- for field in fields %}
     {%- if field.gen_field.modifiable == 1  %}
     /** {{ field.field.comment }} */

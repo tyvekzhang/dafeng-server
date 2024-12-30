@@ -53,10 +53,7 @@ class Jinja2Utils:
             # "module_name": module_name,
             # "business_name": Jinja2Utils.capitalize(business_name),
             # "base_package": Jinja2Utils.get_package_prefix(package_name),
-            # "pkColumn": gen_table.get("pkColumn"),
-            # "import_list": Jinja2Utils.get_import_list(gen_table),
             # "permission_prefix": Jinja2Utils.get_permission_prefix(module_name, business_name),
-            # "fields": table_gen.fields,
             # "table": gen_table,
             # "dicts": Jinja2Utils.get_dicts(gen_table),
         }
@@ -135,6 +132,7 @@ class Jinja2Utils:
         controller_tpl = "jinja2/java/mybatis_plus/controller.java.j2"
         create_tpl = "jinja2/java/command/create.java.j2"
         modify_tpl = "jinja2/java/command/modify.java.j2"
+        batch_modify_tpl = "jinja2/java/command/batchModify.java.j2"
         query_tpl = "jinja2/java/command/query.java.j2"
         detail_tpl = "jinja2/java/vo/detail.java.j2"
         page_tpl = "jinja2/java/vo/page.java.j2"
@@ -160,6 +158,7 @@ class Jinja2Utils:
             api_tpl,
             type_tpl,
             index_tpl,
+            batch_modify_tpl,
         ]
 
         # if tpl_category == "crud":
@@ -209,6 +208,8 @@ class Jinja2Utils:
             file_name = f"{java_path}/command/{class_name}Create.java"
         elif "modify.java.j2" in template:
             file_name = f"{java_path}/command/{class_name}Modify.java"
+        elif "batchModify.java.j2" in template:
+            file_name = f"{java_path}/command/{class_name}BatchModify.java"
         elif "query.java.j2" in template:
             file_name = f"{java_path}/command/{class_name}Query.java"
         elif "detail.java.j2" in template:

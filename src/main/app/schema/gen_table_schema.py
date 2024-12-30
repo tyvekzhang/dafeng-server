@@ -1,5 +1,5 @@
 """GenTable domain schema"""
-
+from datetime import datetime
 from typing import Optional, List, Union
 
 from pydantic import BaseModel
@@ -25,7 +25,7 @@ class GenTableQueryResponse(BaseModel):
     tableName: str
     entity: str
     tableComment: Optional[str] = None
-    createTime: int
+    createTime: datetime
 
 
 

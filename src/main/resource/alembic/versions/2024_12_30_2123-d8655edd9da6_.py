@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 57b76db53e2a
+Revision ID: d8655edd9da6
 Revises: 
-Create Date: 2024-12-24 21:18:07.320359
+Create Date: 2024-12-30 21:23:27.029700
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = '57b76db53e2a'
+revision = 'd8655edd9da6'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -29,8 +29,8 @@ def upgrade():
     sa.Column('port', sa.Integer(), nullable=True, comment='端口号'),
     sa.Column('username', sa.String(length=32), nullable=True, comment='用户名'),
     sa.Column('password', sa.String(length=64), nullable=True, comment='密码'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='连接信息表'
     )
@@ -47,8 +47,8 @@ def upgrade():
     sa.Column('connection_limit', sa.Integer(), nullable=True, comment='连接限制'),
     sa.Column('allow_connection', sa.Boolean(), nullable=True, comment='是否允许连接'),
     sa.Column('is_template', sa.Boolean(), nullable=True, comment='是否为模板数据库'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='数据库信息表'
     )
@@ -66,8 +66,8 @@ def upgrade():
     sa.Column('primary_key', sa.SmallInteger(), nullable=True, comment='主键(0否,1是)'),
     sa.Column('autoincrement', sa.SmallInteger(), nullable=True, comment='自增(0否,1是)'),
     sa.Column('sort', sa.Integer(), nullable=True, comment='排序'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='字段信息表'
     )
@@ -79,8 +79,8 @@ def upgrade():
     sa.Column('field', sa.String(length=63), nullable=False, comment='索引字段'),
     sa.Column('type', sa.String(length=16), nullable=False, comment='索引类型'),
     sa.Column('remark', sa.String(length=255), nullable=True, comment='备注'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='索引信息表'
     )
@@ -89,8 +89,8 @@ def upgrade():
     sa.Column('database_id', sa.BigInteger(), nullable=False, comment='数据库id'),
     sa.Column('name', sa.String(length=64), nullable=False, comment='表名称'),
     sa.Column('comment', sa.String(length=255), nullable=True, comment='备注'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='表结构信息'
     )
@@ -111,8 +111,8 @@ def upgrade():
     sa.Column('html_type', sa.String(length=64), nullable=True, comment='显示类型(文本框、文本域、下拉框、复选框、单选框、日期控件)'),
     sa.Column('dict_type', sa.String(length=64), nullable=True, comment='字典类型'),
     sa.Column('comment', sa.String(length=255), nullable=True, comment='备注'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='代码生成字段表'
     )
@@ -136,12 +136,28 @@ def upgrade():
     sa.Column('gen_type', sa.String(length=1), nullable=True, comment='生成代码方式（0zip压缩包 1自定义路径）'),
     sa.Column('gen_path', sa.String(length=255), nullable=True, comment='生成路径（不填默认项目路径）'),
     sa.Column('options', sa.String(length=255), nullable=True, comment='其它生成选项'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='代码生成业务表'
     )
     op.create_index(op.f('ix_gen_table_db_table_id'), 'gen_table', ['db_table_id'], unique=False)
+    op.create_table('read_new_word',
+    sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
+    sa.Column('user_id', sa.BigInteger(), nullable=True, comment='用户ID'),
+    sa.Column('article_id', sa.BigInteger(), nullable=True, comment='文章ID'),
+    sa.Column('word_id', sa.BigInteger(), nullable=True, comment='词库表ID'),
+    sa.Column('word', sa.String(length=32), nullable=True, comment='单词'),
+    sa.Column('review_count', sa.Integer(), nullable=True, comment='复习次数'),
+    sa.Column('next_review_date', sa.DateTime(), nullable=True, comment='复习时间'),
+    sa.Column('tenant_id', sa.Integer(), nullable=True, comment='租户ID'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
+    sa.PrimaryKeyConstraint('id'),
+    comment='阅读生词表'
+    )
+    op.create_index('idx_my_tenantId_userId_word', 'read_new_word', ['tenant_id', 'user_id', 'word'], unique=False)
+    op.create_index('idx_nd_tenantId_userid_articleId', 'read_new_word', ['tenant_id', 'user_id', 'article_id'], unique=False)
     op.create_table('sys_user',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('username', sa.String(length=32), nullable=False, comment='用户名'),
@@ -150,8 +166,8 @@ def upgrade():
     sa.Column('avatar_url', sa.String(length=63), nullable=True, comment='头像地址'),
     sa.Column('status', sa.Integer(), nullable=True, comment='状态(0:停用,1:待审核,2:正常,3:已注销)'),
     sa.Column('remark', sa.String(length=255), nullable=True, comment='备注'),
-    sa.Column('create_time', sa.BigInteger(), nullable=True, comment='创建时间'),
-    sa.Column('update_time', sa.BigInteger(), nullable=True, comment='更新时间'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='用户信息表'
     )
@@ -165,6 +181,9 @@ def downgrade():
     op.drop_index(op.f('ix_sys_user_username'), table_name='sys_user')
     op.drop_index('idx_status_nickname', table_name='sys_user')
     op.drop_table('sys_user')
+    op.drop_index('idx_nd_tenantId_userid_articleId', table_name='read_new_word')
+    op.drop_index('idx_my_tenantId_userId_word', table_name='read_new_word')
+    op.drop_table('read_new_word')
     op.drop_index(op.f('ix_gen_table_db_table_id'), table_name='gen_table')
     op.drop_table('gen_table')
     op.drop_index(op.f('ix_gen_field_db_field_id'), table_name='gen_field')

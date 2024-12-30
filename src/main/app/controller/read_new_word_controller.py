@@ -52,7 +52,7 @@ async def fetch_new_word_by_page(
         BaseResponse with list and total count.
     """
     records, total = await new_word_service.fetch_new_word_by_page(new_word_query=new_word_query)
-    return ResponseBase(data=PaginationResponse(records=records, total_count=total))
+    return ResponseBase(data=PaginationResponse(records=records, total=total))
 
 
 @new_word_router.get("/query/{new_word_id}")

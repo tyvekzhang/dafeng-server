@@ -2,10 +2,9 @@ package {{ package_name }}.command;
 {% for import in import_list %}
 import {{ import }};
 {%- endfor %}
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import com.singularity.common.model.PageQuery;
+import {{ package_name }}.entity.{{ class_name }}DO;
 
 /**
  * <p>
@@ -19,7 +18,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class {{ class_name }}Query {
+@EqualsAndHashCode(callSuper = false)
+public class {{ class_name }}Query extends PageQuery<NewWordDO> {
     {% for field in fields %}
     {%- if field.gen_field.queryable == 1  %}
     /**

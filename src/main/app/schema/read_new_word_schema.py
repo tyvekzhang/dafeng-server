@@ -1,4 +1,5 @@
 """NewWord domain schema"""
+import random
 from datetime import datetime
 from typing import Optional
 
@@ -18,6 +19,11 @@ class NewWordQuery(PageQuery):
 class NewWordQueryResponse(BaseModel):
     word: str
     nextReviewDate: datetime
+    userId: int =  random.randint(1, 70)
+    articleId: int =  random.randint(1, 6)
+    wordId: int =  random.randint(1, 60)
+    reviewCount: int =  random.randint(1, 60)
+    tenantId: int =  random.randint(1, 60)
 
 
 class NewWordExport(BaseModel):

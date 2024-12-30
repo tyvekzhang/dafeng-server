@@ -2,6 +2,7 @@ package {{ package_name }}.command;
 {% for import in import_list %}
 import {{ import }};
 {%- endfor %}
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class {{ class_name }}Modify {
+
+    /**
+     * 修改对象的id
+     */
+    @NotNull(message = "id can not be null")
+    private Long id;
     {% for field in fields %}
     {%- if field.gen_field.modifiable == 1  %}
     /**

@@ -6,7 +6,6 @@ from src.main.app.common.config.config_manager import load_config
 from src.main.app.common.gen.gen_constants import GenConstants
 from src.main.app.common.util.string_util import StringUtils, is_empty
 from src.main.app.model.db_field_model import FieldDO
-from src.main.app.model.db_table_model import TableDO
 from src.main.app.model.gen_field_model import GenFieldDO
 from src.main.app.model.gen_table_model import GenTableDO
 
