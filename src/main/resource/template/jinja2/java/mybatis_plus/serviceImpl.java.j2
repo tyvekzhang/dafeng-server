@@ -63,27 +63,20 @@ public class {{ class_name }}ServiceImpl extends ServiceImpl<{{ class_name }}Map
         // 使用 LambdaQueryWrapper 构建查询条件
         LambdaQueryWrapper<{{ class_name }}DO> queryWrapper = {{ class_name }}DO.queryWrapper();
         // 动态添加查询条件
-        if ({{ lowercase_class_name }}Query.getUserId() != null) {
-            queryWrapper.eq({{ class_name }}DO::getUserId, {{ lowercase_class_name }}Query.getUserId());
+        {%- for field in fields -%}
+        {%- if field.gen_field.queryable == 1 -%}
+        {% set field_name=field.gen_field.field_name[0].upper() + field.gen_field.field_name[1:] %}
+        {%- if field.gen_field.field_type == 'String' %}
+        if (!StringUtils.isEmpty({{ lowercase_class_name }}Query.get{{ field_name }}())) {
+           queryWrapper.like({{ class_name }}DO::get{{ field_name }}, {{ lowercase_class_name }}Query.get{{ field_name }}());
         }
-        if ({{ lowercase_class_name }}Query.getArticleId() != null) {
-            queryWrapper.eq({{ class_name }}DO::getArticleId, {{ lowercase_class_name }}Query.getArticleId());
+        {%- else %}
+        if ({{ lowercase_class_name }}Query.get{{ field_name }}() != null) {
+          queryWrapper.eq({{ class_name }}DO::get{{ field_name }}, {{ lowercase_class_name }}Query.get{{ field_name }}());
         }
-        if ({{ lowercase_class_name }}Query.getWordId() != null) {
-            queryWrapper.eq({{ class_name }}DO::getWordId, {{ lowercase_class_name }}Query.getWordId());
-        }
-        if (!StringUtils.isEmpty({{ lowercase_class_name }}Query.getWord())) {
-            queryWrapper.like({{ class_name }}DO::getWord, {{ lowercase_class_name }}Query.getWord());
-        }
-        if ({{ lowercase_class_name }}Query.getReviewCount() != null) {
-            queryWrapper.eq({{ class_name }}DO::getReviewCount, {{ lowercase_class_name }}Query.getReviewCount());
-        }
-        if ({{ lowercase_class_name }}Query.getNextReviewDate() != null) {
-            queryWrapper.eq({{ class_name }}DO::getNextReviewDate, {{ lowercase_class_name }}Query.getNextReviewDate());
-        }
-        if ({{ lowercase_class_name }}Query.getTenantId() != null) {
-            queryWrapper.eq({{ class_name }}DO::getTenantId, {{ lowercase_class_name }}Query.getTenantId());
-        }
+        {%- endif %}
+        {%- endif -%}
+        {% endfor %}
         // 根据分页条件查询
         Page<{{ class_name }}DO> {{ lowercase_class_name }}Page = {{ lowercase_class_name }}Mapper.selectPage(pageRequest, queryWrapper);
         List<{{ class_name }}DO> {{ lowercase_class_name }}List = {{ lowercase_class_name }}Page.getRecords();
@@ -92,7 +85,7 @@ public class {{ class_name }}ServiceImpl extends ServiceImpl<{{ class_name }}Map
         }
         List<{{ class_name }}Page> {{ lowercase_class_name }}PageList = {{ lowercase_class_name }}List.stream().map({{ class_name }}Converter.INSTANCE::{{ lowercase_class_name }}DOTo{{ class_name }}Page).toList();
         // 组装返回结果
-        return ResponseResult.success(ResponseWrapper.wrapperList({{ lowercase_class_name }}PageList, {{ lowercase_class_name }}Page.getTotal()));
+        return ResponseWrapper.wrapperList({{ lowercase_class_name }}PageList, {{ lowercase_class_name }}Page.getTotal());
 
     }
 

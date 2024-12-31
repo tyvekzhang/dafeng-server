@@ -45,7 +45,7 @@ public class {{ class_name }}Controller {
      * @return 返回分页结果，包含总数和{{ lowercase_class_name }}Page数据列表
      */
     @GetMapping("/page")
-    public ResponseResult fetch{{ class_name }}ByPage(@ModelAttribute @Valid {{ class_name }}Query {{ lowercase_class_name }}Query) {
+    public ResponseResult<Map<String, Object>> fetch{{ class_name }}ByPage(@ModelAttribute @Valid {{ class_name }}Query {{ lowercase_class_name }}Query) {
         Map<String, Object> {{ lowercase_class_name }}PageMap = {{ lowercase_class_name }}Service.fetch{{ class_name }}ByPage({{ lowercase_class_name }}Query);
         return ResponseResult.success({{ lowercase_class_name }}PageMap);
     }
@@ -57,7 +57,7 @@ public class {{ class_name }}Controller {
      * @return 返回{{ class_name }}详细信息
      */
     @GetMapping("/detail/{id}")
-    public ResponseResult fetch{{ class_name }}Detail(@PathVariable Long id) {
+    public ResponseResult<{{ class_name }}Detail> fetch{{ class_name }}Detail(@PathVariable Long id) {
         {{ class_name }}Detail {{ lowercase_class_name }}Detail = {{ lowercase_class_name }}Service.fetch{{ class_name }}Detail(id);
         return ResponseResult.success({{ lowercase_class_name }}Detail);
     }
@@ -91,7 +91,7 @@ public class {{ class_name }}Controller {
      * @return 返回创建{{ class_name }}的ID
      */
     @PostMapping("/create")
-    public ResponseResult create{{ class_name }}(@RequestBody @Valid {{ class_name }}Create {{ lowercase_class_name }}Create) {
+    public ResponseResult<Long> create{{ class_name }}(@RequestBody @Valid {{ class_name }}Create {{ lowercase_class_name }}Create) {
         {{ class_name }}DO {{ lowercase_class_name }}DO = {{ lowercase_class_name }}Service.create{{ class_name }}({{ lowercase_class_name }}Create);
         return ResponseResult.success({{ lowercase_class_name }}DO.getId());
     }
@@ -103,7 +103,7 @@ public class {{ class_name }}Controller {
      * @return 校验结果列表
      */
     @PostMapping("/import")
-    public ResponseResult import{{ class_name }}(@RequestParam("file") MultipartFile file) throws IOException {
+    public ResponseResult<List<{{ class_name }}Create>> import{{ class_name }}(@RequestParam("file") MultipartFile file) throws IOException {
         List<{{ class_name }}Create> importResults = {{ lowercase_class_name }}Service.import{{ class_name }}s(file);
         return ResponseResult.success(importResults);
     }
@@ -115,7 +115,7 @@ public class {{ class_name }}Controller {
      * @return 返回创建{{ class_name }}的ID列表
      */
     @PostMapping("/batch-create")
-    public ResponseResult batchCreate{{ class_name }}(@RequestBody @Valid List<{{ class_name }}Create> {{ lowercase_class_name }}CreateList) {
+    public ResponseResult<List<Long>> batchCreate{{ class_name }}(@RequestBody @Valid List<{{ class_name }}Create> {{ lowercase_class_name }}CreateList) {
         List<{{ class_name }}DO> {{ lowercase_class_name }}DOList = {{ lowercase_class_name }}Service.batchCreate{{ class_name }}({{ lowercase_class_name }}CreateList);
         if (CollectionUtils.isEmpty({{ lowercase_class_name }}DOList)) {
             return ResponseResult.success();
@@ -129,7 +129,7 @@ public class {{ class_name }}Controller {
      * @param id 要移除{{ class_name }}的Id
      */
     @DeleteMapping("/remove/{id}")
-    public ResponseResult batchRemove{{ class_name }}(@PathVariable Long id) {
+    public ResponseResult<Void> batchRemove{{ class_name }}(@PathVariable Long id) {
         {{ lowercase_class_name }}Service.removeById(id);
         return ResponseResult.success();
     }
@@ -139,7 +139,7 @@ public class {{ class_name }}Controller {
      * @param ids 要移除{{ class_name }}的ID数组
      */
     @DeleteMapping("/batch-remove")
-    public ResponseResult batchRemove{{ class_name }}(@RequestBody List<Long> ids) {
+    public ResponseResult<Void> batchRemove{{ class_name }}(@RequestBody List<Long> ids) {
         {{ lowercase_class_name }}Service.removeBatchByIds(ids);
         return ResponseResult.success();
     }
@@ -150,7 +150,7 @@ public class {{ class_name }}Controller {
      * @param {{ lowercase_class_name }}Modify 更新{{ class_name }}的数据
      */
     @PutMapping("/modify")
-    public ResponseResult modify{{ class_name }}(@RequestBody @Valid {{ class_name }}Modify {{ lowercase_class_name }}Modify) {
+    public ResponseResult<Void> modify{{ class_name }}(@RequestBody @Valid {{ class_name }}Modify {{ lowercase_class_name }}Modify) {
         {{ class_name }}DO {{ lowercase_class_name }}DO = {{ class_name }}Converter.INSTANCE.{{ lowercase_class_name }}ModifyTo{{ class_name }}DO({{ lowercase_class_name }}Modify);
         {{ lowercase_class_name }}Service.updateById({{ lowercase_class_name }}DO);
         return ResponseResult.success();
@@ -162,7 +162,7 @@ public class {{ class_name }}Controller {
      * @param {{ lowercase_class_name }}BatchModify 批量更新{{ class_name }}的数据
      */
     @PutMapping("/batch-modify")
-    public ResponseResult batchModify{{ class_name }}(@RequestBody @Valid {{ class_name }}BatchModify {{ lowercase_class_name }}BatchModify) {
+    public ResponseResult<Void> batchModify{{ class_name }}(@RequestBody @Valid {{ class_name }}BatchModify {{ lowercase_class_name }}BatchModify) {
         {{ class_name }}DO {{ lowercase_class_name }}DO = {{ class_name }}Converter.INSTANCE.{{ lowercase_class_name }}BatchModifyTo{{ class_name }}DO({{ lowercase_class_name }}BatchModify);
         {{ lowercase_class_name }}Service.batchModify{{ class_name }}({{ lowercase_class_name }}DO, {{ lowercase_class_name }}BatchModify.getIds());
         return ResponseResult.success();

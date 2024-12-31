@@ -10,7 +10,7 @@ from src.main.app.mapper.read_new_word_mapper import newWordMapper
 from src.main.app.model.read_new_word_model import NewWordDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.read_new_word_schema import NewWordAdd, NewWordQuery, NewWordQueryResponse, NewWordExport, \
-    NewWordQueryForm, NewWordModify
+    NewWordQueryForm, NewWordModify, NewWordCreate, NewWordBatchModify
 from src.main.app.schema.user_schema import Ids
 from starlette.responses import StreamingResponse
 
@@ -37,10 +37,29 @@ async def add_new_word(
     new_word: NewWordDO = await new_word_service.save(data=NewWordDO(**new_word_add.model_dump()))
     return ResponseBase(data=new_word.id)
 
+@new_word_router.post("/batch-create")
+async def batch_add_new_word(
+    new_word_adds: List[NewWordCreate],
+) -> Dict:
+    """
+    NewWord add.
 
-@new_word_router.post("/page")
+    Args:
+        new_word_add: Data required for add.
+
+    Returns:
+        BaseResponse with new new_word's ID.
+    """
+    ids = []
+    for new_word_add in new_word_adds:
+        new_word: NewWordDO = await new_word_service.save(data=NewWordDO(**new_word_add.model_dump()))
+        ids.append(new_word.id)
+    return result.success(data=ids)
+
+
+@new_word_router.get("/page")
 async def fetch_new_word_by_page(
-    new_word_query: NewWordQuery,
+    new_word_query: Annotated[NewWordQuery, Query()],
 ) -> ResponseBase[PaginationResponse]:
     """
     Filter new_words with pagination.
@@ -82,7 +101,7 @@ async def recover(
     return result.success(data=new_word.id)
 
 
-@new_word_router.get("/exporttemplate")
+@new_word_router.get("/export-template")
 async def export_template() -> StreamingResponse:
     """
     Export a template for new_word information.
@@ -106,8 +125,8 @@ async def import_new_word(
     Returns:
         Success result message
     """
-    success_count = await new_word_service.import_new_word(file=file)
-    return result.success(data=f"Success import count: {success_count}")
+    success_count = [NewWordCreate()]
+    return result.success(data=success_count)
 
 
 @new_word_router.get("/export")
@@ -123,7 +142,10 @@ async def export(
     Returns:
         StreamingResponse with new_word info
     """
-    return await new_word_service.export_new_word(params=data)
+    records = []
+    for i in range(3):
+        records.append(NewWordExport())
+    return await export_excel(schema=NewWordExport, file_name="new_word_export.xlsx", records=records)
 
 
 @new_word_router.put("/modify")
@@ -143,13 +165,13 @@ async def modify(
     return result.success()
 
 
-@new_word_router.put("/batchmodify")
-async def batch_modify(ids: Ids, data: NewWordModify) -> Dict:
-    cleaned_data = {k: v for k, v in data.model_dump().items() if v is not None}
+@new_word_router.put("/batch-modify")
+async def batch_modify(data: NewWordBatchModify) -> Dict:
+    cleaned_data = {k: v for k, v in data.model_dump().items() if v is not None and k != "ids"}
     if len(cleaned_data) == 0:
         return result.fail("Please fill in the modify information")
 
-    await new_word_service.batch_modify_by_ids(ids=ids.ids, data=cleaned_data)
+    await new_word_service.batch_modify_by_ids(ids=data.ids, data=cleaned_data)
     return result.success()
 
 
@@ -170,7 +192,7 @@ async def remove(
     return result.success()
 
 
-@new_word_router.delete("/batchremove")
+@new_word_router.delete("/batch-remove")
 async def batch_remove(
     ids: List[int] = Query(...),
 ) -> Dict:

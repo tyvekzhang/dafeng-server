@@ -29,10 +29,14 @@ class NewWordServiceImpl(ServiceBaseImpl[NewWordMapper, NewWordDO], NewWordServi
         self.mapper = mapper
 
     async def fetch_new_word_by_page(self, new_word_query: NewWordQuery):
+        filter_by = {}
+        if new_word_query.word is not None and new_word_query.word != "":
+            filter_by={"word": new_word_query.word}
         records, total_count = await self.mapper.select_ordered_pagination(
             page=new_word_query.current,
             size=new_word_query.pageSize,
+            filter_by=filter_by,
             count=True,
         )
-        records = [NewWordQueryResponse(word=record.word, nextReviewDate=record.next_review_date) for record in records]
+        records = [NewWordQueryResponse(id=record.id, word=record.word) for record in records]
         return records, total_count

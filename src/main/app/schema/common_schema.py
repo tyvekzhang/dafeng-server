@@ -39,6 +39,7 @@ class PageBase(BaseModel):
 class PageQuery(BaseModel):
     current: Optional[int] = 1
     pageSize: Optional[int] = 10
+    sorter: Optional[str] = None
 
 
 class FilterParams(PageBase):

@@ -1,5 +1,5 @@
 import httpClient from '@/utils/http-client';
-import { PageQuery, PageResult } from '@/types';
+import { BaseQueryImpl, PageQuery, PageResult } from '@/types';
 import {
   {{ class_name }}Query,
   {{ class_name }}Create,
@@ -7,7 +7,7 @@ import {
   {{ class_name }}Detail,
   {{ class_name }}Page,
   {{ class_name }}BatchModify,
-} from '@/types/new-word';
+} from '@/types/{{ kebab_case_class_name }}';
 
 /**
  * 分页查询{{ class_name }}
@@ -16,8 +16,18 @@ import {
  * @param {{ lowercase_class_name }}Query 查询条件
  * @returns 含{{ class_name }}详情列表的分页结果
  */
-export function fetch{{ class_name }}ByPage(pageQuery: PageQuery, {{ lowercase_class_name }}Query?: Partial<{{ class_name }}Query>) {
-  return httpClient.get<PageResult<{{ class_name }}Page>>('/new-word/page', { params: {...pageQuery,...{{ lowercase_class_name }}Query } });
+export function fetch{{ class_name }}ByPage(pageQuery?: PageQuery, {{ lowercase_class_name }}Query?: Partial<{{ class_name }}Query>) {
+  let pageQueryParams: PageQuery;
+  if (pageQuery === null || pageQuery === undefined) {
+    pageQueryParams = BaseQueryImpl.create(1, 200);
+  } else {
+    pageQueryParams = pageQuery
+  }
+   const params = {
+    ...pageQueryParams,
+    ...{{ lowercase_class_name }}Query
+  };
+  return httpClient.get<PageResult<{{ class_name }}Page>>('/{{ kebab_case_class_name }}/page', params);
 }
 
 
@@ -28,7 +38,7 @@ export function fetch{{ class_name }}ByPage(pageQuery: PageQuery, {{ lowercase_c
  * @returns {{ class_name }}详细信息
  */
 export function fetch{{ class_name }}Detail(id: number) {
-  return httpClient.get<{{ class_name }}Detail>(`/new-word/detail/${id}`);
+  return httpClient.get<{{ class_name }}Detail>(`/{{ kebab_case_class_name }}/detail/${id}`);
 }
 
 /**
@@ -36,7 +46,7 @@ export function fetch{{ class_name }}Detail(id: number) {
  * 
  */
 export function export{{ class_name }}Template() {
-  return httpClient.get<void>('/new-word/export-template');
+  return httpClient.get<void>('/{{ kebab_case_class_name }}/export-template');
 }
 
 /**
@@ -45,7 +55,7 @@ export function export{{ class_name }}Template() {
  * @param ids 要导出的{{ class_name }}的ID列表
  */
 export function export{{ class_name }}Page(ids: number[]) {
-  return httpClient.get<void>('/new-word/export', { params: { ids } });
+  return httpClient.get<void>('/{{ kebab_case_class_name }}/export', { params: { ids } });
 }
 
 /**
@@ -55,7 +65,7 @@ export function export{{ class_name }}Page(ids: number[]) {
  * @returns 创建的{{ class_name }}的ID
  */
 export function create{{ class_name }}({{ lowercase_class_name }}Create: {{ class_name }}Create) {
-  return httpClient.post<number>('/new-word/create', {{ lowercase_class_name }}Create);
+  return httpClient.post<number>('/{{ kebab_case_class_name }}/create', {{ lowercase_class_name }}Create);
 }
 
 /**
@@ -67,7 +77,7 @@ export function create{{ class_name }}({{ lowercase_class_name }}Create: {{ clas
 export function import{{ class_name }}(file: File) {
   const formData = new FormData();
   formData.append('file', file);
-  return httpClient.post<{{ class_name }}Create[]>('/new-word/import', formData);
+  return httpClient.post<{{ class_name }}Create[]>('/{{ kebab_case_class_name }}/import', formData);
 }
 
 /**
@@ -77,7 +87,7 @@ export function import{{ class_name }}(file: File) {
  * @returns 创建的{{ class_name }}的ID列表
  */
 export function batchCreate{{ class_name }}({{ lowercase_class_name }}CreateList: {{ class_name }}Create[]) {
-  return httpClient.post<number[]>('/new-word/batch-create', {{ lowercase_class_name }}CreateList);
+  return httpClient.post<number[]>('/{{ kebab_case_class_name }}/batch-create', {{ lowercase_class_name }}CreateList);
 }
 
 /**
@@ -86,7 +96,7 @@ export function batchCreate{{ class_name }}({{ lowercase_class_name }}CreateList
  * @param id 要移除的{{ class_name }}的Id
  */
 export function remove{{ class_name }}(id: number) {
-  return httpClient.delete<void>(`/new-word/remove/${id}`);
+  return httpClient.delete<void>(`/{{ kebab_case_class_name }}/remove/${id}`);
 }
 
 /**
@@ -95,7 +105,7 @@ export function remove{{ class_name }}(id: number) {
  * @param ids 要移除的{{ class_name }}的ID数组
  */
 export function batchRemove{{ class_name }}(ids: number[]) {
-  return httpClient.delete<void>('/new-word/batch-remove', { data: ids });
+  return httpClient.delete<void>('/{{ kebab_case_class_name }}/batch-remove', { data: ids });
 }
 
 /**
@@ -104,7 +114,7 @@ export function batchRemove{{ class_name }}(ids: number[]) {
  * @param {{ lowercase_class_name }}Modify 包含ID数组和修改的数据
  */
 export function modify{{ class_name }}({{ lowercase_class_name }}Modify: {{ class_name }}Modify) {
-  return httpClient.put<void>('/new-word/modify', {{ lowercase_class_name }}Modify);
+  return httpClient.put<void>('/{{ kebab_case_class_name }}/modify', {{ lowercase_class_name }}Modify);
 }
 
 /**
@@ -113,5 +123,5 @@ export function modify{{ class_name }}({{ lowercase_class_name }}Modify: {{ clas
  * @param {{ lowercase_class_name }}BatchModify 包含ID数组和修改的数据
  */
 export function batchModify{{ class_name }}({{ lowercase_class_name }}BatchModify: {{ class_name }}BatchModify) {
-  return httpClient.put<void>('/new-word/batch-modify', {{ lowercase_class_name }}BatchModify);
+  return httpClient.put<void>('/{{ kebab_case_class_name }}/batch-modify', {{ lowercase_class_name }}BatchModify);
 }

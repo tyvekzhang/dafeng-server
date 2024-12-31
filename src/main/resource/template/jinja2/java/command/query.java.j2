@@ -19,7 +19,7 @@ import {{ package_name }}.entity.{{ class_name }}DO;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class {{ class_name }}Query extends PageQuery<NewWordDO> {
+public class {{ class_name }}Query extends PageQuery<{{ class_name }}DO> {
     {% for field in fields %}
     {%- if field.gen_field.queryable == 1  %}
     /**
