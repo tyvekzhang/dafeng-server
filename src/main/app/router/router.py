@@ -24,5 +24,5 @@ def create_router() -> APIRouter:
     router.include_router(index_router, tags=["index"], prefix="/index")
     router.include_router(gen_table_router, tags=["genTable"], prefix="/gen-table")
     router.include_router(gen_table_column_router, tags=["genTableColumn"], prefix="/gen-table-column")
-    router.include_router(new_word_router, tags=["newWord"], prefix="/new-word")
+    router.include_router(new_word_router, tags=["{{ class_name }}"], prefix="/new-word")
     return router

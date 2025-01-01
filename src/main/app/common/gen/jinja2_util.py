@@ -122,7 +122,12 @@ class Jinja2Utils:
         :return: 模板列表
         """
         index_tpl = "jinja2/react/index.tsx.j2"
-        index_create_tpl = "jinja2/react/components/indexCreate.tsx.j2"
+        index_query_tpl = "jinja2/react/components/iQuery.tsx.j2"
+        index_create_tpl = "jinja2/react/components/iCreate.tsx.j2"
+        index_detail_tpl = "jinja2/react/components/iDetail.tsx.j2"
+        index_modify_tpl = "jinja2/react/components/iModify.tsx.j2"
+        index_batch_modify_tpl = "jinja2/react/components/iBatchModify.tsx.j2"
+        index_import_tpl = "jinja2/react/components/iImport.tsx.j2"
         if tpl_web_type == "element-plus":
             use_web_type = "vm/react/v3"
         entity_tpl = "jinja2/java/mybatis_plus/entity.java.j2"
@@ -143,6 +148,12 @@ class Jinja2Utils:
             if tpl_backend_type == GenConstants.MYBATIS:
                 entity_tpl = "jinja2/java/mybatis/entity.java.j2"
         templates = [
+            index_query_tpl,
+            index_modify_tpl,
+            index_import_tpl,
+            index_detail_tpl,
+            index_batch_modify_tpl,
+            index_tpl,
             index_create_tpl,
             entity_tpl,
             mapper_tpl,
@@ -157,7 +168,6 @@ class Jinja2Utils:
             converter_tpl,
             api_tpl,
             type_tpl,
-            index_tpl,
             batch_modify_tpl,
         ]
 
@@ -186,7 +196,8 @@ class Jinja2Utils:
 
         java_path = f"{Jinja2Utils.PROJECT_PATH}/{package_name.replace('.', '/')}"
         mybatis_path = f"{Jinja2Utils.MYBATIS_PATH}/{module_name}"
-        client_path = "src"
+        client_dir = "src"
+        client_module_dir = "system"
         kebab_case_class_name= Jinja2Utils.to_kebab_case(business_name)
 
         if "entity.java.j2" in template:
@@ -220,10 +231,24 @@ class Jinja2Utils:
             file_name = f"{mybatis_path}/{class_name}Mapper.xml"
         elif "sql.vm" in template:
             file_name = f"{business_name}Menu.sql"
+        elif "index.tsx.j2" in template:
+            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/index.tsx"
+        elif "iQuery.tsx.j2" in template:
+            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-query.tsx"
+        elif "iCreate.tsx.j2" in template:
+            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-create.tsx"
+        elif "iDetail.tsx.j2" in template:
+            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-detail.tsx"
+        elif "iModify.tsx.j2" in template:
+            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-modify.tsx"
+        elif "iBatchModify.tsx.j2" in template:
+            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-batch-modify.tsx"
+        elif "iImport.tsx.j2" in template:
+            file_name = f"{client_dir}/views/{client_module_dir}/{kebab_case_class_name}/components/{kebab_case_class_name}-import.tsx"
         elif "api.js.j2" in template:
-            file_name = f"{client_path}/service/{kebab_case_class_name}.ts"
+            file_name = f"{client_dir}/service/{kebab_case_class_name}.ts"
         elif "type.js.j2" in template:
-            file_name = f"{client_path}/types/{kebab_case_class_name}.ts"
+            file_name = f"{client_dir}/types/{kebab_case_class_name}.ts"
 
         return file_name
 

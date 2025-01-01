@@ -76,8 +76,8 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
                 template_j2 = load_template_file(template)
                 rendered_template = template_j2.render(context)
                 data_map[GenUtils.trim_jinja2_name(template)] = rendered_template
-            except:
-                print(template)
+            except Exception as e:
+                print(f"这里出错啦{template} {e}")
         return data_map
 
 

@@ -1,11 +1,11 @@
-import React, { useEffect, useMemo } from 'react';
+import { {{ class_name }}Create } from '@/types/{{ kebab_case_class_name }}';
 import { Button, Form, Input, Modal } from 'antd';
 import { FormInstance } from 'antd/es/form';
-import { {{ class_name }}Create } from '@/types/{{kebab_case_class_name}}';
+import React, { useMemo } from 'react';
 
 const {{ lowercase_class_name }}CreateFormItemLayout = {
   labelCol: { span: 5 },
-  wrapperCol: { span: 15 },
+  wrapperCol: { span: 17 },
 };
 
 interface {{ class_name }}CreateProps {
@@ -17,16 +17,12 @@ interface {{ class_name }}CreateProps {
 }
 
 const {{ class_name }}CreateComponent: React.FC<{{ class_name }}CreateProps> = ({
-                                                                is{{ class_name }}CreateModalVisible,
-                                                                on{{ class_name }}CreateCancel,
-                                                                on{{ class_name }}CreateFinish,
-                                                                is{{ class_name }}CreateLoading,
-                                                                {{ lowercase_class_name }}CreateForm,
-                                                              }) => {
-  const resetPageData = () => {
-    {{ lowercase_class_name }}CreateForm.resetFields();
-  };
-
+  is{{ class_name }}CreateModalVisible,
+  on{{ class_name }}CreateCancel,
+  on{{ class_name }}CreateFinish,
+  is{{ class_name }}CreateLoading,
+  {{ lowercase_class_name }}CreateForm,
+}) => {
   const footerButtons = useMemo(
     () => [
       <Button key="back" onClick={on{{ class_name }}CreateCancel}>
@@ -39,17 +35,25 @@ const {{ class_name }}CreateComponent: React.FC<{{ class_name }}CreateProps> = (
     [is{{ class_name }}CreateLoading, {{ lowercase_class_name }}CreateForm, on{{ class_name }}CreateCancel],
   );
 
-  useEffect(() => {
-    resetPageData();
-  }, [is{{ class_name }}CreateModalVisible]);
-
   return (
     <div>
-      <Modal title="{{ function_name }}新增" open={is{{ class_name }}CreateModalVisible} onCancel={on{{ class_name }}CreateCancel} footer={footerButtons}>
-        <Form {...{{ lowercase_class_name }}CreateFormItemLayout} form={ {{ lowercase_class_name }}CreateForm} name="{{ lowercase_class_name }}Create" onFinish={on{{ class_name }}CreateFinish}>
+      <Modal
+        title="{{ function_name }}新增"
+        open={is{{ class_name }}CreateModalVisible}
+        onCancel={on{{ class_name }}CreateCancel}
+        footer={footerButtons}
+        width={'60%'}
+      >
+        <Form
+          {...{{ lowercase_class_name }}CreateFormItemLayout}
+          form={ {{ lowercase_class_name }}CreateForm}
+          name="{{ lowercase_class_name }}Create"
+          onFinish={on{{ class_name }}CreateFinish}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-y-0 gap-x-2 pt-4"
+        >
           {%- for field in fields %}
           {%- if field.gen_field.queryable == 1 %}
-          <Form.Item name="{{ field.gen_field.field_name }}" label="{{ field.field.comment }}" rules={[{ required: true, message: '请输入' }]}>
+          <Form.Item name="{{ field.gen_field.field_name }}" label="{{ field.field.comment }}" rules={[{ required: false, message: '请输入' }]}>
             {%- if field.gen_field.js_type == 'string' %}
             <Input placeholder="请输入" />
             {%- elif field.gen_field.js_type == 'Date' %}

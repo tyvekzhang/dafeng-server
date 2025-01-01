@@ -11,7 +11,6 @@ from src.main.app.model.read_new_word_model import NewWordDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.read_new_word_schema import NewWordAdd, NewWordQuery, NewWordQueryResponse, NewWordExport, \
     NewWordQueryForm, NewWordModify, NewWordCreate, NewWordBatchModify
-from src.main.app.schema.user_schema import Ids
 from starlette.responses import StreamingResponse
 
 from src.main.app.service.impl.read_new_word_service_impl import NewWordServiceImpl
@@ -74,7 +73,7 @@ async def fetch_new_word_by_page(
     return ResponseBase(data=PaginationResponse(records=records, total=total))
 
 
-@new_word_router.get("/query/{new_word_id}")
+@new_word_router.get("/detail/{new_word_id}")
 async def query_new_words(
     new_word_id: int
 ) -> ResponseBase[NewWordQueryResponse]:

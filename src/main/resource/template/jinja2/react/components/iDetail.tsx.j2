@@ -1,0 +1,52 @@
+import { {{ class_name }}Detail } from '@/types/{{ kebab_case_class_name }}';
+import { Button, Descriptions, Drawer, Space } from 'antd';
+import React, { useMemo } from 'react';
+
+interface {{ class_name }}DetailDrawerProps {
+  is{{ class_name }}DetailDrawerVisible: boolean;
+  on{{ class_name }}DetailClose: () => void;
+  {{ lowercase_class_name }}Detail: {{ class_name }}Detail | null;
+}
+
+const {{ class_name }}DetailComponent: React.FC<{{ class_name }}DetailDrawerProps> = ({
+                                                                     is{{ class_name }}DetailDrawerVisible,
+                                                                     on{{ class_name }}DetailClose,
+                                                                     {{ lowercase_class_name }}Detail,
+                                                                   }) => {
+  const footerButtons = useMemo(
+    () => (
+      <Space>
+        <Button onClick={on{{ class_name }}DetailClose}>
+          关闭
+        </Button>
+      </Space>
+    ),
+    [on{{ class_name }}DetailClose],
+  );
+
+  return (
+    <Drawer
+      title="{{ function_name }}详情"
+      open={is{{ class_name }}DetailDrawerVisible}
+      onClose={on{{ class_name }}DetailClose}
+      extra={footerButtons}
+      destroyOnClose
+      width={600}
+    >
+      { {{ lowercase_class_name }}Detail && (
+        <Descriptions column={1} bordered>
+          <Descriptions.Item label="用户ID">{ {{ lowercase_class_name }}Detail.userId}</Descriptions.Item>
+          <Descriptions.Item label="文章ID">{ {{ lowercase_class_name }}Detail.articleId}</Descriptions.Item>
+          <Descriptions.Item label="词库表ID">{ {{ lowercase_class_name }}Detail.wordId}</Descriptions.Item>
+          <Descriptions.Item label="单词">{ {{ lowercase_class_name }}Detail.word}</Descriptions.Item>
+          <Descriptions.Item label="复习次数">{ {{ lowercase_class_name }}Detail.reviewCount}</Descriptions.Item>
+          <Descriptions.Item label="复习时间">{ {{ lowercase_class_name }}Detail.nextReviewDate}</Descriptions.Item>
+          <Descriptions.Item label="租户ID">{ {{ lowercase_class_name }}Detail.tenantId}</Descriptions.Item>
+        </Descriptions>
+      )}
+    </Drawer>
+  );
+};
+
+export default {{ class_name }}DetailComponent;
+

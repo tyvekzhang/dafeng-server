@@ -1,0 +1,91 @@
+import { {{ class_name }}Modify } from '@/types/{{ kebab_case_class_name }}';
+import { Button, Col, Form, Input, Modal, Row } from 'antd';
+import { FormInstance } from 'antd/es/form';
+import React, { useMemo } from 'react';
+
+interface {{ class_name }}ModifyProps {
+  is{{ class_name }}ModifyModalVisible: boolean;
+  on{{ class_name }}ModifyCancel: () => void;
+  on{{ class_name }}ModifyFinish: () => void;
+  is{{ class_name }}ModifyLoading: boolean;
+  {{ lowercase_class_name }}ModifyForm: FormInstance<{{ class_name }}Modify>;
+}
+
+const {{ lowercase_class_name }}ModifyFormItemLayout = {
+  labelCol: { span: 6 },
+  wrapperCol: { span: 18 },
+};
+
+const {{ class_name }}ModifyComponent: React.FC<{{ class_name }}ModifyProps> = ({
+  is{{ class_name }}ModifyModalVisible,
+  on{{ class_name }}ModifyCancel,
+  on{{ class_name }}ModifyFinish,
+  is{{ class_name }}ModifyLoading,
+  {{ lowercase_class_name }}ModifyForm,
+}) => {
+  const footerButtons = useMemo(
+    () => [
+      <Button key="cancel" onClick={on{{ class_name }}ModifyCancel}>
+        取消
+      </Button>,
+      <Button key="submit" type="primary" loading={is{{ class_name }}ModifyLoading} onClick={on{{ class_name }}ModifyFinish}>
+        确定
+      </Button>,
+    ],
+    [is{{ class_name }}ModifyLoading, on{{ class_name }}ModifyCancel],
+  );
+
+  return (
+    <Modal
+      title="{{ function_name }}编辑"
+      open={is{{ class_name }}ModifyModalVisible}
+      onCancel={on{{ class_name }}ModifyCancel}
+      footer={footerButtons}
+      destroyOnClose
+    >
+        <Form
+          {...{{ lowercase_class_name }}ModifyFormItemLayout}
+          form={ {{ lowercase_class_name }}ModifyForm}
+          name="{{ lowercase_class_name }}Modify"
+          onFinish={on{{ class_name }}ModifyFinish}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-y-0 gap-x-2 pt-4"
+        >
+          {%- for field in fields %}
+          {%- if field.gen_field.modifiable == 1 %}
+          <Form.Item name="{{ field.gen_field.field_name }}" label="{{ field.field.comment }}" rules={[{ required: false, message: '请输入' }]}>
+            {%- if field.gen_field.js_type == 'string' %}
+            <Input placeholder="请输入" />
+            {%- elif field.gen_field.js_type == 'Date' %}
+            <DatePicker.RangePicker />
+            {%- elif field.gen_field.js_type == 'number' %}
+            <Input type="number" placeholder="请输入" />
+            {%- elif field.gen_field.field_name == 'status' %}
+            <Select
+              allowClear
+              placeholder="请选择"
+              optionFilterProp="label"
+              defaultValue={initStatus}
+              onChange={handleChangeState}
+              options={[
+                {
+                  value: '1',
+                  label: '正常',
+                },
+                {
+                  value: '0',
+                  label: '停用',
+                },
+              ]}
+            />
+            {% else %}
+            <Input placeholder="请输入" />
+            {% endif %}
+          </Form.Item>
+          {%- endif %}
+          {%- endfor %}
+        </Form>
+    </Modal>
+  );
+};
+
+export default {{ class_name }}ModifyComponent;
