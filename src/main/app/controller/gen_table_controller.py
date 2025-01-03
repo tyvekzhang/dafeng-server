@@ -113,7 +113,10 @@ async def preview_code(table_id: int) -> StreamingResponse:
 
     # 定义一个生成器函数来流式传输数据
     def iterfile():
-        yield from mem
+        try:
+            yield from mem
+        finally:
+            mem.close()
 
     # 创建响应
     response = StreamingResponse(iterfile(), media_type="application/zip")

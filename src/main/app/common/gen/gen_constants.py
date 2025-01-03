@@ -23,9 +23,11 @@ class GenConstants:
                          "bit", "bigint", "float", "double", "decimal", "int2", "int4", "int8"]
 
     # Page settings for fields
-    COLUMNNAME_NOT_EDIT = ["id", "create_by", "create_time", "del_flag"]
-    COLUMNNAME_NOT_LIST = ["id", "create_by", "create_time", "del_flag", "update_by", "update_time"]
-    COLUMNNAME_NOT_QUERY = ["id", "create_by", "create_time", "del_flag", "update_by", "update_time", "comment"]
+    COLUMNNAME_NOT_INSERT = ["id", "create_by", "create_time", "del_flag", "update_by", "update_time", "user_id", "tenant_id"]
+    COLUMNNAME_NOT_MODIFY = ["create_by", "create_time", "del_flag", "update_by", "update_time", "user_id", "tenant_id"]
+    COLUMNNAME_NOT_BATCH_MODIFY = ["id", "create_by", "create_time", "del_flag", "update_by", "update_time", "user_id", "tenant_id"]
+    COLUMNNAME_NOT_PAGE = ["create_by", "del_flag", "update_by", "update_time", "user_id", "tenant_id"]
+    COLUMNNAME_NOT_QUERY = ["create_by", "del_flag", "update_by", "update_time", "comment", "user_id", "tenant_id"]
 
     # Base entity fields
     BASE_ENTITY = ["createBy", "createTime", "updateBy", "updateTime", "comment"]
@@ -40,7 +42,7 @@ class GenConstants:
     HTML_DATETIME = "datetime"
     HTML_IMAGE_UPLOAD = "imageUpload"
     HTML_FILE_UPLOAD = "fileUpload"
-    HTML_EDITOR = "editor"
+    HTML_MODIFYOR = "editor"
 
     # Data types
     TYPE_STRING = "String"

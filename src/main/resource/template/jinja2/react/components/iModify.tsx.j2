@@ -1,5 +1,5 @@
 import { {{ class_name }}Modify } from '@/types/{{ kebab_case_class_name }}';
-import { Button, Col, Form, Input, Modal, Row } from 'antd';
+import { Button, DatePicker, Form, Input, Modal, Select } from 'antd';
 import { FormInstance } from 'antd/es/form';
 import React, { useMemo } from 'react';
 
@@ -51,21 +51,21 @@ const {{ class_name }}ModifyComponent: React.FC<{{ class_name }}ModifyProps> = (
           className="grid grid-cols-1 lg:grid-cols-2 gap-y-0 gap-x-2 pt-4"
         >
           {%- for field in fields %}
-          {%- if field.gen_field.modifiable == 1 %}
+          {%- if field.gen_field.modifiable == 1 and field.gen_field.field_name != primary_key %}
           <Form.Item name="{{ field.gen_field.field_name }}" label="{{ field.field.comment }}" rules={[{ required: false, message: '请输入' }]}>
-            {%- if field.gen_field.js_type == 'string' %}
+            {%- if field.gen_field.html_type == 'input' and field.gen_field.js_type == 'string' %}
             <Input placeholder="请输入" />
-            {%- elif field.gen_field.js_type == 'Date' %}
+            {%- elif field.gen_field.html_type == 'datetime' %}
             <DatePicker.RangePicker />
-            {%- elif field.gen_field.js_type == 'number' %}
+            {%- elif field.gen_field.html_type == 'input' and field.gen_field.js_type == 'number' %}
             <Input type="number" placeholder="请输入" />
             {%- elif field.gen_field.field_name == 'status' %}
             <Select
               allowClear
               placeholder="请选择"
               optionFilterProp="label"
-              defaultValue={initStatus}
-              onChange={handleChangeState}
+              defaultValue={"1"}
+              onChange={() => {} }
               options={[
                 {
                   value: '1',

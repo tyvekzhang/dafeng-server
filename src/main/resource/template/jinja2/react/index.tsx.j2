@@ -87,8 +87,8 @@ const {{ class_name }}: React.FC = () => {
   const {{lowercase_class_name}}PageColumns: ColumnsType<{{class_name}}Page> = [
     {
       title: "Id",
-      dataIndex: "id",
-      key: "id",
+      dataIndex: "{{ primary_key }}",
+      key: "{{ primary_key }}",
       hidden: true,
     },
     {
@@ -99,11 +99,12 @@ const {{ class_name }}: React.FC = () => {
       width: "8%",
     },
     {%- for field in fields %}
-    {%- if field.gen_field.pageable == 1  %}
+    {%- if field.gen_field.pageable == 1  and field.gen_field.field_name != primary_key %}
     {
       title: "{{ field.field.comment }}",
       dataIndex: "{{ field.gen_field.field_name }}",
       key: "{{ field.gen_field.field_name }}",
+      render: (text) => (text ? text : "-"),
     },
     {%- endif%}
     {%- endfor %}
@@ -357,7 +358,7 @@ const {{ class_name }}: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 bg-white">
-      <TransitionWrapper show={is{{ class_name }}QuerySho}>
+      <TransitionWrapper show={is{{ class_name }}QueryShow}>
         <div className="shadow-sm">
           <{{ class_name }}QueryComponent
             on{{ class_name }}QueryFinish={on{{ class_name }}QueryFinish}

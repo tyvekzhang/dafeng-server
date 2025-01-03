@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -20,7 +21,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.singularity.common.model.ResponseResult;
 import com.singularity.common.service.ValidateService;
 import com.singularity.common.utils.ExcelExportUtil;
 import com.singularity.common.wrapper.ResponseWrapper;
@@ -32,6 +32,7 @@ import {{ package_name }}.mapper.{{ class_name }}Mapper;
 import {{ package_name }}.service.I{{ class_name }}Service;
 import {{ package_name }}.vo.{{ class_name }}Detail;
 import {{ package_name }}.vo.{{ class_name }}Page;
+import static com.singularity.common.utils.SecurityUtil.getCurrentUser;
 
 /**
  * <p>
@@ -61,7 +62,9 @@ public class {{ class_name }}ServiceImpl extends ServiceImpl<{{ class_name }}Map
         // 构建分页对象
         Page<{{ class_name }}DO> pageRequest = {{ lowercase_class_name }}Query.buildPage();
         // 使用 LambdaQueryWrapper 构建查询条件
-        LambdaQueryWrapper<{{ class_name }}DO> queryWrapper = {{ class_name }}DO.queryWrapper();
+        LambdaQueryWrapper<{{ class_name }}DO> queryWrapper = {{ class_name }}DO.lambdaQueryWrapper()
+            .eq({{ class_name }}DO::getTenantId, Objects.requireNonNull(getCurrentUser()).getCurrentTenantId())
+            .eq({{ class_name }}DO::getUserId, Objects.requireNonNull(getCurrentUser()).getUserId());
         // 动态添加查询条件
         {%- for field in fields -%}
         {%- if field.gen_field.queryable == 1 -%}

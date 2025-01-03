@@ -57,23 +57,28 @@ class GenUtils:
             else:
                 gen_field.field_type = GenConstants.TYPE_LONG
 
-        # Insert field (default all fields need to be inserted)
-        gen_field.creatable = GenConstants.REQUIRE
+        # Insert field
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_INSERT, field_name):
+            gen_field.creatable = GenConstants.REQUIRE
 
-        # Edit field
-        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_EDIT, field_name) and not field_record.primary_key:
+        # Modify field
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_MODIFY, field_name):
             gen_field.modifiable = GenConstants.REQUIRE
+            
+        # BatchModify field
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_BATCH_MODIFY, field_name):
+            gen_field.batch_modifiable = GenConstants.REQUIRE
 
         # Page field
-        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_LIST, field_name) and not field_record.primary_key:
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_PAGE, field_name):
             gen_field.pageable = GenConstants.REQUIRE
 
         # Detail field
-        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_LIST, field_name) and not field_record.primary_key:
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_PAGE, field_name) and field_name != field_record.primary_key:
             gen_field.detailable = GenConstants.REQUIRE
 
         # Query field
-        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_QUERY, field_name) and not field_record.primary_key:
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_QUERY, field_name):
             gen_field.queryable = GenConstants.REQUIRE
 
         # Query field type
@@ -94,7 +99,7 @@ class GenUtils:
             gen_field.html_type = GenConstants.HTML_FILE_UPLOAD
         # Set rich text control for content fields
         elif StringUtils.ends_with_ignore_case(field_name, "content"):
-            gen_field.html_type = GenConstants.HTML_EDITOR
+            gen_field.html_type = GenConstants.HTML_MODIFYOR
 
     @staticmethod
     def arrays_contains(arr, target_value) -> bool:

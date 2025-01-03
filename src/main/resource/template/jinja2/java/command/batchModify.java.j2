@@ -2,6 +2,7 @@ package {{ package_name }}.command;
 {% for import in import_list %}
 import {{ import }};
 {%- endfor %}
+import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,15 +25,18 @@ import lombok.NoArgsConstructor;
 public class {{ class_name }}BatchModify {
 
     /**
-     * 批量修改ID数组
+     * 主键列表
      */
-    @NotNull(message = "ids can not be null")
-    private List<Long> ids;
+    @NotNull(message = "{{ primary_key }}s can not be null")
+    private List<Long> {{ primary_key }}s;
     {% for field in fields %}
     {%- if field.gen_field.modifiable == 1  %}
     /**
      * {{ field.field.comment }}
      */
+    {%- if "time" in field.gen_field.field_name|lower %}
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    {%- endif %}
     private {{ field.gen_field.field_type }} {{ field.gen_field.field_name }};
     {% endif -%}
     {% endfor %}

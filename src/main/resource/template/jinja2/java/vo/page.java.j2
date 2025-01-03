@@ -2,6 +2,7 @@ package {{ package_name }}.command;
 {% for import in import_list %}
 import {{ import }};
 {%- endfor %}
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,6 +26,9 @@ public class {{ class_name }}Page {
     /**
      * {{ field.field.comment }}
      */
+    {%- if "time" in field.gen_field.field_name|lower %}
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    {%- endif %}
     private {{ field.gen_field.field_type }} {{ field.gen_field.field_name }};
     {% endif -%}
     {% endfor %}

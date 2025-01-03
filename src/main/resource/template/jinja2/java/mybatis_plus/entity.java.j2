@@ -7,9 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.IdType;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.singularity.common.model.CurrentUser;
 import com.singularity.common.utils.SecurityUtil;
@@ -30,12 +29,16 @@ import com.singularity.common.utils.SecurityUtil;
 public class {{ class_name }}DO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    public static final LambdaQueryWrapper<{{ class_name }}DO> queryWrapper(){
+    public static final LambdaQueryWrapper<{{ class_name }}DO> lambdaQueryWrapper(){
         return new LambdaQueryWrapper<>();
     }
     
     public static {{ class_name }}DO fillInTenantIdUserId({{ class_name }}DO {{ lowercase_class_name }}DO){
+      if ({{ lowercase_class_name }}DO == null){
+            {{ lowercase_class_name }}DO = new {{ class_name }}DO();
+        }
         CurrentUser currentUser = SecurityUtil.getCurrentUser();
+        assert currentUser != null;
         {{ lowercase_class_name }}DO.setTenantId(currentUser.getCurrentTenantId());
         {{ lowercase_class_name }}DO.setUserId(currentUser.getUserId());
         return {{ lowercase_class_name }}DO;
@@ -46,6 +49,15 @@ public class {{ class_name }}DO implements Serializable {
      */
     {%- if field.gen_field.primary_key == 1  %}
     @TableId(value = "{{ primary_key }}", type = IdType.ASSIGN_ID)
+    {%- endif %}
+    {%- if field.gen_field.field_name == "createTime"  %}
+    @TableField(fill = FieldFill.INSERT)
+    {%- endif %}
+    {%- if field.gen_field.field_name == "updateTime"  %}
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    {%- endif %}
+    {%- if "time" in field.gen_field.field_name|lower %}
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     {%- endif %}
     private {{ field.gen_field.field_type }} {{ field.gen_field.field_name }};
     {% endfor %}
