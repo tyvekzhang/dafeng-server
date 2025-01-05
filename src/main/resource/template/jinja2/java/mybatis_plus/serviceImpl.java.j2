@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.BeanUtils;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
@@ -116,8 +117,8 @@ public class {{ class_name }}ServiceImpl extends ServiceImpl<{{ class_name }}Map
         if (CollectionUtils.isEmpty({{ lowercase_class_name }}List)) {
             return;
         }
-        List<{{ class_name }}Create> {{ lowercase_class_name }}CreateList = {{ lowercase_class_name }}List.stream().map({{ class_name }}Converter.INSTANCE::{{ lowercase_class_name }}DOTo{{ class_name }}Create).toList();
-        ExcelExportUtil.exportToExcel(response, {{ lowercase_class_name }}CreateList, {{ class_name }}Create.class, "new_word_export");
+        List<{{ class_name }}Page> {{ lowercase_class_name }}PageList = {{ lowercase_class_name }}List.stream().map({{ class_name }}Converter.INSTANCE::{{ lowercase_class_name }}DOTo{{ class_name }}Page).toList();
+        ExcelExportUtil.exportToExcel(response, {{ lowercase_class_name }}PageList, {{ class_name }}Page.class, "{{ function_name }}数据导出");
     }
 
     /**
@@ -159,8 +160,10 @@ public class {{ class_name }}ServiceImpl extends ServiceImpl<{{ class_name }}Map
     public void batchModify{{ class_name }}({{ class_name }}DO {{ lowercase_class_name }}DO, List<Long> ids) {
         List<{{ class_name }}DO> {{ lowercase_class_name }}List = new ArrayList<>();
         for (Long id : ids) {
-            {{ lowercase_class_name }}DO.setId(id);
-            {{ lowercase_class_name }}List.add({{ lowercase_class_name }}DO);
+            {{ class_name }}DO new{{ class_name }} = new {{ class_name }}DO();
+            BeanUtils.copyProperties({{ lowercase_class_name }}DO, new{{ class_name }});
+            new{{ class_name }}.setId(id);
+            {{ lowercase_class_name }}List.add(new{{ class_name }});
         }
         this.updateBatchById({{ lowercase_class_name }}List);
     }

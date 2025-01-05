@@ -30,6 +30,6 @@ security:
 
 gen:
   author: "tyvekzhang"
-  package_name: "com.singularity.modules.reading"
+  package_name: "com.singularity.modules.admin"
   auto_remove_pre: True
   table_prefix: "read,sys,acc"

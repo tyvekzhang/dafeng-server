@@ -70,7 +70,7 @@ public class {{ class_name }}Controller {
     @GetMapping("/export-template")
     public void export{{ class_name }}Template(HttpServletResponse response) throws IOException {
         List<{{ class_name }}Create> emptyList = new ArrayList<>();
-        ExcelExportUtil.exportToExcel(response, emptyList, {{ class_name }}Create.class, "{{ function_name }}模板");
+        ExcelExportUtil.exportToExcel(response, emptyList, {{ class_name }}Create.class, "{{ function_name }}数据导入模板");
     }
 
     /**
@@ -138,8 +138,8 @@ public class {{ class_name }}Controller {
      * 批量移除{{ class_name }}
      * @param ids 要移除{{ class_name }}的ID数组
      */
-    @DeleteMapping("/batch-remove")
-    public HttpResponse<Void> batchRemove{{ class_name }}(@RequestBody List<Long> ids) {
+    @DeleteMapping("/batch-remove/{ids}")
+    public HttpResponse<Void> batchRemove{{ class_name }}(@PathVariable List<Long> ids) {
         {{ lowercase_class_name }}Service.removeBatchByIds(ids);
         return HttpResponse.success();
     }

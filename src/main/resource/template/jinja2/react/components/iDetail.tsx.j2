@@ -37,7 +37,13 @@ const {{ class_name }}DetailComponent: React.FC<{{ class_name }}DetailDrawerProp
         <Descriptions column={1} bordered>
           {%- for field in fields %}
           {%- if field.gen_field.creatable == 1 and field.gen_field.field_name != primary_key %}
-          <Descriptions.Item label="{{ field.field.comment }}">{ {{ lowercase_class_name }}Detail.{{ field.gen_field.field_name }}}</Descriptions.Item>
+          {%- set parentheseIndex = field.field.comment.find("(") -%}
+          {%- if parentheseIndex!= -1 -%}
+              {% set comment = field.field.comment[:parentheseIndex] %}
+          {%- else -%}
+              {% set comment = field.field.comment %}
+          {%- endif %}
+          <Descriptions.Item label="{{ comment }}">{ {{ lowercase_class_name }}Detail.{{ field.gen_field.field_name }}}</Descriptions.Item>
           {%- endif %}
           {%- endfor %}
         </Descriptions>

@@ -24,9 +24,10 @@ import { Form } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import type { RcFile } from "rc-upload/lib/interface";
 import React, { useEffect, useState } from "react";
-import { DeleteOutlined, EditOutlined, EyeOutlined, MoreOutlined } from "@ant-design/icons";
+import { EditOutlined, EyeOutlined, MoreOutlined } from "@ant-design/icons";
 import {{ class_name }}DetailComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-detail";
 import TransitionWrapper from '@/components/base/transition-wrapper';
+import DeleteButton from "@/components/base/delete-button";
 
 const {{ class_name }}: React.FC = () => {
   // 配置模块
@@ -100,8 +101,14 @@ const {{ class_name }}: React.FC = () => {
     },
     {%- for field in fields %}
     {%- if field.gen_field.pageable == 1  and field.gen_field.field_name != primary_key %}
+    {%- set parentheseIndex = field.field.comment.find("(") -%}
+    {%- if parentheseIndex!= -1 -%}
+        {% set comment = field.field.comment[:parentheseIndex] %}
+    {%- else -%}
+        {% set comment = field.field.comment %}
+    {%- endif %}
     {
-      title: "{{ field.field.comment }}",
+      title: "{{ comment }}",
       dataIndex: "{{ field.gen_field.field_name }}",
       key: "{{ field.gen_field.field_name }}",
       render: (text) => (text ? text : "-"),
@@ -230,7 +237,7 @@ const {{ class_name }}: React.FC = () => {
     }
     try {
       setIsBatchRemoveLoading(true);
-      await batchRemove{{ class_name }}(selectedRowKeys.map((key) => Number(key)));
+      await batchRemove{{ class_name }}(selectedRows.map((row) => row.id));
       await on{{ class_name }}QueryFinish();
       resetSelectedRows();
     } finally {
@@ -246,17 +253,21 @@ const {{ class_name }}: React.FC = () => {
   const [is{{ class_name }}ModifyModalVisible, setIs{{ class_name }}ModifyModalVisible] = useState<boolean>(false);
   const [is{{ class_name }}ModifyLoading, setIs{{ class_name }}ModifyLoading] = useState<boolean>(false);
   const [{{ lowercase_class_name }}ModifyForm] = Form.useForm();
-  const on{{ class_name }}Modify = (record: {{ class_name }}Page) => {
+  const on{{ class_name }}Modify = ({{ lowercase_class_name }}Page: {{ class_name }}Page) => {
     setIs{{ class_name }}ModifyModalVisible(true);
-    {{ lowercase_class_name }}ModifyForm.setFieldsValue({ ...record });
+    setSelectedRowKeys([{{ lowercase_class_name }}Page.id])
+    setSelectedRows([{{ lowercase_class_name }}Page])
+    {{ lowercase_class_name }}ModifyForm.setFieldsValue({ ...{{ lowercase_class_name }}Page });
   };
 
   const handle{{ class_name }}ModifyCancel = () => {
+    resetSelectedRows();
     {{ lowercase_class_name }}ModifyForm.resetFields();
     setIs{{ class_name }}ModifyModalVisible(false);
   };
   const handle{{ class_name }}ModifyFinish = async () => {
-    const {{ lowercase_class_name }}Modify = (await {{ lowercase_class_name }}ModifyForm.validateFields()) as {{ class_name }}Modify;
+    const {{ lowercase_class_name }}ModifyData = (await {{ lowercase_class_name }}ModifyForm.validateFields()) as {{ class_name }}Modify;
+    const {{ lowercase_class_name }}Modify = {...{{ lowercase_class_name }}ModifyData, id: selectedRows[0].id};
     setIs{{ class_name }}ModifyLoading(true);
     try {
       await modify{{ class_name }}({{ lowercase_class_name }}Modify);
@@ -292,8 +303,12 @@ const {{ class_name }}: React.FC = () => {
   const handle{{ class_name }}BatchModifyFinish = async () => {
     const {{ lowercase_class_name }}BatchModify = (await {{ lowercase_class_name }}BatchModifyForm.validateFields()) as {{ class_name }}BatchModify;
     setIs{{ class_name }}BatchModifyLoading(true);
+    if (selectedRows === null || selectedRows.length === 0) {
+      message.warning("请选择要更新的项目")
+      return;
+    }
     try {
-      {{ lowercase_class_name }}BatchModify.ids = selectedRowKeys.map((key) => Number(key));
+      {{ lowercase_class_name }}BatchModify.ids = selectedRows.map((row) => row.id);
       await batchModify{{ class_name }}({{ lowercase_class_name }}BatchModify);
       {{ lowercase_class_name }}BatchModifyForm.resetFields();
       message.success("更新成功");
@@ -349,7 +364,7 @@ const {{ class_name }}: React.FC = () => {
     }
     try {
       setIsExportLoading(true);
-      await export{{ class_name }}Page(selectedRowKeys.map((key) => Number(key)));
+      await export{{ class_name }}Page(selectedRows.map((row) => row.id));
       resetSelectedRows();
     } finally {
       setIsExportLoading(false);

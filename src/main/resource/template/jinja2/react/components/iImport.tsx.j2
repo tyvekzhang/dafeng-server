@@ -57,52 +57,28 @@ const {{ class_name }}ImportComponent: React.FC<{{ class_name }}ImportProps> = (
   // 表格列信息
   const {{ class_name }}PageColumns: ColumnsType<{{ class_name }}Create> = [
     {
-      title: '序号',
-      dataIndex: 'No',
-      key: 'No',
-      render: (_: number, _record: {{ class_name }}Create, rowIndex: number) => rowIndex + 1,
-      width: '8%',
+      title: "序号",
+      dataIndex: "No",
+      key: "No",
+      render: (_: number, _record: {{class_name}}Create, rowIndex: number) => rowIndex + 1,
+      width: "8%",
     },
+    {%- for field in fields %}
+    {%- if field.gen_field.pageable == 1  and field.gen_field.field_name != primary_key %}
+    {%- set parentheseIndex = field.field.comment.find("(") -%}
+    {%- if parentheseIndex!= -1 -%}
+        {% set comment = field.field.comment[:parentheseIndex] %}
+    {%- else -%}
+        {% set comment = field.field.comment %}
+    {%- endif %}
     {
-      title: '用户ID',
-      dataIndex: 'userId',
-      key: 'userId',
+      title: "{{ comment }}",
+      dataIndex: "{{ field.gen_field.field_name }}",
+      key: "{{ field.gen_field.field_name }}",
+      render: (text) => (text ? text : "-"),
     },
-    {
-      title: '文章ID',
-      dataIndex: 'articleId',
-      key: 'articleId',
-    },
-    {
-      title: '词库表ID',
-      dataIndex: 'wordId',
-      key: 'wordId',
-    },
-    {
-      title: '单词',
-      dataIndex: 'word',
-      key: 'word',
-    },
-    {
-      title: '复习次数',
-      dataIndex: 'reviewCount',
-      key: 'reviewCount',
-    },
-    {
-      title: '复习时间',
-      dataIndex: 'nextReviewDate',
-      key: 'nextReviewDate',
-    },
-    {
-      title: '租户ID',
-      dataIndex: 'tenantId',
-      key: 'tenantId',
-    },
-    {
-      title: '校验信息',
-      dataIndex: 'errMsg',
-      key: 'errMsg',
-    },
+    {%- endif%}
+    {%- endfor %}
   ];
 
   const handle{{ class_name }}ExportTemplate = async () => {
