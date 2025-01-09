@@ -31,8 +31,8 @@ class ConnectionServiceImpl(ServiceBaseImpl[ConnectionMapper, ConnectionDO], Con
 
     async def list_connections(self, data: ConnectionQuery):
         records, total_count = await self.mapper.select_ordered_pagination(
-            page=data.page,
-            size=data.size,
+            page=data.current,
+            size=data.pageSize,
             sort_order=data.sort_order,
             order_by=data.order_by,
             count=data.count,

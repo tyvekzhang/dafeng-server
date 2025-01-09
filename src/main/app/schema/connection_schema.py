@@ -1,5 +1,5 @@
 """Connection domain schema"""
-
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -25,8 +25,8 @@ class ConnectionQueryResponse(BaseModel):
     id: int
     connection_name: str
     database_type: str
-    create_time: Optional[int] = None
-    update_time: Optional[int] = None
+    create_time: Optional[datetime] = None
+    update_time: Optional[datetime] = None
 
 
 class ConnectionExport(BaseModel):

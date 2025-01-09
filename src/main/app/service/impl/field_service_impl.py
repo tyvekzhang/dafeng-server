@@ -1,4 +1,5 @@
 """Field domain service impl"""
+from typing import List
 
 from sqlmodel import inspect
 
@@ -15,7 +16,7 @@ from src.main.app.mapper.table_mapper import tableMapper
 from src.main.app.model.db_field_model import FieldDO
 from src.main.app.model.db_index_model import IndexDO
 from src.main.app.model.db_table_model import TableDO
-from src.main.app.schema.field_schema import FieldQuery
+from src.main.app.schema.field_schema import FieldQuery, AntTableColumn
 from src.main.app.service.field_service import FieldService
 from src.main.app.service.impl.service_base_impl import ServiceBaseImpl
 
@@ -151,10 +152,38 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
         if len(need_delete_index_ids) > 0:
             await indexMapper.batch_delete_by_ids(ids=need_delete_index_ids)
         return await self.mapper.select_ordered_pagination(
-            page=data.page,
-            size=data.size,
+            page=data.current,
+            size=data.pageSize,
             order_by=data.order_by,
             sort_order=data.sort_order,
             count=data.count,
             filter_by={"table_id": table_id},
         )
+
+
+    async def get_ant_table_fields(self, table_id: int) -> List[AntTableColumn]:
+        field_records = await self.mapper.select_by_table_id(table_id=table_id)
+        if field_records is None or len(field_records) == 0:
+            await self.list_fields(FieldQuery(table_id=table_id, ))
+            field_records = await self.mapper.select_by_table_id(table_id=table_id)
+        ant_columns = []
+        for field in field_records:
+            column = AntTableColumn(
+                title=field.comment,
+                dataIndex=field.name,
+                key=field.name,
+            )
+
+            # Add additional properties based on field type
+            if field.type.lower() in ['varchar', 'char', 'text']:
+                column.ellipsis = True
+            if field.name.lower() == "id":
+                column.hidden = True
+            # Add sorter for sortable columns
+            if field.type.lower() not in ['text', 'blob', 'json']:
+                # column.sorter = True
+                pass
+
+            ant_columns.append(column)
+
+        return ant_columns

@@ -8,7 +8,13 @@ from src.main.app.common import result
 from src.main.app.common.result import ResponseBase
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.common.util.time_util import get_current_time, get_date_time
+from src.main.app.controller.field_controller import field_service
+from src.main.app.controller.table_controller import table_service
+from src.main.app.mapper.field_mapper import fieldMapper
+from src.main.app.mapper.gen_field_mapper import genFieldMapper
 from src.main.app.mapper.gen_table_mapper import genTableMapper
+from src.main.app.mapper.table_mapper import tableMapper
+from src.main.app.model.db_field_model import FieldDO
 from src.main.app.model.gen_table_model import GenTableDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.gen_table_schema import (
@@ -19,12 +25,22 @@ from src.main.app.schema.gen_table_schema import (
     GenTableQuery, TableImport,
 )
 from src.main.app.schema.user_schema import Ids
+from src.main.app.service.field_service import FieldService
+from src.main.app.service.gen_table_field_service import GenTableFieldService
 from src.main.app.service.gen_table_service import GenTableService
+from src.main.app.service.impl.field_service_impl import FieldServiceImpl
+from src.main.app.service.impl.gen_table_field_service_impl import GenTableFieldServiceImpl
 from src.main.app.service.impl.gen_table_service_impl import GenTableServiceImpl
 from starlette.responses import StreamingResponse
 
+from src.main.app.service.impl.table_service_impl import TableServiceImpl
+from src.main.app.service.table_service import TableService
+
 gen_table_router = APIRouter()
 gen_table_service: GenTableService = GenTableServiceImpl(mapper=genTableMapper)
+db_table_service: TableService = TableServiceImpl(mapper=tableMapper)
+gen_table_column_service: GenTableFieldService = GenTableFieldServiceImpl(mapper=genFieldMapper)
+db_field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
 
 
 @gen_table_router.post("/add")
@@ -98,7 +114,12 @@ async def import_gen_table(
 
 @gen_table_router.get("/preview/{table_id}")
 async def preview_code(table_id: int) -> Dict:
-    res = await gen_table_service.preview_code(table_id)
+    res = await gen_table_service.preview_code(table_id=table_id)
+    return result.success(res)
+
+@gen_table_router.get("/data/{id}/{current}/{pageSize}")
+async def table_data(id: int, current:int = 1, pageSize: int = 10) -> Dict:
+    res = await gen_table_service.get_table_data(id=id, current=current, pageSize=pageSize)
     return result.success(res)
 
 
@@ -106,6 +127,9 @@ async def preview_code(table_id: int) -> Dict:
 async def preview_code(table_id: int) -> StreamingResponse:
     # 生成代码
     data = await gen_table_service.download_code(table_id)
+
+    genTableDO: GenTableDO = await gen_table_service.retrieve_by_id(id=table_id)
+    table_name = str(genTableDO.table_name)
 
     # 创建一个字节流
     mem = BytesIO(data)
@@ -120,7 +144,7 @@ async def preview_code(table_id: int) -> StreamingResponse:
 
     # 创建响应
     response = StreamingResponse(iterfile(), media_type="application/zip")
-    response.headers["Content-Disposition"] = f"attachment; filename=generated_code_{get_date_time()}.zip"
+    response.headers["Content-Disposition"] = f"attachment; filename={table_name}_{get_date_time()}.zip"
 
     return response
 
@@ -181,6 +205,13 @@ async def remove(
     Returns:
         Success result message
     """
+    gen_table: GenTableDO = await gen_table_service.retrieve_by_id(id=id)
+    db_table_id = gen_table.db_table_id
+    await table_service.remove_by_id(id=db_table_id)
+    fields: List[FieldDO] = await fieldMapper.select_by_table_id(table_id=db_table_id)
+    field_ids = [field.id for field in fields]
+    await field_service.batch_remove_by_ids(ids=field_ids)
+    await genFieldMapper.batch_delete_by_field_ids(field_ids=field_ids)
     await gen_table_service.remove_by_id(id=id)
     return result.success()
 

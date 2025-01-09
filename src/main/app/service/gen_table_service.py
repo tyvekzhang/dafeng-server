@@ -19,3 +19,7 @@ class GenTableService(ServiceBase[GenTableDO], ABC):
 
     @abstractmethod
     async def download_code(self, table_id: int):...
+
+    @abstractmethod
+    async def get_table_data(self, *, id: int, current: int, pageSize: int):...
+

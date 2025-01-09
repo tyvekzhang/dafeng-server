@@ -56,7 +56,7 @@ class GenUtils:
                 gen_field.field_type = GenConstants.TYPE_INTEGER
             else:
                 gen_field.field_type = GenConstants.TYPE_LONG
-                gen_field.js_type = GenConstants.TYPE_JS_NUMBER
+                gen_field.js_type = GenConstants.TYPE_JS_STRING
 
         # Insert field
         if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_INSERT, field_name):

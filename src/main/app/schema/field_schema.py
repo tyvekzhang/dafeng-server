@@ -46,3 +46,12 @@ class FieldGenerate(BaseModel):
     not_null: Optional[bool] = None
     index_col: Optional[bool] = None
     remark: Optional[str] = None
+
+class AntTableColumn(BaseModel):
+    title: str
+    dataIndex: str
+    key: str
+    width: Optional[str] = None
+    ellipsis: Optional[bool] = True
+    sorter: Optional[bool] = False
+    hidden: Optional[bool] = False

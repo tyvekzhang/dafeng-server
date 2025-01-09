@@ -14,8 +14,8 @@ class IndexServiceImpl(ServiceBaseImpl[IndexMapper, IndexDO], IndexService):
 
     async def list_indexes(self, data: IndexQuery):
         return await self.mapper.select_ordered_pagination(
-            page=data.page,
-            size=data.size,
+            page=data.current,
+            size=data.pageSize,
             order_by=data.order_by,
             sort_order=data.sort_order,
             count=data.count,

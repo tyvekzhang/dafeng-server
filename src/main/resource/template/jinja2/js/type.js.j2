@@ -19,9 +19,9 @@ export interface {{class_name}}Modify {
 export interface {{class_name}}BatchModify {
 
     /** 主键列表 */
-    {{ primary_key }}s: number[]
+    {{ primary_key }}s: string[]
     {% for field in fields %}
-    {%- if field.gen_field.modifiable == 1  %}
+    {%- if field.gen_field.batch_modifiable == 1 %}
     /** {{ field.field.comment }} */
     {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
     {% endif -%}

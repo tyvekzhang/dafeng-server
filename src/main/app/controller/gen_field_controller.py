@@ -17,12 +17,12 @@ from src.main.app.schema.gen_field_schema import (
     GenTableColumnQuery,
 )
 from src.main.app.schema.user_schema import Ids
-from src.main.app.service.gen_table_column_service import GenTableColumnService
-from src.main.app.service.impl.gen_table_column_service_impl import GenTableColumnServiceImpl
+from src.main.app.service.gen_table_field_service import GenTableFieldService
+from src.main.app.service.impl.gen_table_field_service_impl import GenTableFieldServiceImpl
 from starlette.responses import StreamingResponse
 
 gen_table_column_router = APIRouter()
-gen_table_column_service: GenTableColumnService = GenTableColumnServiceImpl(mapper=genFieldMapper)
+gen_table_column_service: GenTableFieldService = GenTableFieldServiceImpl(mapper=genFieldMapper)
 
 
 @gen_table_column_router.post("/add")

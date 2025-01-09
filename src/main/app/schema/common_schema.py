@@ -30,8 +30,8 @@ class PageBase(BaseModel):
     PageBase schema
     """
 
-    page: Optional[int] = 1
-    size: Optional[int] = 10
+    current: Optional[int] = 1
+    pageSize: Optional[int] = 10
     count: Optional[bool] = True
     order_by: Optional[str] = None
     sort_order: Optional[str] = None

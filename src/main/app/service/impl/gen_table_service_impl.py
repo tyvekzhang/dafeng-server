@@ -3,6 +3,7 @@ import io
 import zipfile
 from collections import OrderedDict
 from typing import List, Dict
+from sqlalchemy import text
 
 from src.main.app.common.exception.exception import ParameterException
 from src.main.app.common.gen.gen_util import GenUtils
@@ -13,7 +14,7 @@ from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.mapper.database_mapper import databaseMapper
 from src.main.app.mapper.field_mapper import fieldMapper
 from src.main.app.mapper.gen_field_mapper import genFieldMapper
-from src.main.app.mapper.gen_table_mapper import GenTableMapper
+from src.main.app.mapper.gen_table_mapper import GenTableMapper, genTableMapper
 from src.main.app.mapper.table_mapper import tableMapper
 from src.main.app.model.db_field_model import FieldDO
 from src.main.app.model.db_table_model import TableDO
@@ -91,8 +92,8 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
 
     async def list_gen_tables(self, data: GenTableQuery):
         results, total_count = await self.mapper.select_ordered_pagination(
-            page=data.page,
-            size=data.size,
+            page=data.current,
+            size=data.pageSize,
             count=data.count,
         )
         if total_count == 0:
@@ -172,4 +173,40 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
                 zip_file.writestr(Jinja2Utils.get_file_name(template, table_gen), rendered_template)
         return output_stream.getvalue()
 
+    @classmethod
+    async def get_table_data(cls, *, id: int, current: int, pageSize: int):
 
+        # 根据生成表关联的数据库表ID查询表信息
+        table_do: TableDO = await tableMapper.select_by_id(id=id)
+
+        # 获取数据库异步引擎
+        engine = await get_cached_async_engine(database_id=table_do.database_id)
+
+        # 获取表名
+        table_name = table_do.name
+
+        # 使用异步连接
+        async with engine.connect() as conn:
+            # 计算分页起始位置
+            offset = (current - 1) * pageSize
+
+            # 构建查询语句
+            query = text(f"SELECT * FROM {table_name} LIMIT :pageSize OFFSET :offset")
+
+            # 执行查询
+            result = await conn.execute(query, {"pageSize": pageSize, "offset": offset})
+
+            # 获取总记录数的查询
+            count_query = text(f"SELECT COUNT(*) as total FROM {table_name}")
+            count_result = await conn.execute(count_query)
+            total = count_result.scalar()
+
+            print(result)
+            # 将结果转换为字典列表
+            data = [row._asdict() for row in result]
+
+            # 返回分页结果
+            return {
+                "records": data,
+                "total": total
+            }

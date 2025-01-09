@@ -145,8 +145,8 @@ class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
             end_time = int(time_range[1])
             between["create_time"] = start_time, end_time
         results, total_count = await self.mapper.select_ordered_pagination(
-            page=data.page,
-            size=data.size,
+            page=data.current,
+            size=data.pageSize,
             count=data.count,
             filter_by=filter_by,
             like=like,

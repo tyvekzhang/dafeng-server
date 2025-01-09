@@ -93,8 +93,8 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
     async def select_pagination(
         self,
         *,
-        page: int = 1,
-        size: int = 100,
+        current: int = 1,
+        pageSize: int = 100,
         db_session: AsyncSession = None,
         **kwargs,
     ) -> Tuple[
@@ -105,8 +105,8 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         Select a list of records, with optional filtering and pagination.
 
         Args:
-            page: The page number to retrieve (1-indexed).
-            size: The number of records per page.
+            current: The current number to retrieve (1-indexed).
+            pageSize: The number of records per current.
             db_session: The database session to use. If None, uses the default session.
             **kwargs: Additional filter criteria, such as `filter_by` or `like`.
 
@@ -136,7 +136,7 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
             total_count_result = await db_session.exec(count_query)
             total_count: int = total_count_result.all()[0]
 
-        paginated_query = query.offset((page - 1) * size).limit(size)
+        paginated_query = query.offset((current - 1) * pageSize).limit(pageSize)
         exec_response = await db_session.exec(paginated_query)
         records = exec_response.all()
 
@@ -145,8 +145,8 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
     async def select_ordered_pagination(
         self,
         *,
-        page: int = 1,
-        size: int = 100,
+        current: int = 1,
+        pageSize: int = 100,
         order_by: Any = None,
         sort_order: Any = None,
         db_session: AsyncSession = None,
@@ -159,8 +159,8 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         Retrieve a list of records, with optional filtering, pagination, and ordering.
 
         Parameters:
-            page : The page number to retrieve (1-indexed)
-            size : The number of records per page
+            current : The current number to retrieve (1-indexed)
+            pageSize : The number of records per current
             order_by : The column to order by
             sort_order : The sort order (ascending or ascending)
             db_session : The database session to use
@@ -187,9 +187,9 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         if order_by is None or order_by not in columns:
             order_by = "id"
         if sort_order is None or sort_order == SortEnum.ascending:
-            query = query.offset((page - 1) * size).limit(size).order_by(columns[order_by].asc())
+            query = query.offset((current - 1) * pageSize).limit(pageSize).order_by(columns[order_by].asc())
         else:
-            query = query.offset((page - 1) * size).limit(size).order_by(columns[order_by].desc())
+            query = query.offset((current - 1) * pageSize).limit(pageSize).order_by(columns[order_by].desc())
         total_count = 0
         if "count" in kwargs and kwargs["count"]:
             count_query = select(func.count()).select_from(count_query.subquery())

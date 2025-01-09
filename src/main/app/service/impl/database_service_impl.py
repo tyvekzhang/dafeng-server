@@ -159,8 +159,8 @@ class DatabaseServiceImpl(ServiceBaseImpl[DatabaseMapper, DatabaseDO], DatabaseS
         if len(need_delete_ids) > 0:
             await self.mapper.batch_delete_by_ids(ids=need_delete_ids)
         return await self.mapper.select_ordered_pagination(
-            page=data.page,
-            size=data.size,
+            page=data.current,
+            size=data.pageSize,
             order_by=data.order_by,
             sort_order=data.sort_order,
             count=data.count,

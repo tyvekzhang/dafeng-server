@@ -37,7 +37,7 @@ export function fetch{{ class_name }}ByPage(pageQuery?: PageQuery, {{ lowercase_
  * @param id {{ class_name }}的ID
  * @returns {{ class_name }}详细信息
  */
-export function fetch{{ class_name }}Detail(id: number) {
+export function fetch{{ class_name }}Detail({{ primary_key }}: string) {
   return httpClient.get<{{ class_name }}Detail>(`/{{ kebab_case_class_name }}/detail/${id}`);
 }
 
@@ -61,7 +61,7 @@ export async function export{{ class_name }}Template() {
  * 
  * @param ids 要导出的{{ class_name }}的ID列表
  */
-export async function export{{ class_name }}Page(ids: number[]) {
+export async function export{{ class_name }}Page({{ primary_key }}s: string[]) {
   const params = {
     ids: ids,
   };
@@ -100,6 +100,9 @@ export function import{{ class_name }}(file: File) {
  * @returns 创建的{{ class_name }}的ID列表
  */
 export function batchCreate{{ class_name }}({{ lowercase_class_name }}CreateList: {{ class_name }}Create[]) {
+  if (!{{ lowercase_class_name }}CreateList?.length) {
+    return Promise.resolve([]);
+  }
   return httpClient.post<number[]>('/{{ kebab_case_class_name }}/batch-create', {{ lowercase_class_name }}CreateList);
 }
 
@@ -108,7 +111,7 @@ export function batchCreate{{ class_name }}({{ lowercase_class_name }}CreateList
  * 
  * @param id 要移除的{{ class_name }}的Id
  */
-export function remove{{ class_name }}(id: number) {
+export function remove{{ class_name }}({{ primary_key }}: string) {
   return httpClient.delete<void>(`/{{ kebab_case_class_name }}/remove/${id}`);
 }
 
@@ -117,7 +120,7 @@ export function remove{{ class_name }}(id: number) {
  * 
  * @param ids 要移除的{{ class_name }}的ID数组
  */
-export function batchRemove{{ class_name }}(ids: number[]) {
+export function batchRemove{{ class_name }}({{ primary_key }}s: string[]) {
   return httpClient.delete<void>('/{{ kebab_case_class_name }}/batch-remove', { ids: ids });
 }
 

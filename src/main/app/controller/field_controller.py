@@ -14,7 +14,7 @@ from src.main.app.schema.field_schema import (
     FieldExport,
     FieldQueryForm,
     FieldModify,
-    FieldQuery,
+    FieldQuery, AntTableColumn,
 )
 from src.main.app.schema.user_schema import Ids
 from src.main.app.service.field_service import FieldService
@@ -24,6 +24,12 @@ from starlette.responses import StreamingResponse
 field_router = APIRouter()
 field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
 
+@field_router.get("/antd/{id}")
+async def get_ant_table_columns(
+    id: int
+) -> ResponseBase[List[AntTableColumn]]:
+    fields = await field_service.get_ant_table_fields(table_id=id)
+    return ResponseBase(data=fields)
 
 @field_router.post("/add")
 async def add_field(

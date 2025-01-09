@@ -2,6 +2,7 @@ package {{ package_name }}.entity;
 {% for import in import_list %}
 import {{ import }};
 {%- endfor %}
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,9 +28,10 @@ import com.singularity.common.utils.SecurityUtil;
 @AllArgsConstructor
 @TableName("{{ table_name }}")
 public class {{ class_name }}DO implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    public static final LambdaQueryWrapper<{{ class_name }}DO> lambdaQueryWrapper(){
+    public static LambdaQueryWrapper<{{ class_name }}DO> lambdaQueryWrapper(){
         return new LambdaQueryWrapper<>();
     }
     

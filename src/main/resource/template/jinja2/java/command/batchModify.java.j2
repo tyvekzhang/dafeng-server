@@ -30,7 +30,7 @@ public class {{ class_name }}BatchModify {
     @NotNull(message = "{{ primary_key }}s can not be null")
     private List<Long> {{ primary_key }}s;
     {% for field in fields %}
-    {%- if field.gen_field.modifiable == 1  %}
+    {%- if field.gen_field.batch_modifiable == 1  %}
     /**
      * {{ field.field.comment }}
      */
