@@ -25,6 +25,7 @@ class ConnectionQueryResponse(BaseModel):
     id: int
     connection_name: str
     database_type: str
+    host: str
     create_time: Optional[datetime] = None
     update_time: Optional[datetime] = None
 

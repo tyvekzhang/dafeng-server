@@ -3,7 +3,7 @@
 import os.path
 import subprocess
 import sys
-from typing import List
+from typing import List, Any, Tuple
 
 from sqlmodel import MetaData, inspect
 
@@ -29,7 +29,10 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
         super().__init__(mapper=mapper)
         self.mapper = mapper
 
-    async def list_tables(self, data: TableQuery):
+    async def list_tables(self, data: TableQuery) -> Tuple[
+        List[TableDO],
+        int,
+    ]:
         database_id = data.database_id
         engine = await get_cached_async_engine(database_id=database_id)
         async with engine.connect() as conn:

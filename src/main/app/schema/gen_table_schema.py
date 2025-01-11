@@ -1,12 +1,15 @@
 """GenTable domain schema"""
 from datetime import datetime
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Any
 
 from pydantic import BaseModel
 
+from src.main.app.model.db_table_model import TableDO
+from src.main.app.model.gen_field_model import GenFieldDO
 from src.main.app.model.gen_table_model import GenTableDO
 from src.main.app.schema.common_schema import PageBase
-from src.main.app.schema.gen_field_schema import FieldGen
+from src.main.app.schema.field_schema import AntTableColumn
+from src.main.app.schema.gen_field_schema import FieldGen, GenFieldDb
 
 
 class GenTableAdd(BaseModel):
@@ -54,3 +57,15 @@ class TableGen(BaseModel):
     tree_name: Optional[str] = None
     parent_menu_id: Optional[int] = None
     parent_menu_name: Optional[str] = None
+
+class GenTableDetail(BaseModel):
+    gen_table: GenTableDO
+    gen_field: List[GenFieldDO]
+
+class GenTableExecute(BaseModel):
+    database_id: int
+    sql_statement: str
+
+class GenTableRecord(BaseModel):
+    fields: List[AntTableColumn]
+    records: List[Any]

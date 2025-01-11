@@ -9,6 +9,7 @@ from src.main.app.common.exception.exception import ParameterException
 from src.main.app.common.gen.gen_util import GenUtils
 from src.main.app.common.gen.jinja2_util import Jinja2Utils
 from src.main.app.common.session.db_engine import get_cached_async_engine
+from src.main.app.common.util.sql_util import SqlUtil
 from src.main.app.common.util.template_util import load_template_file
 from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.mapper.database_mapper import databaseMapper
@@ -20,9 +21,10 @@ from src.main.app.model.db_field_model import FieldDO
 from src.main.app.model.db_table_model import TableDO
 from src.main.app.model.gen_field_model import GenFieldDO
 from src.main.app.model.gen_table_model import GenTableDO
-from src.main.app.schema.field_schema import FieldQuery
-from src.main.app.schema.gen_field_schema import FieldGen
-from src.main.app.schema.gen_table_schema import TableImport, TableGen, GenTableQuery, GenTableQueryResponse
+from src.main.app.schema.field_schema import FieldQuery, AntTableColumn
+from src.main.app.schema.gen_field_schema import FieldGen, GenFieldDb
+from src.main.app.schema.gen_table_schema import TableImport, TableGen, GenTableQuery, GenTableQueryResponse, \
+    GenTableDetail, GenTableExecute, GenTableRecord
 from src.main.app.service.gen_table_service import GenTableService
 from src.main.app.service.impl.service_base_impl import ServiceBaseImpl
 
@@ -210,3 +212,49 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
                 "records": data,
                 "total": total
             }
+
+    async def get_gen_table_detail(self, *, id: int) -> GenTableDetail:
+        gen_table: GenTableDO = await self.retrieve_by_id(id=id)
+        table_id = gen_table.db_table_id
+
+        # 获取数据库表信息
+        db_table: TableDO = await tableMapper.select_by_id(id=table_id)
+        db_fields: List[FieldDO] = await fieldMapper.select_by_table_id(table_id=table_id)
+
+        # 获取字段对应的生成字段信息
+        field_ids = [db_field.id for db_field in db_fields]
+        gen_fields = await genFieldMapper.select_by_db_field_ids(ids=field_ids)
+
+        # 返回最终详情
+        return GenTableDetail(gen_table=gen_table, gen_field=gen_fields)
+
+    async def modify_gen_table(self, gen_table_detail: GenTableDetail) -> None:
+        gen_table: GenTableDO = gen_table_detail.gen_table
+        await self.mapper.update_by_id(record = gen_table)
+        gen_fields: List[GenFieldDO] = gen_table_detail.gen_field
+        for gen_field in gen_fields:
+            await genFieldMapper.update_by_id(record=gen_field)
+
+    async def execute_sql(self, gen_table_execute:GenTableExecute) -> GenTableRecord:
+        sql_statement = gen_table_execute.sql_statement
+        SqlUtil.filter_keyword(sql_statement)
+        engine = await get_cached_async_engine(database_id=gen_table_execute.database_id)
+        async with engine.connect() as conn:
+            statement = text(sql_statement)
+            query_response = await conn.execute(statement)
+
+            # 获取查询结果
+            results = query_response.mappings().fetchall()
+            if not results:
+                # 如果结果为空，返回一个空的记录对象
+                return GenTableRecord(fields=[], records=[])
+
+            # 构造字段列表
+            fields = [
+                AntTableColumn(title=field, dataIndex=field, key=field)
+                for field in results[0].keys()
+            ]
+            records = [dict(result) for result in results]
+
+            # 返回结果
+            return GenTableRecord(fields=fields, records=records)

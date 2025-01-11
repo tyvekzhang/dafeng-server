@@ -3,7 +3,8 @@
 from abc import ABC, abstractmethod
 
 from src.main.app.model.gen_table_model import GenTableDO
-from src.main.app.schema.gen_table_schema import TableImport, GenTableQuery
+from src.main.app.schema.gen_table_schema import TableImport, GenTableQuery, GenTableDetail, GenTableExecute, \
+    GenTableRecord
 from src.main.app.service.service_base import ServiceBase
 
 
@@ -23,3 +24,11 @@ class GenTableService(ServiceBase[GenTableDO], ABC):
     @abstractmethod
     async def get_table_data(self, *, id: int, current: int, pageSize: int):...
 
+    @abstractmethod
+    async def get_gen_table_detail(self, *, id: int) -> GenTableDetail:...
+
+    @abstractmethod
+    async def modify_gen_table(self, gen_table_detail: GenTableDetail) -> None:...
+
+    @abstractmethod
+    async def execute_sql(self, gen_table_execute: GenTableExecute) -> GenTableRecord:...

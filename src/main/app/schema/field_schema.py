@@ -1,6 +1,6 @@
 """Field domain schema"""
 
-from typing import Optional
+from typing import Optional, Callable
 
 from pydantic import BaseModel
 

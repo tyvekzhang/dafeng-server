@@ -36,3 +36,8 @@ class GenTableColumnModify(BaseModel):
 class FieldGen(BaseModel):
     field: FieldDO
     gen_field: GenFieldDO
+
+class GenFieldDb(BaseModel):
+    gen_field: GenFieldDO
+    db_field: FieldDO
+

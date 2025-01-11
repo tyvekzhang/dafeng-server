@@ -15,6 +15,7 @@ from src.main.app.mapper.gen_field_mapper import genFieldMapper
 from src.main.app.mapper.gen_table_mapper import genTableMapper
 from src.main.app.mapper.table_mapper import tableMapper
 from src.main.app.model.db_field_model import FieldDO
+from src.main.app.model.db_table_model import TableDO
 from src.main.app.model.gen_table_model import GenTableDO
 from src.main.app.schema.common_schema import PaginationResponse
 from src.main.app.schema.gen_table_schema import (
@@ -22,8 +23,9 @@ from src.main.app.schema.gen_table_schema import (
     GenTableExport,
     GenTableQueryForm,
     GenTableModify,
-    GenTableQuery, TableImport,
+    GenTableQuery, TableImport, GenTableDetail, GenTableExecute, GenTableRecord,
 )
+from src.main.app.schema.table_schema import TableQuery
 from src.main.app.schema.user_schema import Ids
 from src.main.app.service.field_service import FieldService
 from src.main.app.service.gen_table_field_service import GenTableFieldService
@@ -41,6 +43,21 @@ gen_table_service: GenTableService = GenTableServiceImpl(mapper=genTableMapper)
 db_table_service: TableService = TableServiceImpl(mapper=tableMapper)
 gen_table_column_service: GenTableFieldService = GenTableFieldServiceImpl(mapper=genFieldMapper)
 db_field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
+
+@gen_table_router.post("/execute")
+async def execute_sql(
+    gen_table_execute: GenTableExecute,
+) -> Dict:
+    gen_table_record = await gen_table_service.execute_sql(gen_table_execute=gen_table_execute)
+    return result.success(data=gen_table_record)
+
+
+@gen_table_router.get("/detail/{id}")
+async def get_gen_table_detail(
+    id: int,
+) -> ResponseBase[GenTableDetail]:
+    response: GenTableDetail = await gen_table_service.get_gen_table_detail(id=id)
+    return ResponseBase(data=response)
 
 
 @gen_table_router.post("/add")
@@ -128,8 +145,8 @@ async def preview_code(table_id: int) -> StreamingResponse:
     # 生成代码
     data = await gen_table_service.download_code(table_id)
 
-    genTableDO: GenTableDO = await gen_table_service.retrieve_by_id(id=table_id)
-    table_name = str(genTableDO.table_name)
+    gen_table_DO: GenTableDO = await gen_table_service.retrieve_by_id(id=table_id)
+    table_name = str(gen_table_DO.table_name)
 
     # 创建一个字节流
     mem = BytesIO(data)
@@ -166,19 +183,19 @@ async def export(
 
 
 @gen_table_router.put("/modify")
-async def modify(
-    data: GenTableModify,
+async def modify_gen_table(
+    gen_table_detail: GenTableDetail,
 ) -> Dict:
     """
     Update gen_table information.
 
     Args:
-        data: Command containing updated gen_table info.
+        gen_table_detail: Command containing updated gen_table info.
 
     Returns:
         Success result message
     """
-    await gen_table_service.modify_by_id(data=GenTableDO(**data.model_dump(exclude_unset=True)))
+    await gen_table_service.modify_gen_table(gen_table_detail=gen_table_detail)
     return result.success()
 
 
@@ -191,6 +208,18 @@ async def batch_modify(ids: Ids, data: GenTableModify) -> Dict:
     await gen_table_service.batch_modify_by_ids(ids=ids.ids, data=cleaned_data)
     return result.success()
 
+async def remove_logic(id: int) -> None:
+    """
+    Shared logic to remove a gen_table by their ID.
+    """
+    gen_table: GenTableDO = await gen_table_service.retrieve_by_id(id=id)
+    db_table_id = gen_table.db_table_id
+    await table_service.remove_by_id(id=db_table_id)
+    fields: List[FieldDO] = await fieldMapper.select_by_table_id(table_id=db_table_id)
+    field_ids = [field.id for field in fields]
+    await field_service.batch_remove_by_ids(ids=field_ids)
+    await genFieldMapper.batch_delete_by_field_ids(field_ids=field_ids)
+    await gen_table_service.remove_by_id(id=id)
 
 @gen_table_router.delete("/remove/{id}")
 async def remove(
@@ -205,16 +234,37 @@ async def remove(
     Returns:
         Success result message
     """
-    gen_table: GenTableDO = await gen_table_service.retrieve_by_id(id=id)
-    db_table_id = gen_table.db_table_id
-    await table_service.remove_by_id(id=db_table_id)
-    fields: List[FieldDO] = await fieldMapper.select_by_table_id(table_id=db_table_id)
-    field_ids = [field.id for field in fields]
-    await field_service.batch_remove_by_ids(ids=field_ids)
-    await genFieldMapper.batch_delete_by_field_ids(field_ids=field_ids)
-    await gen_table_service.remove_by_id(id=id)
+    await remove_logic(id)
     return result.success()
 
+
+@gen_table_router.post("/sync/{id}")
+async def sync_table(
+    id: int,
+) -> Dict:
+    gen_table_do: GenTableDO = await gen_table_service.retrieve_by_id(id=id)
+    table_do: TableDO = await table_service.retrieve_by_id(id=gen_table_do.db_table_id)
+    await remove_logic(id)
+    table_query = TableQuery(database_id=table_do.database_id, current = 1, pageSize = 200)
+    records, total = await table_service.list_tables(data=table_query)
+    table_id: int = 0
+    for record in records:
+        if record.name == gen_table_do.table_name:
+            table_id = record.id
+            break;
+    table_import = TableImport(database_id = table_do.database_id, table_ids=[table_id])
+    await gen_table_service.import_gen_table(data=table_import)
+    records, total = await gen_table_service.list_gen_tables(data=GenTableQuery(current = 1, pageSize = 200))
+    gen_table_id: int = 0
+    for record in records:
+        if record.tableName == gen_table_do.table_name:
+            gen_table_id = record.id
+            break;
+    new_gen_table_do: GenTableDO = await gen_table_service.retrieve_by_id(id=gen_table_id)
+    new_gen_table_do.id = gen_table_do.id
+    await gen_table_service.remove_by_id(id=new_gen_table_do.id)
+    await gen_table_service.save(data= new_gen_table_do)
+    return result.success()
 
 @gen_table_router.delete("/batchremove")
 async def batch_remove(
