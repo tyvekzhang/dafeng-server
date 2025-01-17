@@ -1,6 +1,6 @@
 """Sqlmodel impl that handle database operation"""
 
-from typing import Generic, TypeVar, List, Any, Type, Union, Tuple
+from typing import Generic, TypeVar, List, Any, Type, Union, Tuple, Optional
 
 from pydantic import BaseModel
 from sqlmodel import SQLModel, select, insert, update, delete, func
@@ -90,114 +90,163 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
         exec_response = await db_session.exec(statement)
         return exec_response.all()
 
-    async def select_pagination(
-        self,
-        *,
-        current: int = 1,
-        pageSize: int = 100,
-        db_session: AsyncSession = None,
-        **kwargs,
-    ) -> Tuple[
-        List[Any],
-        int,
-    ]:
-        """
-        Select a list of records, with optional filtering and pagination.
-
-        Args:
-            current: The current number to retrieve (1-indexed).
-            pageSize: The number of records per current.
-            db_session: The database session to use. If None, uses the default session.
-            **kwargs: Additional filter criteria, such as `filter_by` or `like`.
-
-        Returns:
-            A list of retrieved records.
-        """
-        db_session = db_session or self.db.session
-        query = select(self.model)
-        if "filter_by" in kwargs and kwargs["filter_by"]:
-            query = query.filter_by(**kwargs["filter_by"])
-        if "like" in kwargs and kwargs["like"]:
-            for column, value in kwargs["like"].items():
-                query = query.filter(getattr(self.model, column).like(value))
-        if "between" in kwargs and kwargs["between"]:
-            for column, (start, end) in kwargs["between"].items():
-                query = query.filter(getattr(self.model, column).between(start, end))
-        if "greater_than" in kwargs and kwargs["greater_than"]:
-            for column, value in kwargs["greater_than"].items():
-                query = query.filter(getattr(self.model, column) > value)
-        if "less_than" in kwargs and kwargs["less_than"]:
-            for column, value in kwargs["less_than"].items():
-                query = query.filter(getattr(self.model, column) < value)
-        count_query = query
-        total_count = 0
-        if "count" in kwargs and kwargs["count"]:
-            count_query = select(func.count()).select_from(count_query.subquery())
-            total_count_result = await db_session.exec(count_query)
-            total_count: int = total_count_result.all()[0]
-
-        paginated_query = query.offset((current - 1) * pageSize).limit(pageSize)
-        exec_response = await db_session.exec(paginated_query)
-        records = exec_response.all()
-
-        return records, total_count
-
-    async def select_ordered_pagination(
-        self,
-        *,
-        current: int = 1,
-        pageSize: int = 100,
-        order_by: Any = None,
-        sort_order: Any = None,
-        db_session: AsyncSession = None,
-        **kwargs,
-    ) -> Tuple[
-        List[Any],
-        int,
-    ]:
+    async def select_by_page(
+            self,
+            *,
+            current: int = 1,
+            pageSize: int = 100,
+            count: bool = True,
+            db_session: AsyncSession = None,
+            **kwargs,
+    ) -> Tuple[List[Any], int]:
         """
         Retrieve a list of records, with optional filtering, pagination, and ordering.
 
         Parameters:
-            current : The current number to retrieve (1-indexed)
-            pageSize : The number of records per current
-            order_by : The column to order by
-            sort_order : The sort order (ascending or ascending)
+            current : The current page number to retrieve (1-indexed)
+            pageSize : The number of records per page
+            count : Whether to record the total row
             db_session : The database session to use
-            **kwargs: Additional filter criteria
+            **kwargs: Additional filter criteria, including:
+                - eq: Equal to (e.g., {"column_name": value})
+                - ne: Not equal to (e.g., {"column_name": value})
+                - gt: Greater than (e.g., {"column_name": value})
+                - ge: Greater than or equal to (e.g., {"column_name": value})
+                - lt: Less than (e.g., {"column_name": value})
+                - le: Less than or equal to (e.g., {"column_name": value})
+                - between: Between two values (e.g., {"column_name": (start, end)})
+                - like: Fuzzy search (e.g., {"column_name": "%value%"})
         """
         db_session = db_session or self.db.session
         query = select(self.model)
-        if "filter_by" in kwargs and kwargs["filter_by"]:
-            query = query.filter_by(**kwargs["filter_by"])
-        if "like" in kwargs and kwargs["like"]:
-            for column, value in kwargs["like"].items():
-                query = query.filter(getattr(self.model, column).like(value))
-        if "between" in kwargs and kwargs["between"]:
+
+        # 处理过滤条件
+        if "eq" in kwargs:
+            for column, value in kwargs["eq"].items():
+                query = query.filter(getattr(self.model, column) == value)
+        if "ne" in kwargs:
+            for column, value in kwargs["ne"].items():
+                query = query.filter(getattr(self.model, column) != value)
+        if "gt" in kwargs:
+            for column, value in kwargs["gt"].items():
+                query = query.filter(getattr(self.model, column) > value)
+        if "ge" in kwargs:
+            for column, value in kwargs["ge"].items():
+                query = query.filter(getattr(self.model, column) >= value)
+        if "lt" in kwargs:
+            for column, value in kwargs["lt"].items():
+                query = query.filter(getattr(self.model, column) < value)
+        if "le" in kwargs:
+            for column, value in kwargs["le"].items():
+                query = query.filter(getattr(self.model, column) <= value)
+        if "between" in kwargs:
             for column, (start, end) in kwargs["between"].items():
                 query = query.filter(getattr(self.model, column).between(start, end))
-        if "greater_than" in kwargs and kwargs["greater_than"]:
-            for column, value in kwargs["greater_than"].items():
+        if "like" in kwargs:
+            for column, value in kwargs["like"].items():
+                query = query.filter(getattr(self.model, column).like(value))
+
+        # 计算总数
+        if count:
+            count_query = select(func.count()).select_from(query.subquery())
+            total_count_result = await db_session.exec(count_query)
+            total_count: int = total_count_result.all()[0]
+        else:
+            total_count = 0
+
+        # 分页
+        query = query.offset((current - 1) * pageSize).limit(pageSize)
+
+        # 执行查询
+        exec_response = await db_session.exec(query)
+        records: List[Any] = exec_response.all()
+
+        return records, total_count
+
+    async def select_by_ordered_page(
+        self,
+        *,
+        current: int = 1,
+        pageSize: int = 100,
+        count: bool = True,
+        order_by: Optional[str] = None,
+        sort_order: Optional[str] = SortEnum.ascending,
+        db_session: AsyncSession = None,
+        **kwargs,
+    ) -> Tuple[List[Any], int]:
+        """
+        Retrieve a list of records, with optional filtering, pagination, and ordering.
+
+        Parameters:
+            current : The current page number to retrieve (1-indexed)
+            pageSize : The number of records per page
+            count : Whether to record the total row
+            order_by : The column to order by
+            sort_order : The sort order (ascending or descending)
+            db_session : The database session to use
+            **kwargs: Additional filter criteria, including:
+                - eq: Equal to (e.g., {"column_name": value})
+                - ne: Not equal to (e.g., {"column_name": value})
+                - gt: Greater than (e.g., {"column_name": value})
+                - ge: Greater than or equal to (e.g., {"column_name": value})
+                - lt: Less than (e.g., {"column_name": value})
+                - le: Less than or equal to (e.g., {"column_name": value})
+                - between: Between two values (e.g., {"column_name": (start, end)})
+                - like: Fuzzy search (e.g., {"column_name": "%value%"})
+        """
+        db_session = db_session or self.db.session
+        query = select(self.model)
+
+        # 处理过滤条件
+        if "eq" in kwargs:
+            for column, value in kwargs["eq"].items():
+                query = query.filter(getattr(self.model, column) == value)
+        if "ne" in kwargs:
+            for column, value in kwargs["ne"].items():
+                query = query.filter(getattr(self.model, column) != value)
+        if "gt" in kwargs:
+            for column, value in kwargs["gt"].items():
                 query = query.filter(getattr(self.model, column) > value)
-        if "less_than" in kwargs and kwargs["less_than"]:
-            for column, value in kwargs["less_than"].items():
+        if "ge" in kwargs:
+            for column, value in kwargs["ge"].items():
+                query = query.filter(getattr(self.model, column) >= value)
+        if "lt" in kwargs:
+            for column, value in kwargs["lt"].items():
                 query = query.filter(getattr(self.model, column) < value)
-        count_query = query
+        if "le" in kwargs:
+            for column, value in kwargs["le"].items():
+                query = query.filter(getattr(self.model, column) <= value)
+        if "between" in kwargs:
+            for column, (start, end) in kwargs["between"].items():
+                query = query.filter(getattr(self.model, column).between(start, end))
+        if "like" in kwargs:
+            for column, value in kwargs["like"].items():
+                query = query.filter(getattr(self.model, column).like(value))
+
+        # 计算总数
+        if count:
+            count_query = select(func.count()).select_from(query.subquery())
+            total_count_result = await db_session.exec(count_query)
+            total_count: int = total_count_result.all()[0]
+        else:
+            total_count = 0
+
+        # 处理排序
         columns = self.model.__table__.columns
         if order_by is None or order_by not in columns:
             order_by = "id"
-        if sort_order is None or sort_order == SortEnum.ascending:
-            query = query.offset((current - 1) * pageSize).limit(pageSize).order_by(columns[order_by].asc())
+        if sort_order == SortEnum.ascending:
+            query = query.order_by(getattr(self.model, order_by).asc())
         else:
-            query = query.offset((current - 1) * pageSize).limit(pageSize).order_by(columns[order_by].desc())
-        total_count = 0
-        if "count" in kwargs and kwargs["count"]:
-            count_query = select(func.count()).select_from(count_query.subquery())
-            total_count_result = await db_session.exec(count_query)
-            total_count: int = total_count_result.all()[0]
+            query = query.order_by(getattr(self.model, order_by).desc())
 
+        # 分页
+        query = query.offset((current - 1) * pageSize).limit(pageSize)
+
+        # 执行查询
         exec_response = await db_session.exec(query)
-        records = exec_response.all()
+        records: List[Any] = exec_response.all()
+
         return records, total_count
 
     async def update_by_id(self, *, record: Any, db_session: AsyncSession = None) -> int:

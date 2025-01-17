@@ -4,6 +4,7 @@ from typing import List
 
 from src.main.app.common.config.config_manager import load_config
 from src.main.app.common.gen.gen_constants import GenConstants
+from src.main.app.common.util.field_type_mapping_util import sql_map2sqlmodel_type
 from src.main.app.common.util.string_util import StringUtils, is_empty
 from src.main.app.model.db_field_model import FieldDO
 from src.main.app.model.gen_field_model import GenFieldDO
@@ -23,27 +24,49 @@ class GenUtils:
         gen_table.function_author = gen_config.author
 
     @staticmethod
-    def init_field(gen_field: GenFieldDO, field_record: FieldDO):
+    def init_field(gen_field: GenFieldDO, field_record: FieldDO, backend: str):
         """
         Initialize column attribute fields
         """
+        # 不同的backend影响field_name和field_type
         data_type = field_record.type
         field_name = field_record.name
+        field_length = field_record.length
+        sort = field_record.sort
+        default = field_record.default
+        nullable = field_record.nullable
+        scale = field_record.scale
 
-        gen_field.field_name = StringUtils.to_camel_case(field_name)
-        # Set default type
-        gen_field.field_type = GenConstants.TYPE_STRING
+        gen_field.length = field_length
+        if backend == "python":
+            gen_field.field_name = field_name
+            gen_field.field_type = GenConstants.TYPE_PY_STRING
+        elif backend == "java":
+            gen_field.field_name = StringUtils.to_camel_case(field_name)
+            gen_field.field_type = GenConstants.TYPE_STRING
+        else:
+            raise Exception(f"未支持的后端语言: {backend}")
+
+        gen_field.sort = sort
+        gen_field.default = default
+        gen_field.nullable = nullable
+        gen_field.scale = scale
         gen_field.js_type = GenConstants.TYPE_JS_STRING
         gen_field.query_type = GenConstants.QUERY_EQ
         gen_field.primary_key = field_record.primary_key
         gen_field.comment = field_record.comment
 
         if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_STR, data_type) or GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type):
-            field_length = field_record.length
             html_type = GenConstants.HTML_TEXTAREA if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type) or field_length >= 500 else GenConstants.HTML_INPUT
             gen_field.html_type = html_type
         elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TIME, data_type):
-            gen_field.field_type = GenConstants.TYPE_LOCALDATETIME
+            if backend == "python":
+                gen_field.field_type = GenConstants.TYPE_PY_DATETIME
+            elif backend == "java":
+                gen_field.field_type = GenConstants.TYPE_LOCALDATETIME
+            else:
+                raise Exception(f"未支持的后端语言: {backend}")
+
             gen_field.html_type = GenConstants.HTML_DATETIME
         elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_NUMBER, data_type):
             gen_field.html_type = GenConstants.HTML_INPUT
@@ -51,12 +74,28 @@ class GenUtils:
             scale = field_record.scale
             length = field_record.length
             if scale is not None:
-                gen_field.field_type = GenConstants.TYPE_BIGDECIMAL
+                if backend == "python":
+                    gen_field.field_type = GenConstants.TYPE_PY_DECIMAL
+                elif backend == "java":
+                    gen_field.field_type = GenConstants.TYPE_BIGDECIMAL
+                else:
+                    raise Exception(f"未支持的后端语言: {backend}")
             elif data_type == "int4" or data_type == "int2" or (length is not None and length <= 10):
-                gen_field.field_type = GenConstants.TYPE_INTEGER
+                if backend == "python":
+                    gen_field.field_type = GenConstants.TYPE_PY_INTEGER
+                elif backend == "java":
+                    gen_field.field_type = GenConstants.TYPE_INTEGER
+                else:
+                    raise Exception(f"未支持的后端语言: {backend}")
             else:
-                gen_field.field_type = GenConstants.TYPE_LONG
+                if backend == "python":
+                    gen_field.field_type = GenConstants.TYPE_PY_INTEGER
+                elif backend == "java":
+                    gen_field.field_type = GenConstants.TYPE_LONG
+                else:
+                    raise Exception(f"未支持的后端语言: {backend}")
                 gen_field.js_type = GenConstants.TYPE_JS_STRING
+        gen_field.sql_model_type = sql_map2sqlmodel_type(gen_field.field_type)
 
         # Insert field
         if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_INSERT, field_name):

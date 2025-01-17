@@ -61,6 +61,6 @@ class ModelBaseParams(BaseModel):
     update_time: Optional[int] = None
 
 
-class PaginationResponse(BaseModel):
+class PageResult(BaseModel):
     records: List[Any] = None
     total: int = 0

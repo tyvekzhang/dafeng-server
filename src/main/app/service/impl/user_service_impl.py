@@ -144,9 +144,9 @@ class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
             start_time = int(time_range[0])
             end_time = int(time_range[1])
             between["create_time"] = start_time, end_time
-        results, total_count = await self.mapper.select_ordered_pagination(
-            page=data.current,
-            size=data.pageSize,
+        results, total_count = await self.mapper.select_by_ordered_page(
+            current=data.current,
+            pageSize=data.pageSize,
             count=data.count,
             filter_by=filter_by,
             like=like,
@@ -169,7 +169,7 @@ class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
         records = []
         for user in user_pages:
             records.append(UserQuery(**user.model_dump()))
-        return await export_excel(schema=UserQuery, file_name=file_name, records=records)
+        return await export_excel(schema=UserQuery, file_name=file_name, data_list=records)
 
     async def import_user(self, file: UploadFile) -> int:
         """

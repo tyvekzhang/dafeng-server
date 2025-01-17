@@ -1,16 +1,22 @@
 """Use when performing database migration"""
 
-from src.main.app.model.user_model import UserDO  # noqa
+import importlib
+from pathlib import Path
 
-from src.main.app.model.db_connection_model import ConnectionDO  # noqa
-from src.main.app.model.db_database_model import DatabaseDO  # noqa
-from src.main.app.model.db_table_model import TableDO  # noqa
-from src.main.app.model.db_field_model import FieldDO  # noqa
-from src.main.app.model.db_index_model import IndexDO  # noqa
+# 定义模型所在的目录
+MODELS_DIR = Path("src/main/app/model")
 
-from src.main.app.model.gen_field_model import GenFieldDO # noqa
-from src.main.app.model.gen_table_model import GenTableDO # noqa
+# 动态导入所有模型类
+def import_models():
+    for model_file in MODELS_DIR.glob("*_model.py"):
+        module_name = f"src.main.app.model.{model_file.stem}"
+        module = importlib.import_module(module_name)
+        for name in dir(module):
+            if name.endswith("DO"):  # 假设所有模型类以 DO 结尾
+                globals()[name] = getattr(module, name)
 
-from src.main.app.model.read_new_word_model import {{ class_name }}DO # noqa
+# 执行动态导入
+import_models()
 
+# 用于 Alembic 的启动信号
 start_signal = "Welcome! autogenerate is processing!"

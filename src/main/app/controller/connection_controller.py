@@ -4,11 +4,11 @@ from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Query, UploadFile, Form
 from src.main.app.common import result
-from src.main.app.common.result import ResponseBase
+from src.main.app.common.result import HttpResponse
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.connection_mapper import connectionMapper
 from src.main.app.model.db_connection_model import ConnectionDO
-from src.main.app.schema.common_schema import PaginationResponse
+from src.main.app.schema.common_schema import PageResult
 from src.main.app.schema.connection_schema import (
     ConnectionAdd,
     ConnectionExport,
@@ -28,7 +28,7 @@ connection_service: ConnectionService = ConnectionServiceImpl(mapper=connectionM
 @connection_router.post("/create")
 async def add_connection(
     connection_add: ConnectionAdd,
-) -> ResponseBase[int]:
+) -> HttpResponse[int]:
     """
     Connection add.
 
@@ -39,13 +39,13 @@ async def add_connection(
         BaseResponse with new connection's ID.
     """
     connection: ConnectionDO = await connection_service.save(data=ConnectionDO(**connection_add.model_dump()))
-    return ResponseBase(data=connection.id)
+    return HttpResponse(data=connection.id)
 
 
 @connection_router.get("/connections")
 async def list_connections(
     connection_query: Annotated[ConnectionQuery, Query()],
-) -> ResponseBase[PaginationResponse]:
+) -> HttpResponse[PageResult]:
     """
     Filter connections with pagination.
 
@@ -56,17 +56,17 @@ async def list_connections(
         BaseResponse with list and total count.
     """
     records, total_count = await connection_service.list_connections(data=connection_query)
-    return ResponseBase(data=PaginationResponse(records=records, total_count=total_count))
+    return HttpResponse(data=PageResult(records=records, total_count=total_count))
 
 
 @connection_router.get("/query/{connection_id}")
 async def query_connections(
     connection_id: int
-) -> ResponseBase[ConnectionQueryResponse]:
+) -> HttpResponse[ConnectionQueryResponse]:
     record = await connection_service.retrieve_by_id(id=connection_id)
     if record is None:
-        return ResponseBase(data=record)
-    return ResponseBase(data=ConnectionQueryResponse(**record.model_dump()))
+        return HttpResponse(data=record)
+    return HttpResponse(data=ConnectionQueryResponse(**record.model_dump()))
 
 
 @connection_router.post("/recover")

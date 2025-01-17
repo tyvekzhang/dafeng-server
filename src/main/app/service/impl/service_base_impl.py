@@ -34,7 +34,7 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
         List[T],
         int,
     ]:
-        return await self.mapper.select_pagination(page=page, size=size, **kwargs)
+        return await self.mapper.select_by_page(current=page, pageSize=size, **kwargs)
 
     async def retrieve_ordered_datas(
         self, *, page: int, size: int, order_by: str, sort_order: str, **kwargs
@@ -42,8 +42,8 @@ class ServiceBaseImpl(Generic[M, T], ServiceBase[T]):
         List[T],
         int,
     ]:
-        return await self.mapper.select_ordered_pagination(
-            page=page, size=size, order_by=order_by, sort_order=sort_order, **kwargs
+        return await self.mapper.select_by_ordered_page(
+            current=page, pageSize=size, order_by=order_by, sort_order=sort_order, **kwargs
         )
 
     async def modify_by_id(self, *, data: T) -> None:

@@ -140,6 +140,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         Response: A Response object which could be a basic Response or a JSONResponse,
                   depending on whether a response body is allowed for the given status code.
     """
+    raise
     status_code = http.HTTPStatus.INTERNAL_SERVER_ERROR
     headers = getattr(exc, "headers", None)
     if not is_body_allowed_for_status_code(status_code):

@@ -46,6 +46,7 @@ class GenTableModify(BaseModel):
 class TableImport(BaseModel):
     database_id: int
     table_ids: List[int]
+    backend: str
 
 class TableGen(BaseModel):
     gen_table: Optional[GenTableDO]

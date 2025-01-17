@@ -136,3 +136,50 @@ SQLMODEL_TO_PGSQL_TYPE_MAP = {
 def sqlmodel_map_to_pgsql_type(sqlmodel_type: str) -> str:
     sqlmodel_type = sqlmodel_type.upper()
     return SQLMODEL_TO_PGSQL_TYPE_MAP.get(sqlmodel_type, "varchar")
+
+
+SQL_TO_SQLMODEL_TYPE_MAP = {
+    'tinyint': 'Boolean',
+    'smallint': 'SmallInteger',
+    'mediumint': 'Integer',
+    'int': 'Integer',
+    'integer': 'Integer',
+    'bigint': 'BigInteger',
+    'decimal': 'Numeric',
+    'numeric': 'Numeric',
+    'float': 'Float',
+    'double': 'Double',
+    'real': 'Float',
+    'char': 'String',
+    'varchar': 'String',
+    'tinytext': 'String',
+    'text': 'String',
+    'mediumtext': 'String',
+    'longtext': 'String',
+    'enum': 'String',
+    'set': 'String',
+    'date': 'Date',
+    'datetime': 'DateTime',
+    'timestamp': 'DateTime',
+    'time': 'Time',
+    'binary': 'LargeBinary',
+    'varbinary': 'LargeBinary',
+    'tinyblob': 'LargeBinary',
+    'blob': 'LargeBinary',
+    'mediumblob': 'LargeBinary',
+    'longblob': 'LargeBinary',
+    'json': 'JSON',
+    'year': 'Integer',
+    'bool': 'BOOLEAN',
+    'int2': 'SMALLINTEGER',
+    'int4': 'INTEGER',
+    'int8': 'BIGINTEGER',
+    'float8': 'FLOAT',
+    'float4': 'DOUBLE',
+    'bytea': 'LARGEBINARY',
+    'jsonb': 'JSON'
+}
+
+def sql_map2sqlmodel_type(field_type: str) -> str:
+    field_type = field_type.lower()
+    return SQL_TO_SQLMODEL_TYPE_MAP.get(field_type, "String")

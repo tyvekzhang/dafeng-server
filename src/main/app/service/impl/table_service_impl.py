@@ -67,9 +67,9 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
         if len(need_delete_ids) > 0:
             pass
             # await self.mapper.batch_delete_by_ids(ids=need_delete_ids)
-        return await self.mapper.select_ordered_pagination(
-            page=data.current,
-            size=data.pageSize,
+        return await self.mapper.select_by_ordered_page(
+            current=data.current,
+            pageSize=data.pageSize,
             order_by=data.order_by,
             sort_order=data.sort_order,
             count=data.count,

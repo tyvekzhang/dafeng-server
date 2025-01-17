@@ -1,83 +1,110 @@
 """NewWord data object"""
+
 from datetime import datetime
 from typing import Optional
-
 from sqlmodel import (
+    SQLModel,
     Field,
     Column,
-    SQLModel,
+    Index,
     String,
     Integer,
-    BigInteger,
     DateTime,
-    Index
 )
-
-from src.main.app.model.model_base import ModelBase, ModelExt
+from src.main.app.common.util.snowflake_util import snowflake_id
 
 
 class NewWordBase(SQLModel):
-    user_id: Optional[int] = Field(
+
+    id: int = Field(
+        default_factory=snowflake_id,
+        primary_key=True,
+        sa_type=BigInteger,
+        sa_column_kwargs={"comment": "主键"},
+    )
+    user_id: int = Field(
         sa_column=Column(
-            BigInteger,
-            nullable=True,
+            Integer,
+            nullable=False,
+            default=None,
             comment="用户ID"
         )
     )
-
-    article_id: Optional[int] = Field(
+    article_id: int = Field(
         sa_column=Column(
-            BigInteger,
-            nullable=True,
+            Integer,
+            nullable=False,
+            default=None,
             comment="文章ID"
         )
     )
-
     word_id: Optional[int] = Field(
         sa_column=Column(
-            BigInteger,
+            Integer,
             nullable=True,
+            default=None,
             comment="词库表ID"
         )
     )
-
-    word: Optional[str] = Field(
+    word: str = Field(
         sa_column=Column(
             String(32),
-            nullable=True,
+            nullable=False,
+            default=None,
             comment="单词"
         )
     )
-
+    translation: str = Field(
+        sa_column=Column(
+            String(32),
+            nullable=False,
+            default=None,
+            comment="翻译"
+        )
+    )
     review_count: Optional[int] = Field(
         sa_column=Column(
             Integer,
             nullable=True,
+            default=None,
             comment="复习次数"
         )
     )
-
     next_review_date: Optional[datetime] = Field(
         sa_column=Column(
             DateTime,
             nullable=True,
+            default=None,
             comment="复习时间"
         )
     )
-
-    tenant_id: Optional[int] = Field(
+    tenant_id: int = Field(
         sa_column=Column(
             Integer,
-            nullable=True,
-            default=1,
+            nullable=False,
+            default=None,
             comment="租户ID"
         )
     )
+    create_time: Optional[datetime] = Field(
+        sa_type=DateTime,
+        default_factory=datetime.now,
+        sa_column_kwargs={"comment": "创建时间"},
+    )
+    update_time: Optional[datetime] = Field(
+        sa_type=DateTime,
+        default_factory=datetime.now,
+        sa_column_kwargs={
+            "onupdate": datetime.now,
+            "comment": "更新时间",
+        },
+    )
 
-class NewWordDO(ModelExt, NewWordBase, ModelBase, table=True):
+
+class NewWordDO(NewWordBase, table=False):
     __tablename__ = "read_new_word"
     __table_args__ = (
-        Index("idx_my_tenantId_userId_word", "tenant_id", "user_id", "word"),
-        Index("idx_nd_tenantId_userid_articleId", "tenant_id", "user_id", "article_id"),
+        Index("idx_my_tenantId_userId_word", 'tenant_id', 'user_id', 'word'),
+        Index("idx_nd_tenantid_userid_articleid", 'tenant_id', 'user_id', 'article_id'),
         {"comment": "阅读生词表"}
     )

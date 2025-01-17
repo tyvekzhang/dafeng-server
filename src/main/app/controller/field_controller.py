@@ -4,11 +4,11 @@ from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Query, UploadFile, Form
 from src.main.app.common import result
-from src.main.app.common.result import ResponseBase
+from src.main.app.common.result import HttpResponse
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.field_mapper import fieldMapper
 from src.main.app.model.db_field_model import FieldDO
-from src.main.app.schema.common_schema import PaginationResponse
+from src.main.app.schema.common_schema import PageResult
 from src.main.app.schema.field_schema import (
     FieldAdd,
     FieldExport,
@@ -27,14 +27,14 @@ field_service: FieldService = FieldServiceImpl(mapper=fieldMapper)
 @field_router.get("/antd/{id}")
 async def get_ant_table_columns(
     id: int
-) -> ResponseBase[List[AntTableColumn]]:
+) -> HttpResponse[List[AntTableColumn]]:
     fields = await field_service.get_ant_table_fields(table_id=id)
-    return ResponseBase(data=fields)
+    return HttpResponse(data=fields)
 
 @field_router.post("/add")
 async def add_field(
     field_add: FieldAdd,
-) -> ResponseBase[int]:
+) -> HttpResponse[int]:
     """
     Field add.
 
@@ -45,13 +45,13 @@ async def add_field(
         BaseResponse with new field's ID.
     """
     field: FieldDO = await field_service.save(data=FieldDO(**field_add.model_dump()))
-    return ResponseBase(data=field.id)
+    return HttpResponse(data=field.id)
 
 
 @field_router.get("/fields")
 async def list_fields(
     field_query: Annotated[FieldQuery, Query()],
-) -> ResponseBase[PaginationResponse]:
+) -> HttpResponse[PageResult]:
     """
     Filter fields with pagination.
 
@@ -62,7 +62,7 @@ async def list_fields(
         BaseResponse with list and total count.
     """
     records, total_count = await field_service.list_fields(data=field_query)
-    return ResponseBase(data=PaginationResponse(records=records, total_count=total_count))
+    return HttpResponse(data=PageResult(records=records, total_count=total_count))
 
 
 @field_router.post("/recover")

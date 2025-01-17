@@ -158,11 +158,10 @@ class DatabaseServiceImpl(ServiceBaseImpl[DatabaseMapper, DatabaseDO], DatabaseS
             await self.mapper.batch_insert(records=new_add_databases)
         if len(need_delete_ids) > 0:
             await self.mapper.batch_delete_by_ids(ids=need_delete_ids)
-        return await self.mapper.select_ordered_pagination(
-            page=data.current,
-            size=data.pageSize,
+        return await self.mapper.select_by_ordered_page(
+            current=data.current,
+            pageSize=data.pageSize,
             order_by=data.order_by,
             sort_order=data.sort_order,
-            count=data.count,
-            filter_by={"connection_id": connection_id},
+            eq={"connection_id": connection_id},
         )

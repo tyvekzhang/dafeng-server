@@ -6,11 +6,11 @@ from sqlmodel import inspect, text
 from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import SystemException
 from src.main.app.common import result
-from src.main.app.common.result import ResponseBase
+from src.main.app.common.result import HttpResponse
 from src.main.app.common.session.db_engine import get_cached_async_engine
 from src.main.app.mapper.database_mapper import databaseMapper
 from src.main.app.model.db_database_model import DatabaseDO
-from src.main.app.schema.common_schema import PaginationResponse
+from src.main.app.schema.common_schema import PageResult
 from src.main.app.schema.database_schema import DatabaseAdd, DatabaseQuery
 from src.main.app.service.database_service import DatabaseService
 from src.main.app.service.impl.database_service_impl import DatabaseServiceImpl
@@ -20,7 +20,7 @@ database_service: DatabaseService = DatabaseServiceImpl(mapper=databaseMapper)
 
 
 @database_router.post("/create")
-async def add_database(database_add: DatabaseAdd) -> ResponseBase[int]:
+async def add_database(database_add: DatabaseAdd) -> HttpResponse[int]:
     """
     Database add.
 
@@ -32,13 +32,13 @@ async def add_database(database_add: DatabaseAdd) -> ResponseBase[int]:
     """
     record = DatabaseDO(**database_add.model_dump())
     database: DatabaseDO = await database_service.add(data=record)
-    return ResponseBase(data=database.id)
+    return HttpResponse(data=database.id)
 
 
 @database_router.get("/databases")
 async def list_databases(
     database_query: Annotated[DatabaseQuery, Query()],
-) -> ResponseBase[PaginationResponse]:
+) -> HttpResponse[PageResult]:
     """
     Filter databases with pagination.
 
@@ -50,7 +50,7 @@ async def list_databases(
     """
     databases, total_count = await database_service.list_databases(data=database_query)
 
-    return ResponseBase(data=PaginationResponse(records=databases, total_count=total_count))
+    return HttpResponse(data=PageResult(records=databases, total_count=total_count))
 
 
 @database_router.get("/version")

@@ -1,3 +1,5 @@
+import json
+from http import HTTPStatus
 from typing import Generic, TypeVar, Optional, Dict, Any
 
 from pydantic import BaseModel
@@ -12,7 +14,7 @@ DEFAULT_FAIL_CODE: int = -1
 DEFAULT_SUCCESS_MSG: str = "success"
 
 
-class ResponseBase(BaseModel, Generic[T]):
+class HttpResponse(BaseModel,Generic[T]):
     """
     Response base model for API responses.
 
@@ -25,6 +27,19 @@ class ResponseBase(BaseModel, Generic[T]):
     msg: str = DEFAULT_SUCCESS_MSG
     code: Optional[int] = DEFAULT_SUCCESS_CODE
     data: Optional[T] = None
+
+
+# Example of a ResponseErrorEnum in Python
+class ResponseErrorEnum:
+    def __init__(self, code: int, msg: str):
+        self._code = code
+        self._msg = msg
+
+    def get_code(self) -> int:
+        return self._code
+
+    def get_msg(self) -> str:
+        return self._msg
 
 
 def success(

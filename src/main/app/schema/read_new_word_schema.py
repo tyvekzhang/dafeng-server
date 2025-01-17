@@ -1,4 +1,4 @@
-"""NewWord domain schema"""
+"""NewWord schema"""
 import random
 import uuid
 from datetime import datetime
@@ -6,27 +6,20 @@ from typing import Optional, List
 
 from pydantic import BaseModel
 
-from src.main.app.schema.common_schema import PageBase, PageQuery
-
-
-class NewWordAdd(BaseModel):
-    pass
+from src.main.app.schema.common_schema import PageQuery
 
 
 class NewWordQuery(PageQuery):
-    word: Optional[str] = None
+    pass
 
+class NewWordPage(BaseModel):
+    pass
 
-class NewWordQueryResponse(BaseModel):
-    id: int
-    word: str = uuid.uuid4()
-    nextReviewDate: datetime = datetime.now()
-    userId: int =  random.randint(1, 70)
-    articleId: int =  random.randint(1, 6)
-    wordId: int =  random.randint(1, 60)
-    reviewCount: int =  random.randint(1, 60)
-    tenantId: int =  random.randint(1, 60)
+class NewWordDetail(BaseModel):
+    pass
 
+class NewWordCreate(BaseModel):
+    err_msg: str = Optional[str]
 
 class NewWordExport(BaseModel):
     word: str = uuid.uuid4()
@@ -37,14 +30,6 @@ class NewWordExport(BaseModel):
     reviewCount: int =  random.randint(1, 60)
     tenantId: int =  random.randint(1, 60)
 
-class NewWordCreate(BaseModel):
-    word: str = str(uuid.uuid4())[:6]
-    nextReviewDate: datetime = datetime.now()
-    userId: int =  random.randint(1, 70)
-    articleId: int =  random.randint(1, 6)
-    wordId: int =  random.randint(1, 60)
-    reviewCount: int =  random.randint(1, 60)
-    tenantId: int =  random.randint(1, 60)
 
 
 

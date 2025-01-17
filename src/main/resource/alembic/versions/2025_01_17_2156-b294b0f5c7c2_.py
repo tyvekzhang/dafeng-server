@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: d8655edd9da6
+Revision ID: b294b0f5c7c2
 Revises: 
-Create Date: 2024-12-30 21:23:27.029700
+Create Date: 2025-01-17 21:56:30.392548
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = 'd8655edd9da6'
+revision = 'b294b0f5c7c2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -75,8 +75,8 @@ def upgrade():
     op.create_table('db_index',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('table_id', sa.BigInteger(), nullable=False, comment='表id'),
-    sa.Column('name', sa.String(length=32), nullable=False, comment='索引名称'),
-    sa.Column('field', sa.String(length=63), nullable=False, comment='索引字段'),
+    sa.Column('name', sa.String(length=64), nullable=False, comment='索引名称'),
+    sa.Column('field', sa.String(length=64), nullable=False, comment='索引字段'),
     sa.Column('type', sa.String(length=16), nullable=False, comment='索引类型'),
     sa.Column('remark', sa.String(length=255), nullable=True, comment='备注'),
     sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
@@ -97,16 +97,24 @@ def upgrade():
     op.create_index(op.f('ix_db_table_database_id'), 'db_table', ['database_id'], unique=False)
     op.create_table('gen_field',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
-    sa.Column('db_field_id', sa.BigInteger(), nullable=False, comment='数据库字段id'),
+    sa.Column('db_table_id', sa.BigInteger(), nullable=False, comment='数据库表ID'),
+    sa.Column('db_field_id', sa.BigInteger(), nullable=False, comment='数据库字段ID'),
     sa.Column('field_name', sa.String(length=64), nullable=True, comment='字段名称'),
     sa.Column('field_type', sa.String(length=64), nullable=True, comment='字段类型'),
+    sa.Column('sql_model_type', sa.String(length=64), nullable=True, comment='模型类型'),
+    sa.Column('length', sa.Integer(), nullable=True, comment='字段长度'),
+    sa.Column('scale', sa.Integer(), nullable=True, comment='分数位'),
     sa.Column('js_type', sa.String(length=64), nullable=True, comment='JS类型'),
+    sa.Column('sort', sa.Integer(), nullable=True, comment='排序'),
+    sa.Column('default', sa.String(length=64), nullable=True, comment='默认值'),
     sa.Column('primary_key', sa.SmallInteger(), nullable=True, comment='是否主键(0否,1是)'),
-    sa.Column('creatable', sa.SmallInteger(), nullable=True, comment='是否创建字段(0否,1是)'),
-    sa.Column('queryable', sa.SmallInteger(), nullable=True, comment='是否查询字段(0否,1是)'),
-    sa.Column('pageable', sa.SmallInteger(), nullable=True, comment='是否列表字段(0否,1是)'),
-    sa.Column('detailable', sa.SmallInteger(), nullable=True, comment='是否详情字段(0否,1是)'),
-    sa.Column('modifiable', sa.SmallInteger(), nullable=True, comment='是否修改字段(0否,1是)'),
+    sa.Column('nullable', sa.SmallInteger(), nullable=True, comment='允许为空(0否,1是)'),
+    sa.Column('creatable', sa.SmallInteger(), nullable=True, comment='创建字段(0否,1是)'),
+    sa.Column('queryable', sa.SmallInteger(), nullable=True, comment='查询字段(0否,1是)'),
+    sa.Column('pageable', sa.SmallInteger(), nullable=True, comment='列表字段(0否,1是)'),
+    sa.Column('detailable', sa.SmallInteger(), nullable=True, comment='详情字段(0否,1是)'),
+    sa.Column('modifiable', sa.SmallInteger(), nullable=True, comment='修改字段(0否,1是)'),
+    sa.Column('batch_modifiable', sa.SmallInteger(), nullable=True, comment='批量修改(0否,1是)'),
     sa.Column('query_type', sa.String(length=64), nullable=True, comment='查询方式（等于、不等于、大于、小于、范围）'),
     sa.Column('html_type', sa.String(length=64), nullable=True, comment='显示类型(文本框、文本域、下拉框、复选框、单选框、日期控件)'),
     sa.Column('dict_type', sa.String(length=64), nullable=True, comment='字典类型'),
@@ -117,14 +125,16 @@ def upgrade():
     comment='代码生成字段表'
     )
     op.create_index(op.f('ix_gen_field_db_field_id'), 'gen_field', ['db_field_id'], unique=False)
+    op.create_index(op.f('ix_gen_field_db_table_id'), 'gen_field', ['db_table_id'], unique=False)
     op.create_table('gen_table',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
+    sa.Column('database_id', sa.BigInteger(), nullable=False, comment='数据库ID'),
     sa.Column('db_table_id', sa.BigInteger(), nullable=False, comment='数据库表ID'),
     sa.Column('table_name', sa.String(length=64), nullable=True, comment='表名'),
     sa.Column('sub_table_name', sa.String(length=64), nullable=True, comment='关联子表的表名'),
     sa.Column('sub_table_fk_name', sa.String(length=64), nullable=True, comment='子表关联的外键名'),
     sa.Column('class_name', sa.String(length=64), nullable=True, comment='实体类名称'),
-    sa.Column('backend', sa.String(length=64), nullable=True, comment='后端语言'),
+    sa.Column('backend', sa.String(length=16), nullable=True, comment='后端语言'),
     sa.Column('tpl_category', sa.String(length=64), nullable=True, comment='使用的模板（crud单表操作 tree树表操作）'),
     sa.Column('tpl_web_type', sa.String(length=32), nullable=True, comment='前端模板类型'),
     sa.Column('tpl_backend_type', sa.String(length=32), nullable=True, comment='后端模板类型'),
@@ -136,28 +146,31 @@ def upgrade():
     sa.Column('gen_type', sa.String(length=1), nullable=True, comment='生成代码方式（0zip压缩包 1自定义路径）'),
     sa.Column('gen_path', sa.String(length=255), nullable=True, comment='生成路径（不填默认项目路径）'),
     sa.Column('options', sa.String(length=255), nullable=True, comment='其它生成选项'),
+    sa.Column('comment', sa.String(length=64), nullable=True, comment='表描述'),
     sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
     sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='代码生成业务表'
     )
+    op.create_index(op.f('ix_gen_table_database_id'), 'gen_table', ['database_id'], unique=False)
     op.create_index(op.f('ix_gen_table_db_table_id'), 'gen_table', ['db_table_id'], unique=False)
     op.create_table('read_new_word',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
-    sa.Column('user_id', sa.BigInteger(), nullable=True, comment='用户ID'),
-    sa.Column('article_id', sa.BigInteger(), nullable=True, comment='文章ID'),
-    sa.Column('word_id', sa.BigInteger(), nullable=True, comment='词库表ID'),
-    sa.Column('word', sa.String(length=32), nullable=True, comment='单词'),
+    sa.Column('user_id', sa.Integer(), nullable=False, comment='用户ID'),
+    sa.Column('article_id', sa.Integer(), nullable=False, comment='文章ID'),
+    sa.Column('word_id', sa.Integer(), nullable=True, comment='词库表ID'),
+    sa.Column('word', sa.String(length=32), nullable=False, comment='单词'),
+    sa.Column('translation', sa.String(length=32), nullable=False, comment='翻译'),
     sa.Column('review_count', sa.Integer(), nullable=True, comment='复习次数'),
     sa.Column('next_review_date', sa.DateTime(), nullable=True, comment='复习时间'),
-    sa.Column('tenant_id', sa.Integer(), nullable=True, comment='租户ID'),
+    sa.Column('tenant_id', sa.Integer(), nullable=False, comment='租户ID'),
     sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
     sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
     comment='阅读生词表'
     )
     op.create_index('idx_my_tenantId_userId_word', 'read_new_word', ['tenant_id', 'user_id', 'word'], unique=False)
-    op.create_index('idx_nd_tenantId_userid_articleId', 'read_new_word', ['tenant_id', 'user_id', 'article_id'], unique=False)
+    op.create_index('idx_nd_tenantid_userid_articleid', 'read_new_word', ['tenant_id', 'user_id', 'article_id'], unique=False)
     op.create_table('sys_user',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('username', sa.String(length=32), nullable=False, comment='用户名'),
@@ -181,11 +194,13 @@ def downgrade():
     op.drop_index(op.f('ix_sys_user_username'), table_name='sys_user')
     op.drop_index('idx_status_nickname', table_name='sys_user')
     op.drop_table('sys_user')
-    op.drop_index('idx_nd_tenantId_userid_articleId', table_name='read_new_word')
+    op.drop_index('idx_nd_tenantid_userid_articleid', table_name='read_new_word')
     op.drop_index('idx_my_tenantId_userId_word', table_name='read_new_word')
     op.drop_table('read_new_word')
     op.drop_index(op.f('ix_gen_table_db_table_id'), table_name='gen_table')
+    op.drop_index(op.f('ix_gen_table_database_id'), table_name='gen_table')
     op.drop_table('gen_table')
+    op.drop_index(op.f('ix_gen_field_db_table_id'), table_name='gen_field')
     op.drop_index(op.f('ix_gen_field_db_field_id'), table_name='gen_field')
     op.drop_table('gen_field')
     op.drop_index(op.f('ix_db_table_database_id'), table_name='db_table')

@@ -46,16 +46,20 @@ class GenConstants:
 
     # Data types
     TYPE_STRING = "String"
+    TYPE_PY_STRING = "str"
     TYPE_JS_STRING = "string"
     TYPE_JS_NUMBER = "number"
     TYPE_JS_BIGINT = "bigint"
     TYPE_JS_BOOLEAN = "boolean"
     TYPE_INTEGER = "Integer"
+    TYPE_PY_INTEGER = "int"
     TYPE_LONG = "Long"
     TYPE_DOUBLE = "Double"
     TYPE_BIGDECIMAL = "BigDecimal"
+    TYPE_PY_DECIMAL = "Decimal"
     TYPE_DATE = "Date"
     TYPE_LOCALDATETIME = "LocalDateTime"
+    TYPE_PY_DATETIME = "datetime"
 
     # Query types
     QUERY_LIKE = "LIKE"
@@ -65,4 +69,5 @@ class GenConstants:
     REQUIRE = "1"
 
     JAVA = "java"
+    PYTHON = "python"
     MYBATIS = "mybatis"

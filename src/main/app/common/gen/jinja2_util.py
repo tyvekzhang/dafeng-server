@@ -1,8 +1,10 @@
 import json
 from datetime import datetime
+from typing import Literal, List
 
 from src.main.app.common.enums.enum import ConstantCode
 from src.main.app.common.gen.gen_constants import GenConstants
+from src.main.app.model.db_index_model import IndexDO
 from src.main.app.schema.gen_table_schema import TableGen
 
 
@@ -12,12 +14,13 @@ class Jinja2Utils:
     DEFAULT_PARENT_MENU_ID = "3"
 
     @staticmethod
-    def prepare_context(table_gen: TableGen):
+    def prepare_context(table_gen: TableGen, index_metadata: List[IndexDO]):
         """
         设置模板变量信息
         """
         gen_table = table_gen.gen_table
 
+        comment = gen_table.comment
         package_name = gen_table.package_name
         import_list = Jinja2Utils.get_import_list(table_gen)
         function_name = gen_table.function_name
@@ -30,6 +33,8 @@ class Jinja2Utils:
         router_name = Jinja2Utils.to_kebab_case(class_name)
         kebab_case_class_name = router_name
         fields = table_gen.fields
+        for field in fields:
+            pass
         module_name = gen_table.module_name
         business_name = gen_table.business_name
 
@@ -37,6 +42,7 @@ class Jinja2Utils:
 
 
         context = {
+            "comment": comment,
             "package_name": package_name,
             "import_list": import_list,
             "function_name": function_name,
@@ -49,6 +55,7 @@ class Jinja2Utils:
             "router_name": router_name,
             "kebab_case_class_name": kebab_case_class_name,
             "fields": fields,
+            "index_metadata": index_metadata
             # "tpl_category": tpl_category,
             # "module_name": module_name,
             # "business_name": Jinja2Utils.capitalize(business_name),
@@ -121,6 +128,42 @@ class Jinja2Utils:
         :param tpl_web_type: 前端类型 (如 react 或 element-plus)
         :return: 模板列表
         """
+        select_template = []
+        if backend == GenConstants.PYTHON:
+            entity_tpl = "jinja2/python/entityPy.py.j2"
+            python_template = [
+                entity_tpl
+            ]
+            for tmp in python_template:
+                select_template.append(tmp)
+        if backend == GenConstants.JAVA:
+            entity_tpl = "jinja2/java/mybatis_plus/entity.java.j2"
+            mapper_tpl = "jinja2/java/mybatis_plus/mapper.java.j2"
+            service_tpl = "jinja2/java/mybatis_plus/service.java.j2"
+            serviceimpl_tpl = "jinja2/java/mybatis_plus/serviceImpl.java.j2"
+            controller_tpl = "jinja2/java/mybatis_plus/controller.java.j2"
+            create_tpl = "jinja2/java/command/create.java.j2"
+            modify_tpl = "jinja2/java/command/modify.java.j2"
+            batch_modify_tpl = "jinja2/java/command/batchModify.java.j2"
+            query_tpl = "jinja2/java/command/query.java.j2"
+            detail_tpl = "jinja2/java/vo/detail.java.j2"
+            page_tpl = "jinja2/java/vo/page.java.j2"
+            converter_tpl = "jinja2/java/converter/converter.java.j2"
+            java_template = [
+                entity_tpl,
+                mapper_tpl,
+                service_tpl,
+                serviceimpl_tpl,
+                controller_tpl,
+                create_tpl,
+                modify_tpl,
+                query_tpl,
+                detail_tpl,
+                page_tpl,
+                converter_tpl,
+                batch_modify_tpl,
+            ]
+            select_template.extend(java_template)
         index_tpl = "jinja2/react/index.tsx.j2"
         index_query_tpl = "jinja2/react/components/iQuery.tsx.j2"
         index_create_tpl = "jinja2/react/components/iCreate.tsx.j2"
@@ -128,26 +171,9 @@ class Jinja2Utils:
         index_modify_tpl = "jinja2/react/components/iModify.tsx.j2"
         index_batch_modify_tpl = "jinja2/react/components/iBatchModify.tsx.j2"
         index_import_tpl = "jinja2/react/components/iImport.tsx.j2"
-        if tpl_web_type == "element-plus":
-            use_web_type = "vm/react/v3"
-        entity_tpl = "jinja2/java/mybatis_plus/entity.java.j2"
-        mapper_tpl = "jinja2/java/mybatis_plus/mapper.java.j2"
-        service_tpl = "jinja2/java/mybatis_plus/service.java.j2"
-        serviceimpl_tpl = "jinja2/java/mybatis_plus/serviceImpl.java.j2"
-        controller_tpl = "jinja2/java/mybatis_plus/controller.java.j2"
-        create_tpl = "jinja2/java/command/create.java.j2"
-        modify_tpl = "jinja2/java/command/modify.java.j2"
-        batch_modify_tpl = "jinja2/java/command/batchModify.java.j2"
-        query_tpl = "jinja2/java/command/query.java.j2"
-        detail_tpl = "jinja2/java/vo/detail.java.j2"
-        page_tpl = "jinja2/java/vo/page.java.j2"
-        converter_tpl = "jinja2/java/converter/converter.java.j2"
         api_tpl = "jinja2/js/api.js.j2"
         type_tpl = "jinja2/js/type.js.j2"
-        if backend == GenConstants.JAVA:
-            if tpl_backend_type == GenConstants.MYBATIS:
-                entity_tpl = "jinja2/java/mybatis/entity.java.j2"
-        templates = [
+        react_templates = [
             index_query_tpl,
             index_modify_tpl,
             index_import_tpl,
@@ -155,21 +181,11 @@ class Jinja2Utils:
             index_batch_modify_tpl,
             index_tpl,
             index_create_tpl,
-            entity_tpl,
-            mapper_tpl,
-            service_tpl,
-            serviceimpl_tpl,
-            controller_tpl,
-            create_tpl,
-            modify_tpl,
-            query_tpl,
-            detail_tpl,
-            page_tpl,
-            converter_tpl,
             api_tpl,
-            type_tpl,
-            batch_modify_tpl,
+            type_tpl
         ]
+
+        select_template.extend(react_templates)
 
         # if tpl_category == "crud":
         #     templates.append(f"{use_web_type}/index.react.vm")
@@ -178,8 +194,7 @@ class Jinja2Utils:
         # elif tpl_category == "sub":
         #     templates.append(f"{use_web_type}/index.react.vm")
         #     templates.append("vm/java/sub-entity.java.j2")
-
-        return templates
+        return select_template
 
 
     @staticmethod
@@ -261,7 +276,7 @@ class Jinja2Utils:
         return package_name[:last_index] if last_index != -1 else package_name
 
     @staticmethod
-    def get_import_list(gen_table):
+    def get_import_list(gen_table: TableGen):
         """
         根据列类型获取导入包
         """
@@ -270,18 +285,23 @@ class Jinja2Utils:
         sub_gen_table = gen_table.sub_table
         import_list = set()
 
-        if sub_gen_table:
-            import_list.add("java.util.List")
+        backend = gen_table.gen_table.backend
+        if GenConstants.JAVA == backend:
+            if sub_gen_table:
+                import_list.add("java.util.List")
 
-        for field in fields:
-            if field.gen_field.field_type == "Date":
-                import_list.add("java.util.Date")
-            elif field.gen_field.field_type == "BigDecimal":
-                import_list.add("java.math.BigDecimal")
-            elif field.gen_field.field_type == "LocalDateTime":
-                import_list.add("java.time.LocalDateTime")
+            for field in fields:
+                if field.gen_field.field_type == "Date":
+                    import_list.add("java.util.Date")
+                elif field.gen_field.field_type == "BigDecimal":
+                    import_list.add("java.math.BigDecimal")
+                elif field.gen_field.field_type == "LocalDateTime":
+                    import_list.add("java.time.LocalDateTime")
+                    return list(import_list)
+        else:
+            return set([field.gen_field.sql_model_type for field in fields])
 
-        return list(import_list)
+
 
     @staticmethod
     def get_dicts(gen_table):

@@ -18,7 +18,7 @@ class MapperBase(ABC):
     async def select_by_ids(self, *, ids: List[Any], db_session: Any = None) -> List[Any]: ...
 
     @abstractmethod
-    async def select_pagination(
+    async def select_by_page(
         self, *, current: int, size: int, db_session: Any = None, **kwargs
     ) -> Tuple[
         List[Any],
@@ -26,7 +26,7 @@ class MapperBase(ABC):
     ]: ...
 
     @abstractmethod
-    async def select_ordered_pagination(
+    async def select_by_ordered_page(
         self,
         *,
         current: int,

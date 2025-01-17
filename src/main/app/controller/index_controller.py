@@ -6,11 +6,11 @@ from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Query, UploadFile, Form
 from src.main.app.common import result
-from src.main.app.common.result import ResponseBase
+from src.main.app.common.result import HttpResponse
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.index_mapper import indexMapper
 from src.main.app.model.db_index_model import IndexDO
-from src.main.app.schema.common_schema import PaginationResponse
+from src.main.app.schema.common_schema import PageResult
 from src.main.app.schema.index_schema import (
     IndexAdd,
     IndexExport,
@@ -47,7 +47,7 @@ async def add_index(
 @index_router.get("/indexes")
 async def list_indexes(
     index_query: Annotated[IndexQuery, Query()],
-) -> ResponseBase[PaginationResponse]:
+) -> HttpResponse[PageResult]:
     """
     Filter indexes with pagination.
 
@@ -59,7 +59,7 @@ async def list_indexes(
     """
     index_list, total_count = await index_service.list_indexes(data=index_query)
 
-    return ResponseBase(data=PaginationResponse(records=index_list, total_count=total_count))
+    return HttpResponse(data=PageResult(records=index_list, total_count=total_count))
 
 
 @index_router.post("/run_script")

@@ -4,11 +4,11 @@ from typing import Dict, Annotated, List
 
 from fastapi import APIRouter, Query, UploadFile, Form
 from src.main.app.common import result
-from src.main.app.common.result import ResponseBase
+from src.main.app.common.result import HttpResponse
 from src.main.app.common.util.excel_util import export_excel
 from src.main.app.mapper.gen_field_mapper import genFieldMapper
 from src.main.app.model.gen_field_model import GenFieldDO
-from src.main.app.schema.common_schema import PaginationResponse
+from src.main.app.schema.common_schema import PageResult
 from src.main.app.schema.gen_field_schema import (
     GenTableColumnAdd,
     GenTableColumnExport,
@@ -28,7 +28,7 @@ gen_table_column_service: GenTableFieldService = GenTableFieldServiceImpl(mapper
 @gen_table_column_router.post("/add")
 async def add_gen_table_column(
     gen_table_column_add: GenTableColumnAdd,
-) -> ResponseBase[int]:
+) -> HttpResponse[int]:
     """
     GenTableColumn add.
 
@@ -39,13 +39,13 @@ async def add_gen_table_column(
         BaseResponse with new gen_table_column's ID.
     """
     gen_table_column: GenFieldDO = await gen_table_column_service.save(data=GenFieldDO(**gen_table_column_add.model_dump()))
-    return ResponseBase(data=gen_table_column.id)
+    return HttpResponse(data=gen_table_column.id)
 
 
 @gen_table_column_router.get("/gen_table_columns")
 async def list_gen_table_columns(
     gen_table_column_query: Annotated[GenTableColumnQuery, Query()],
-) -> ResponseBase[PaginationResponse]:
+) -> HttpResponse[PageResult]:
     """
     Filter gen_table_columns with pagination.
 
@@ -56,7 +56,7 @@ async def list_gen_table_columns(
         BaseResponse with list and total count.
     """
     records, total_count = await gen_table_column_service.list_gen_table_columns(data=gen_table_column_query)
-    return ResponseBase(data=PaginationResponse(records=records, total_count=total_count))
+    return HttpResponse(data=PageResult(records=records, total_count=total_count))
 
 
 @gen_table_column_router.post("/recover")

@@ -13,7 +13,7 @@ from src.main.app.common.exception.exception import SystemException
 from src.main.app.mapper.user_mapper import userMapper
 from src.main.app.common import result
 from src.main.app.schema.common_schema import Token, CurrentUser
-from src.main.app.common.result import ResponseBase
+from src.main.app.common.result import HttpResponse
 from src.main.app.schema.user_schema import (
     UserAdd,
     LoginCmd,
@@ -86,7 +86,7 @@ async def refresh_tokens(data: RefreshToken):
 @user_router.get("/me")
 async def me(
     current_user: CurrentUser = Depends(get_current_user()),
-) -> ResponseBase[UserQuery]:
+) -> HttpResponse[UserQuery]:
     """
     Retrieves the profile of the current user.
 
@@ -97,7 +97,7 @@ async def me(
         BaseResponse with current user's profile information.
     """
     user: UserQuery = await user_service.find_by_id(id=current_user.id)
-    return ResponseBase(data=user)
+    return HttpResponse(data=user)
 
 
 @user_router.post("/recover")
@@ -342,4 +342,4 @@ async def menus():
             "path": "/home",
         },
     ]
-    return ResponseBase(data=data)
+    return HttpResponse(data=data)

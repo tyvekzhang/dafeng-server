@@ -8,18 +8,25 @@ from sqlmodel import (
     String,
     SQLModel,
     BigInteger,
-    Boolean,
+    Integer,
     SmallInteger
 )
 from src.main.app.model.model_base import ModelBase, ModelExt
 
 
 class GenFieldBase(SQLModel):
-    db_field_id: int = Field(sa_column=Column(BigInteger, nullable=False, index=True, comment="字段id"))
+    db_table_id: int = Field(sa_column=Column(BigInteger, nullable=False, index=True, comment="数据库表ID"))
+    db_field_id: int = Field(sa_column=Column(BigInteger, nullable=False, index=True, comment="数据库字段ID"))
     field_name: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="字段名称"))
     field_type: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="字段类型"))
+    sql_model_type: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="模型类型"))
+    length: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="字段长度"))
+    scale: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="分数位"))
     js_type: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="JS类型"))
+    sort: Optional[int] = Field(default=None, sa_column=Column(Integer, comment="排序"))
+    default: Optional[str] = Field(default=None, sa_column=Column(String(64), comment="默认值"))
     primary_key: Optional[int] = Field(default=0, sa_column=Column(SmallInteger, comment="是否主键(0否,1是)"))
+    nullable: Optional[int] = Field(default=1, sa_column=Column(SmallInteger, comment="允许为空(0否,1是)"))
     creatable: Optional[int] = Field(default=0, sa_column=Column(SmallInteger, comment="创建字段(0否,1是)"))
     queryable: Optional[int] = Field(default=0, sa_column=Column(SmallInteger, comment="查询字段(0否,1是)"))
     pageable: Optional[int] = Field(default=0, sa_column=Column(SmallInteger, comment="列表字段(0否,1是)"))

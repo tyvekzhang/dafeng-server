@@ -1,13 +1,14 @@
 """GenTable operation controller"""
-from datetime import datetime
 from io import BytesIO
 from typing import Dict, Annotated, List
 
-from fastapi import APIRouter, Query, UploadFile, Form
+from fastapi import APIRouter, Query
+from starlette.responses import StreamingResponse
+
 from src.main.app.common import result
-from src.main.app.common.result import ResponseBase
+from src.main.app.common.result import HttpResponse
 from src.main.app.common.util.excel_util import export_excel
-from src.main.app.common.util.time_util import get_current_time, get_date_time
+from src.main.app.common.util.time_util import get_date_time
 from src.main.app.controller.field_controller import field_service
 from src.main.app.controller.table_controller import table_service
 from src.main.app.mapper.field_mapper import fieldMapper
@@ -17,14 +18,13 @@ from src.main.app.mapper.table_mapper import tableMapper
 from src.main.app.model.db_field_model import FieldDO
 from src.main.app.model.db_table_model import TableDO
 from src.main.app.model.gen_table_model import GenTableDO
-from src.main.app.schema.common_schema import PaginationResponse
+from src.main.app.schema.common_schema import PageResult
 from src.main.app.schema.gen_table_schema import (
     GenTableAdd,
     GenTableExport,
     GenTableQueryForm,
     GenTableModify,
-    GenTableQuery, TableImport, GenTableDetail, GenTableExecute, GenTableRecord,
-)
+    GenTableQuery, TableImport, GenTableDetail, GenTableExecute, )
 from src.main.app.schema.table_schema import TableQuery
 from src.main.app.schema.user_schema import Ids
 from src.main.app.service.field_service import FieldService
@@ -33,8 +33,6 @@ from src.main.app.service.gen_table_service import GenTableService
 from src.main.app.service.impl.field_service_impl import FieldServiceImpl
 from src.main.app.service.impl.gen_table_field_service_impl import GenTableFieldServiceImpl
 from src.main.app.service.impl.gen_table_service_impl import GenTableServiceImpl
-from starlette.responses import StreamingResponse
-
 from src.main.app.service.impl.table_service_impl import TableServiceImpl
 from src.main.app.service.table_service import TableService
 
@@ -55,15 +53,15 @@ async def execute_sql(
 @gen_table_router.get("/detail/{id}")
 async def get_gen_table_detail(
     id: int,
-) -> ResponseBase[GenTableDetail]:
+) -> HttpResponse[GenTableDetail]:
     response: GenTableDetail = await gen_table_service.get_gen_table_detail(id=id)
-    return ResponseBase(data=response)
+    return HttpResponse(data=response)
 
 
 @gen_table_router.post("/add")
 async def add_gen_table(
     gen_table_add: GenTableAdd,
-) -> ResponseBase[int]:
+) -> HttpResponse[int]:
     """
     GenTable add.
 
@@ -74,13 +72,13 @@ async def add_gen_table(
         BaseResponse with new gen_table's ID.
     """
     gen_table: GenTableDO = await gen_table_service.save(data=GenTableDO(**gen_table_add.model_dump()))
-    return ResponseBase(data=gen_table.id)
+    return HttpResponse(data=gen_table.id)
 
 
 @gen_table_router.get("/list")
 async def list_gen_tables(
     gen_table_query: Annotated[GenTableQuery, Query()],
-) -> ResponseBase[PaginationResponse]:
+) -> HttpResponse[PageResult]:
     """
     Filter gen_tables with pagination.
 
@@ -91,27 +89,10 @@ async def list_gen_tables(
         BaseResponse with list and total count.
     """
     records, total_count = await gen_table_service.list_gen_tables(data=gen_table_query)
-    return ResponseBase(data=PaginationResponse(records=records, total_count=total_count))
+    return HttpResponse(data=PageResult(records=records, total_count=total_count))
 
 
-@gen_table_router.post("/recover")
-async def recover(
-    data: GenTableDO,
-) -> Dict:
-    """
-    GenTable recover that be deleted.
-
-    Args:
-        data: GenTable recover data
-
-    Returns:
-        BaseResponse with gen_table's ID.
-    """
-    gen_table: GenTableDO = await gen_table_service.save(data=data)
-    return result.success(data=gen_table.id)
-
-
-@gen_table_router.get("/exporttemplate")
+@gen_table_router.get("/export-template")
 async def export_template() -> StreamingResponse:
     """
     Export a template for gen_table information.
@@ -126,12 +107,12 @@ async def export_template() -> StreamingResponse:
 async def import_gen_table(
     table_import: TableImport
 ) -> Dict:
-    await gen_table_service.import_gen_table(data=table_import)
+    await gen_table_service.import_gen_table(table_import=table_import)
     return result.success()
 
-@gen_table_router.get("/preview/{table_id}")
-async def preview_code(table_id: int) -> Dict:
-    res = await gen_table_service.preview_code(table_id=table_id)
+@gen_table_router.get("/preview/{gen_table_id}")
+async def preview_code(gen_table_id: int) -> Dict:
+    res = await gen_table_service.preview_code(gen_table_id=gen_table_id)
     return result.success(res)
 
 @gen_table_router.get("/data/{id}/{current}/{pageSize}")
@@ -252,8 +233,8 @@ async def sync_table(
         if record.name == gen_table_do.table_name:
             table_id = record.id
             break;
-    table_import = TableImport(database_id = table_do.database_id, table_ids=[table_id])
-    await gen_table_service.import_gen_table(data=table_import)
+    table_import = TableImport(database_id = table_do.database_id, table_ids=[table_id], backend=gen_table_do.backend)
+    await gen_table_service.import_gen_table(table_import=table_import)
     records, total = await gen_table_service.list_gen_tables(data=GenTableQuery(current = 1, pageSize = 200))
     gen_table_id: int = 0
     for record in records:
