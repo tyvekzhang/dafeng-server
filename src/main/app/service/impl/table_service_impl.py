@@ -70,10 +70,7 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
         return await self.mapper.select_by_ordered_page(
             current=data.current,
             pageSize=data.pageSize,
-            order_by=data.order_by,
-            sort_order=data.sort_order,
-            count=data.count,
-            filter_by={"database_id": database_id},
+            eq={"database_id": database_id},
         )
 
     async def generate_table(self, table_generate: TableGenerate) -> None:

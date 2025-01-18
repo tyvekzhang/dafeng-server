@@ -89,8 +89,7 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
     async def list_gen_tables(self, data: GenTableQuery):
         results, total_count = await self.mapper.select_by_ordered_page(
             current=data.current,
-            pageSize=data.pageSize,
-            count=data.count,
+            pageSize=data.pageSize
         )
         if total_count == 0:
             return results, total_count

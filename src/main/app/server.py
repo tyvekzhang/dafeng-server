@@ -27,7 +27,7 @@ from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import ServiceException
 from src.main.app.common.session.db_engine import get_async_engine
 from src.main.app.common.session.db_session_middleware import SQLAlchemyMiddleware
-from src.main.app.common.util.security_util import is_token_valid
+from src.main.app.common.util.security_util import is_token_valid, get_user_id
 from src.main.app.common.util.work_path_util import resource_dir
 from src.main.app.router.router import create_router
 
@@ -105,12 +105,12 @@ async def jwt_middleware(request: Request, call_next):
     if request_url_path in white_list_routes:
         return await call_next(request)
 
-    auth_header = request.headers.get(ConstantCode.AUTH_KEY.value)
+    auth_header = request.headers.get(ConstantCode.AUTH_KEY)
     if auth_header:
         try:
             token = auth_header.split(" ")[-1]
-            if not is_token_valid(token):
-                raise PyJWTError
+            user_id = get_user_id(token)
+            request.state.user_id = user_id
         except Exception as e:
             logger.error(f"{e}")
             return JSONResponse(

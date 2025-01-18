@@ -8,6 +8,8 @@ import {
   {{ class_name }}Page,
   {{ class_name }}BatchModify,
 } from '@/types/{{ kebab_case_class_name }}';
+import { AxiosResponse } from 'axios';
+import { downloadBlob } from '@/service/util';
 
 /**
  * 分页查询{{ class_name }}

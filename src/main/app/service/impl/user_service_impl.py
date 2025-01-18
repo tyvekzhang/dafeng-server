@@ -147,8 +147,7 @@ class UserServiceImpl(ServiceBaseImpl[UserMapper, UserDO], UserService):
         results, total_count = await self.mapper.select_by_ordered_page(
             current=data.current,
             pageSize=data.pageSize,
-            count=data.count,
-            filter_by=filter_by,
+            eq=filter_by,
             like=like,
             between=between,
         )

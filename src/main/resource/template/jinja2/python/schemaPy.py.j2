@@ -1,0 +1,75 @@
+"""{{ ClassName }} schema"""
+
+from datetime import datetime
+from typing import Optional, List
+from pydantic import BaseModel, Field
+from src.main.app.schema.common_schema import PageBase
+
+class {{ ClassName }}Query(PageBase):
+    """
+    {{ function_name }}查询参数
+    """
+    {%- for field in fields %}
+    {%- if field.gen_field.queryable == 1  %}
+    # {{ field.gen_field.comment }}
+    {{ field.gen_field.field_name }}: Optional[{{ field.gen_field.field_type }}] = None
+    {%- endif %}
+    {%- endfor %}
+
+class {{ ClassName }}Create(BaseModel):
+    """
+    {{ function_name }}新增
+    """
+    {%- for field in fields %}
+    {%- if field.gen_field.creatable == 1  %}
+    # {{ field.gen_field.comment }}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endfor %}
+    # 错误信息
+    err_msg: Optional[str] = Field(None, alias="errMsg")
+
+class {{ ClassName }}Modify(BaseModel):
+    """
+    {{ function_name }}更新
+    """
+    {%- for field in fields %}
+    {%- if field.gen_field.modifiable == 1  %}
+    # {{ field.gen_field.comment }}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endfor %}
+
+class {{ ClassName }}BatchModify(BaseModel):
+    """
+    {{ function_name }}批量更新
+    """
+    {{ primary_key }}s: List[int]
+    {%- for field in fields %}
+    {%- if field.gen_field.batch_modifiable == 1  %}
+    # {{ field.gen_field.comment }}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endfor %}
+
+class {{ ClassName }}Detail(BaseModel):
+    """
+    {{ function_name }}详情
+    """
+    {%- for field in fields %}
+    {%- if field.gen_field.detailable == 1  %}
+    # {{ field.gen_field.comment }}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endfor %}
+
+class {{ ClassName }}Page(BaseModel):
+    """
+    {{ function_name }}分页信息
+    """
+    {%- for field in fields %}
+    {%- if field.gen_field.pageable == 1  %}
+    # {{ field.gen_field.comment }}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endfor %}

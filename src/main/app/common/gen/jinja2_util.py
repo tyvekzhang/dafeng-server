@@ -1,15 +1,15 @@
 import json
 from datetime import datetime
-from typing import Literal, List
+from typing import List
 
-from src.main.app.common.enums.enum import ConstantCode
 from src.main.app.common.gen.gen_constants import GenConstants
 from src.main.app.model.db_index_model import IndexDO
 from src.main.app.schema.gen_table_schema import TableGen
 
 
 class Jinja2Utils:
-    PROJECT_PATH = "main/java"
+    JAVA_PROJECT_PATH = "main/java"
+    PY_PROJECT_PATH = "main/app"
     MYBATIS_PATH = "main/resources/mapper"
     DEFAULT_PARENT_MENU_ID = "3"
 
@@ -28,6 +28,7 @@ class Jinja2Utils:
         author = gen_table.function_author
         date_time = datetime.now().strftime("%Y-%m-%d")
         class_name = Jinja2Utils.capitalize(gen_table.class_name)
+        c_n = Jinja2Utils.to_snake_case(class_name)
         lowercase_class_name = Jinja2Utils.uncapitalize(class_name)
         primary_key = table_gen.pk_field
         router_name = Jinja2Utils.to_kebab_case(class_name)
@@ -50,12 +51,17 @@ class Jinja2Utils:
             "author": author,
             "datetime": date_time,
             "class_name": class_name,
+            "c_n": c_n,
+            "ClassName": class_name,
             "lowercase_class_name": lowercase_class_name,
+            "className": lowercase_class_name,
             "primary_key": primary_key,
             "router_name": router_name,
             "kebab_case_class_name": kebab_case_class_name,
+            "class-name": kebab_case_class_name,
             "fields": fields,
-            "index_metadata": index_metadata
+            "index_metadata": index_metadata,
+            "business_name": business_name,
             # "tpl_category": tpl_category,
             # "module_name": module_name,
             # "business_name": Jinja2Utils.capitalize(business_name),
@@ -131,8 +137,18 @@ class Jinja2Utils:
         select_template = []
         if backend == GenConstants.PYTHON:
             entity_tpl = "jinja2/python/entityPy.py.j2"
+            schema_tpl = "jinja2/python/schemaPy.py.j2"
+            mapper_tpl = "jinja2/python/mapperPy.py.j2"
+            service_tpl = "jinja2/python/servicePy.py.j2"
+            service_impl_tpl = "jinja2/python/serviceImplPy.py.j2"
+            controller_tpl = "jinja2/python/controllerPy.py.j2"
             python_template = [
-                entity_tpl
+                entity_tpl,
+                schema_tpl,
+                mapper_tpl,
+                service_tpl,
+                service_impl_tpl,
+                controller_tpl,
             ]
             for tmp in python_template:
                 select_template.append(tmp)
@@ -140,7 +156,7 @@ class Jinja2Utils:
             entity_tpl = "jinja2/java/mybatis_plus/entity.java.j2"
             mapper_tpl = "jinja2/java/mybatis_plus/mapper.java.j2"
             service_tpl = "jinja2/java/mybatis_plus/service.java.j2"
-            serviceimpl_tpl = "jinja2/java/mybatis_plus/serviceImpl.java.j2"
+            service_impl_tpl = "jinja2/java/mybatis_plus/serviceImpl.java.j2"
             controller_tpl = "jinja2/java/mybatis_plus/controller.java.j2"
             create_tpl = "jinja2/java/command/create.java.j2"
             modify_tpl = "jinja2/java/command/modify.java.j2"
@@ -153,7 +169,7 @@ class Jinja2Utils:
                 entity_tpl,
                 mapper_tpl,
                 service_tpl,
-                serviceimpl_tpl,
+                service_impl_tpl,
                 controller_tpl,
                 create_tpl,
                 modify_tpl,
@@ -207,9 +223,11 @@ class Jinja2Utils:
         package_name = gen_table.package_name
         module_name = gen_table.module_name
         class_name = gen_table.class_name
+        table_name = gen_table.table_name
         business_name = gen_table.business_name
 
-        java_path = f"{Jinja2Utils.PROJECT_PATH}/{package_name.replace('.', '/')}"
+        java_path = f"{Jinja2Utils.JAVA_PROJECT_PATH}/{package_name.replace('.', '/')}"
+        py_path = f"{Jinja2Utils.PY_PROJECT_PATH}"
         mybatis_path = f"{Jinja2Utils.MYBATIS_PATH}/{module_name}"
         client_dir = "src"
         client_module_dir = "system"
@@ -228,6 +246,18 @@ class Jinja2Utils:
             file_name = f"{java_path}/service/impl/{class_name}ServiceImpl.java"
         elif "controller.java.j2" in template:
             file_name = f"{java_path}/controller/{class_name}Controller.java"
+        elif "controllerPy.py.j2" in template:
+            file_name = f"{py_path}/controller/{table_name}_controller.py"
+        elif "servicePy.py.j2" in template:
+            file_name = f"{py_path}/service/{table_name}_service.py"
+        elif "serviceImplPy.py.j2" in template:
+            file_name = f"{py_path}/service/impl/{table_name}_service_impl.py"
+        elif "mapperPy.py.j2" in template:
+            file_name = f"{py_path}/mapper/{table_name}_mapper.py"
+        elif "schemaPy.py.j2" in template:
+            file_name = f"{py_path}/schema/{table_name}_schema.py"
+        elif "entityPy.py.j2" in template:
+            file_name = f"{py_path}/model/{table_name}_model.py"
         elif "converter.java.j2" in template:
             file_name = f"{java_path}/converter/{class_name}Converter.java"
         elif "create.java.j2" in template:
@@ -415,6 +445,20 @@ class Jinja2Utils:
             if c.isupper():
                 if i != 0:
                     result.append('-')
+                result.append(c.lower())
+            else:
+                result.append(c)
+        return ''.join(result)
+
+    @staticmethod
+    def to_snake_case(name):
+        if not name:
+            return name
+        result = []
+        for i, c in enumerate(name):
+            if c.isupper():
+                if i != 0:
+                    result.append('_')
                 result.append(c.lower())
             else:
                 result.append(c)

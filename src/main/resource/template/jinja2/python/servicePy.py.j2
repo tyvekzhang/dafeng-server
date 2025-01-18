@@ -1,0 +1,32 @@
+"""{{ ClassName }} Service"""
+
+from __future__ import annotations
+from abc import ABC, abstractmethod
+from typing import Optional, List
+from fastapi import UploadFile, Request
+from starlette.responses import StreamingResponse
+from src.main.app.model.{{ table_name }}_model import {{ ClassName }}DO
+from src.main.app.schema.common_schema import PageResult
+from src.main.app.schema.{{ table_name }}_schema import {{ ClassName }}Query, {{ ClassName }}Detail, {{ ClassName }}Create
+from src.main.app.service.service_base import ServiceBase
+
+
+class {{ ClassName }}Service(ServiceBase[{{ ClassName }}DO], ABC):
+
+    @abstractmethod
+    async def fetch_{{ c_n }}_by_page(self, *, {{ c_n }}_query: {{ ClassName }}Query, request: Request) -> PageResult:...
+
+    @abstractmethod
+    async def fetch_{{ c_n }}_detail(self, *, id: int, request: Request) -> Optional[{{ ClassName }}Detail]:...
+
+    @abstractmethod
+    async def export_{{ c_n }}_page(self, *, ids: List[int], request: Request) -> Optional[StreamingResponse]:...
+
+    @abstractmethod
+    async def create_{{ c_n }}(self, *, {{ c_n }}_create: {{ ClassName }}Create, request: Request) -> {{ ClassName }}DO:...
+
+    @abstractmethod
+    async def batch_create_{{ c_n }}(self, *, {{ c_n }}_create_list: List[{{ ClassName }}Create], request: Request) -> List[int]:...
+
+    @abstractmethod
+    async def import_{{ c_n }}(self, *, file: UploadFile, request: Request) -> List[{{ ClassName }}Create]:...

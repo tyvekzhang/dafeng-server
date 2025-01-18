@@ -79,6 +79,12 @@ const {{ class_name }}ImportComponent: React.FC<{{ class_name }}ImportProps> = (
     },
     {%- endif%}
     {%- endfor %}
+    {
+      title: "错误信息",
+      dataIndex: "errMsg",
+      key: "errMsg",
+      render: (text) => (text ? text : "-"),
+    },
   ];
 
   const handle{{ class_name }}ExportTemplate = async () => {

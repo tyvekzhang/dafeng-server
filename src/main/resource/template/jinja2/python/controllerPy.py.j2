@@ -1,0 +1,95 @@
+"""{{ ClassName }} 前端控制器"""
+
+from __future__ import annotations
+from typing import Dict, Annotated, List, Any, Union
+from fastapi import APIRouter, Query, UploadFile, Form, Request
+from starlette.responses import StreamingResponse
+from src.main.app.common.schema.response_schema import HttpResponse
+from src.main.app.common.util.excel_util import export_excel
+from src.main.app.mapper.{{ table_name }}_mapper import newWordMapper
+from src.main.app.model.{{ table_name }}_model import {{ ClassName }}DO
+from src.main.app.schema.common_schema import PageResult
+from src.main.app.schema.{{ table_name }}_schema import {{ ClassName }}Query, {{ ClassName }}Modify, {{ ClassName }}Create, \
+    {{ ClassName }}BatchModify, {{ ClassName }}Detail
+from src.main.app.service.impl.{{ table_name }}_service_impl import {{ ClassName }}ServiceImpl
+from src.main.app.service.{{ table_name }}_service import {{ ClassName }}Service
+
+{{ c_n }}_router = APIRouter()
+{{ c_n }}_service: {{ ClassName }}Service = {{ ClassName }}ServiceImpl(mapper=newWordMapper)
+
+@{{ c_n }}_router.get("/page")
+async def fetch_{{ c_n }}_by_page(
+    {{ c_n }}_query: Annotated[{{ ClassName }}Query, Query()], request: Request
+) -> Dict[str, Any]:
+    {{ c_n }}_page_result: PageResult = await {{ c_n }}_service.fetch_{{ c_n }}_by_page(
+        {{ c_n }}_query={{ c_n }}_query,
+        request=request
+    )
+    return HttpResponse.success({{ c_n }}_page_result)
+
+@{{ c_n }}_router.get("/detail/{id}")
+async def fetch_{{ c_n }}_detail(
+    id: int, request: Request
+) -> Dict[str, Any]:
+    {{ c_n }}_detail: {{ ClassName }}Detail = await {{ c_n }}_service.fetch_{{ c_n }}_detail(id=id, request=request)
+    return HttpResponse.success({{ c_n }}_detail)
+
+@{{ c_n }}_router.get("/export-template")
+async def export_template(request: Request) -> StreamingResponse:
+    return await export_excel(schema={{ ClassName }}Create, file_name="{{ c_n }}_import_tpl")
+
+@{{ c_n }}_router.get("/export")
+async def export_{{ c_n }}_page(
+    request: Request, ids: list[int] = Query(...)
+) -> StreamingResponse:
+    return await {{ c_n }}_service.export_{{ c_n }}_page(ids=ids, request=request)
+
+@{{ c_n }}_router.post("/create")
+async def create_{{ c_n }}(
+    {{ c_n }}_create: {{ ClassName }}Create, request: Request
+) -> Dict[str, Any]:
+    {{ c_n }}: {{ ClassName }}DO = await {{ c_n }}_service.create_{{ c_n }}({{ c_n }}_create={{ c_n }}_create, request=request)
+    return HttpResponse.success({{ c_n }}.id)
+
+@{{ c_n }}_router.post("/batch-create")
+async def batch_create_{{ c_n }}(
+    {{ c_n }}_create_list: List[{{ ClassName }}Create], request: Request
+) -> Dict[str, Any]:
+    ids: List[int] = await {{ c_n }}_service.batch_create_{{ c_n }}({{ c_n }}_create_list={{ c_n }}_create_list, request=request)
+    return HttpResponse.success(ids)
+
+@{{ c_n }}_router.post("/import")
+async def import_{{ c_n }}(
+    request: Request, file: UploadFile = Form()
+) -> Dict[str, Any]:
+    {{ c_n }}_create_list: List[{{ ClassName }}Create] = await {{ c_n }}_service.import_{{ c_n }}(file=file, request=request)
+    return HttpResponse.success({{ c_n }}_create_list)
+
+@{{ c_n }}_router.delete("/remove/{id}")
+async def remove(
+    id: int, request: Request
+) -> Dict[str, Any]:
+    await {{ c_n }}_service.remove_by_id(id=id)
+    return HttpResponse.success()
+
+@{{ c_n }}_router.delete("/batch-remove")
+async def batch_remove(
+    request: Request, ids: List[int] = Query(...),
+) -> Dict[str, Any]:
+    await {{ c_n }}_service.batch_remove_by_ids(ids=ids)
+    return HttpResponse.success()
+
+@{{ c_n }}_router.put("/modify")
+async def modify(
+    {{ c_n }}_modify: {{ ClassName }}Modify, request: Request
+) -> Dict[str, Any]:
+    await {{ c_n }}_service.modify_by_id(data={{ ClassName }}DO(**{{ c_n }}_modify.model_dump(exclude_unset=True)))
+    return HttpResponse.success()
+
+@{{ c_n }}_router.put("/batch-modify")
+async def batch_modify({{ c_n }}_batch_modify: {{ ClassName }}BatchModify, request: Request) -> Dict[str, Any]:
+    cleaned_data = {k: v for k, v in {{ c_n }}_batch_modify.model_dump().items() if v is not None and k != "ids"}
+    if len(cleaned_data) == 0:
+        return HttpResponse.fail("内容不能为空")
+    await {{ c_n }}_service.batch_modify_by_ids(ids={{ c_n }}_batch_modify.ids, data=cleaned_data)
+    return HttpResponse.success()

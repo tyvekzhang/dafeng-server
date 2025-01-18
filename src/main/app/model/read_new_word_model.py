@@ -7,9 +7,10 @@ from sqlmodel import (
     Field,
     Column,
     Index,
-    String,
-    Integer,
+    BigInteger,
     DateTime,
+    Integer,
+    String,
 )
 from src.main.app.common.util.snowflake_util import snowflake_id
 
@@ -22,18 +23,18 @@ class NewWordBase(SQLModel):
         sa_type=BigInteger,
         sa_column_kwargs={"comment": "主键"},
     )
-    user_id: int = Field(
+    user_id: Optional[int] = Field(
         sa_column=Column(
             Integer,
-            nullable=False,
+            nullable=True,
             default=None,
             comment="用户ID"
         )
     )
-    article_id: int = Field(
+    article_id: Optional[int] = Field(
         sa_column=Column(
             Integer,
-            nullable=False,
+            nullable=True,
             default=None,
             comment="文章ID"
         )
@@ -46,18 +47,18 @@ class NewWordBase(SQLModel):
             comment="词库表ID"
         )
     )
-    word: str = Field(
+    word: Optional[str] = Field(
         sa_column=Column(
             String(32),
-            nullable=False,
+            nullable=True,
             default=None,
             comment="单词"
         )
     )
-    translation: str = Field(
+    translation: Optional[str] = Field(
         sa_column=Column(
             String(32),
-            nullable=False,
+            nullable=True,
             default=None,
             comment="翻译"
         )
@@ -78,10 +79,10 @@ class NewWordBase(SQLModel):
             comment="复习时间"
         )
     )
-    tenant_id: int = Field(
+    tenant_id: Optional[int] = Field(
         sa_column=Column(
             Integer,
-            nullable=False,
+            nullable=True,
             default=None,
             comment="租户ID"
         )
@@ -101,7 +102,7 @@ class NewWordBase(SQLModel):
     )
 
 
-class NewWordDO(NewWordBase, table=False):
+class NewWordDO(NewWordBase, table=True):
     __tablename__ = "read_new_word"
     __table_args__ = (
         Index("idx_my_tenantId_userId_word", 'tenant_id', 'user_id', 'word'),

@@ -1,46 +1,125 @@
 """NewWord schema"""
-import random
-import uuid
+
 from datetime import datetime
 from typing import Optional, List
+from pydantic import BaseModel, Field
+from src.main.app.schema.common_schema import PageBase
 
-from pydantic import BaseModel
-
-from src.main.app.schema.common_schema import PageQuery
-
-
-class NewWordQuery(PageQuery):
-    pass
-
-class NewWordPage(BaseModel):
-    pass
-
-class NewWordDetail(BaseModel):
-    pass
+class NewWordQuery(PageBase):
+    """
+    阅读生词查询参数
+    """
+    # 主键
+    id: Optional[int] = None
+    # 文章ID
+    article_id: Optional[int] = None
+    # 词库表ID
+    word_id: Optional[int] = None
+    # 单词
+    word: Optional[str] = None
+    # 翻译
+    translation: Optional[str] = None
+    # 复习次数
+    review_count: Optional[int] = None
+    # 复习时间
+    next_review_date: Optional[datetime] = None
+    # 创建时间
+    create_time: Optional[datetime] = None
 
 class NewWordCreate(BaseModel):
-    err_msg: str = Optional[str]
-
-class NewWordExport(BaseModel):
-    word: str = uuid.uuid4()
-    nextReviewDate: datetime = datetime.now()
-    userId: int =  random.randint(1, 70)
-    articleId: int =  random.randint(1, 6)
-    wordId: int =  random.randint(1, 60)
-    reviewCount: int =  random.randint(1, 60)
-    tenantId: int =  random.randint(1, 60)
-
-
-
-
-class NewWordQueryForm(BaseModel):
-    ids: List[int]
-
+    """
+    阅读生词新增
+    """
+    # 文章ID
+    article_id: Optional[int] = None
+    # 词库表ID
+    word_id: Optional[int] = None
+    # 单词
+    word: Optional[str] = None
+    # 翻译
+    translation: Optional[str] = None
+    # 复习次数
+    review_count: Optional[int] = None
+    # 复习时间
+    next_review_date: Optional[datetime] = None
+    # 错误信息
+    err_msg: Optional[str] = Field(None, alias="errMsg")
 
 class NewWordModify(BaseModel):
+    """
+    阅读生词更新
+    """
+    # 主键
     id: int
-    word: str
+    # 文章ID
+    article_id: Optional[int] = None
+    # 词库表ID
+    word_id: Optional[int] = None
+    # 单词
+    word: Optional[str] = None
+    # 翻译
+    translation: Optional[str] = None
+    # 复习次数
+    review_count: Optional[int] = None
+    # 复习时间
+    next_review_date: Optional[datetime] = None
 
 class NewWordBatchModify(BaseModel):
+    """
+    阅读生词批量更新
+    """
     ids: List[int]
-    word: str
+    # 文章ID
+    article_id: Optional[int] = None
+    # 词库表ID
+    word_id: Optional[int] = None
+    # 单词
+    word: Optional[str] = None
+    # 翻译
+    translation: Optional[str] = None
+    # 复习次数
+    review_count: Optional[int] = None
+    # 复习时间
+    next_review_date: Optional[datetime] = None
+
+class NewWordDetail(BaseModel):
+    """
+    阅读生词详情
+    """
+    # 主键
+    id: int
+    # 文章ID
+    article_id: Optional[int] = None
+    # 词库表ID
+    word_id: Optional[int] = None
+    # 单词
+    word: Optional[str] = None
+    # 翻译
+    translation: Optional[str] = None
+    # 复习次数
+    review_count: Optional[int] = None
+    # 复习时间
+    next_review_date: Optional[datetime] = None
+    # 创建时间
+    create_time: Optional[datetime] = None
+
+class NewWordPage(BaseModel):
+    """
+    阅读生词分页信息
+    """
+    # 主键
+    id: int
+    # 文章ID
+    article_id: Optional[int] = None
+    # 词库表ID
+    word_id: Optional[int] = None
+    # 单词
+    word: Optional[str] = None
+    # 翻译
+    translation: Optional[str] = None
+    # 复习次数
+    review_count: Optional[int] = None
+    # 复习时间
+    next_review_date: Optional[datetime] = None
+    # 创建时间
+    create_time: Optional[datetime] = None

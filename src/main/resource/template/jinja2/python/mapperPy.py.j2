@@ -1,0 +1,11 @@
+"""{{ ClassName }} mapper"""
+
+from src.main.app.mapper.mapper_base_impl import SqlModelMapper
+from src.main.app.model.{{ table_name }}_model import {{ ClassName }}DO
+
+
+class {{ ClassName }}Mapper(SqlModelMapper[{{ ClassName }}DO]):
+    pass
+
+
+{{ className }}Mapper = {{ ClassName }}Mapper({{ ClassName }}DO)

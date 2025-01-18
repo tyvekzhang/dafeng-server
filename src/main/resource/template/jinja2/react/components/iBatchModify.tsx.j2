@@ -62,7 +62,7 @@ const {{ class_name }}BatchModifyComponent: React.FC<{{ class_name }}BatchModify
             {%- if field.gen_field.html_type == 'input' and field.gen_field.js_type == 'string' %}
             <Input placeholder="请输入" />
             {%- elif field.gen_field.html_type == 'datetime' %}
-            <DatePicker.RangePicker />
+            <DatePicker />
             {%- elif field.gen_field.html_type == 'input' and field.gen_field.js_type == 'number' %}
             <Input type="number" placeholder="请输入" />
             {%- elif field.gen_field.field_name == 'status' %}

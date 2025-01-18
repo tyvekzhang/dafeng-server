@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlmodel import SQLModel, select, insert, update, delete, func
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.main.app.common.enums.enum import SortEnum
+from src.main.app.common.enums.enum import SortEnum, FilterOperators
 from src.main.app.common.session.db_session_middleware import db
 from src.main.app.mapper.mapper_base import MapperBase
 
@@ -108,42 +108,42 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
             count : Whether to record the total row
             db_session : The database session to use
             **kwargs: Additional filter criteria, including:
-                - eq: Equal to (e.g., {"column_name": value})
-                - ne: Not equal to (e.g., {"column_name": value})
-                - gt: Greater than (e.g., {"column_name": value})
-                - ge: Greater than or equal to (e.g., {"column_name": value})
-                - lt: Less than (e.g., {"column_name": value})
-                - le: Less than or equal to (e.g., {"column_name": value})
-                - between: Between two values (e.g., {"column_name": (start, end)})
-                - like: Fuzzy search (e.g., {"column_name": "%value%"})
+                - EQ: Equal to (e.g., {"column_name": value})
+                - NE: Not equal to (e.g., {"column_name": value})
+                - GT: Greater than (e.g., {"column_name": value})
+                - GE: Greater than or equal to (e.g., {"column_name": value})
+                - LT: Less than (e.g., {"column_name": value})
+                - LE: Less than or equal to (e.g., {"column_name": value})
+                - BETWEEN: Between two values (e.g., {"column_name": (start, end)})
+                - LIKE: Fuzzy search (e.g., {"column_name": "%value%"})
         """
         db_session = db_session or self.db.session
         query = select(self.model)
 
         # 处理过滤条件
-        if "eq" in kwargs:
-            for column, value in kwargs["eq"].items():
+        if FilterOperators.EQ in kwargs:
+            for column, value in kwargs[FilterOperators.EQ].items():
                 query = query.filter(getattr(self.model, column) == value)
-        if "ne" in kwargs:
-            for column, value in kwargs["ne"].items():
+        if FilterOperators.NE in kwargs:
+            for column, value in kwargs[FilterOperators.NE].items():
                 query = query.filter(getattr(self.model, column) != value)
-        if "gt" in kwargs:
-            for column, value in kwargs["gt"].items():
+        if FilterOperators.GT in kwargs:
+            for column, value in kwargs[FilterOperators.GT].items():
                 query = query.filter(getattr(self.model, column) > value)
-        if "ge" in kwargs:
-            for column, value in kwargs["ge"].items():
+        if FilterOperators.GE in kwargs:
+            for column, value in kwargs[FilterOperators.GE].items():
                 query = query.filter(getattr(self.model, column) >= value)
-        if "lt" in kwargs:
-            for column, value in kwargs["lt"].items():
+        if FilterOperators.LT in kwargs:
+            for column, value in kwargs[FilterOperators.LT].items():
                 query = query.filter(getattr(self.model, column) < value)
-        if "le" in kwargs:
-            for column, value in kwargs["le"].items():
+        if FilterOperators.LE in kwargs:
+            for column, value in kwargs[FilterOperators.LE].items():
                 query = query.filter(getattr(self.model, column) <= value)
-        if "between" in kwargs:
-            for column, (start, end) in kwargs["between"].items():
+        if FilterOperators.BETWEEN in kwargs:
+            for column, (start, end) in kwargs[FilterOperators.BETWEEN].items():
                 query = query.filter(getattr(self.model, column).between(start, end))
-        if "like" in kwargs:
-            for column, value in kwargs["like"].items():
+        if FilterOperators.LIKE in kwargs:
+            for column, value in kwargs[FilterOperators.LIKE].items():
                 query = query.filter(getattr(self.model, column).like(value))
 
         # 计算总数
@@ -185,42 +185,42 @@ class SqlModelMapper(Generic[ModelType], MapperBase):
             sort_order : The sort order (ascending or descending)
             db_session : The database session to use
             **kwargs: Additional filter criteria, including:
-                - eq: Equal to (e.g., {"column_name": value})
-                - ne: Not equal to (e.g., {"column_name": value})
-                - gt: Greater than (e.g., {"column_name": value})
-                - ge: Greater than or equal to (e.g., {"column_name": value})
-                - lt: Less than (e.g., {"column_name": value})
-                - le: Less than or equal to (e.g., {"column_name": value})
-                - between: Between two values (e.g., {"column_name": (start, end)})
-                - like: Fuzzy search (e.g., {"column_name": "%value%"})
+                - EQ: Equal to (e.g., {"column_name": value})
+                - NE: Not equal to (e.g., {"column_name": value})
+                - GT: Greater than (e.g., {"column_name": value})
+                - GE: Greater than or equal to (e.g., {"column_name": value})
+                - LT: Less than (e.g., {"column_name": value})
+                - LE: Less than or equal to (e.g., {"column_name": value})
+                - BETWEEN: Between two values (e.g., {"column_name": (start, end)})
+                - LIKE: Fuzzy search (e.g., {"column_name": "%value%"})
         """
         db_session = db_session or self.db.session
         query = select(self.model)
 
         # 处理过滤条件
-        if "eq" in kwargs:
-            for column, value in kwargs["eq"].items():
+        if FilterOperators.EQ in kwargs:
+            for column, value in kwargs[FilterOperators.EQ].items():
                 query = query.filter(getattr(self.model, column) == value)
-        if "ne" in kwargs:
-            for column, value in kwargs["ne"].items():
+        if FilterOperators.NE in kwargs:
+            for column, value in kwargs[FilterOperators.NE].items():
                 query = query.filter(getattr(self.model, column) != value)
-        if "gt" in kwargs:
-            for column, value in kwargs["gt"].items():
+        if FilterOperators.GT in kwargs:
+            for column, value in kwargs[FilterOperators.GT].items():
                 query = query.filter(getattr(self.model, column) > value)
-        if "ge" in kwargs:
-            for column, value in kwargs["ge"].items():
+        if FilterOperators.GE in kwargs:
+            for column, value in kwargs[FilterOperators.GE].items():
                 query = query.filter(getattr(self.model, column) >= value)
-        if "lt" in kwargs:
-            for column, value in kwargs["lt"].items():
+        if FilterOperators.LT in kwargs:
+            for column, value in kwargs[FilterOperators.LT].items():
                 query = query.filter(getattr(self.model, column) < value)
-        if "le" in kwargs:
-            for column, value in kwargs["le"].items():
+        if FilterOperators.LE in kwargs:
+            for column, value in kwargs[FilterOperators.LE].items():
                 query = query.filter(getattr(self.model, column) <= value)
-        if "between" in kwargs:
-            for column, (start, end) in kwargs["between"].items():
+        if FilterOperators.BETWEEN in kwargs:
+            for column, (start, end) in kwargs[FilterOperators.BETWEEN].items():
                 query = query.filter(getattr(self.model, column).between(start, end))
-        if "like" in kwargs:
-            for column, value in kwargs["like"].items():
+        if FilterOperators.LIKE in kwargs:
+            for column, value in kwargs[FilterOperators.LIKE].items():
                 query = query.filter(getattr(self.model, column).like(value))
 
         # 计算总数

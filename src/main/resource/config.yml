@@ -25,7 +25,7 @@ security:
   secret_key: 43365f0e3e88863ff5080ac382d7717634a8ef72d8f2b52d436fc9847dbecc64
   access_token_expire_minutes: 30
   refresh_token_expire_days: 30
-  white_list_routes: /v1/probe/liveness, /v1/probe/readiness, /v1/user/login, /v1/user/register, /v1/user/refreshTokens, /v1/user/export
+  white_list_routes: /v1/probe/liveness, /v1/probe/readiness, /v1/user/login, /v1/user/add, /v1/user/refreshTokens, /v1/user/export
   backend_cors_origins: http://127.0.0.1:8200, http://localhost:8200, http://localhost
 
 gen:

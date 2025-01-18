@@ -26,17 +26,6 @@ class CurrentUser(BaseModel):
 
 
 class PageBase(BaseModel):
-    """
-    PageBase schema
-    """
-
-    current: Optional[int] = 1
-    pageSize: Optional[int] = 10
-    count: Optional[bool] = True
-    order_by: Optional[str] = None
-    sort_order: Optional[str] = None
-
-class PageQuery(BaseModel):
     current: Optional[int] = 1
     pageSize: Optional[int] = 10
     sorter: Optional[str] = None

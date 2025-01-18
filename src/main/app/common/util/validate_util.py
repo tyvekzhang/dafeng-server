@@ -16,5 +16,9 @@ class ValidateService:
 
     @staticmethod
     def get_validate_err_msg(e: ValidationError)-> Optional[str]:
-        errors = ", ".join([f"{'->'.join(map(str, error['loc']))}: {error['msg']}" for error in e.errors()])
-        return errors
+        err_msg = []
+        for error in e.errors():
+            field = " -> ".join(map(str, error["loc"]))  # 字段路径
+            message = error["msg"]  # 错误描述
+            err_msg.append(f"Error in field '{field}': {message}")
+        return ",".join(err_msg)

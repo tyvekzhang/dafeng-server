@@ -1,0 +1,144 @@
+"""{{ ClassName }} domain service impl"""
+
+from __future__ import annotations
+import io
+from typing import Optional, List
+from typing import Union
+import pandas as pd
+from fastapi import UploadFile, Request
+from fastapi.exceptions import ResponseValidationError
+from starlette.responses import StreamingResponse
+from src.main.app.common.enums.enum import FilterOperators
+from src.main.app.common.util.excel_util import export_excel
+from src.main.app.common.util.validate_util import ValidateService
+from src.main.app.mapper.{{ table_name }}_mapper import {{ ClassName }}Mapper
+from src.main.app.model.{{ table_name }}_model import {{ ClassName }}DO
+from src.main.app.schema.common_schema import PageResult
+from src.main.app.schema.{{ table_name }}_schema import {{ ClassName }}Query, {{ ClassName }}Page, {{ ClassName }}Detail, {{ ClassName }}Create
+from src.main.app.service.impl.service_base_impl import ServiceBaseImpl
+from src.main.app.service.{{ table_name }}_service import {{ ClassName }}Service
+
+
+class {{ ClassName }}ServiceImpl(ServiceBaseImpl[{{ ClassName }}Mapper, {{ ClassName }}DO], {{ ClassName }}Service):
+    """
+    Implementation of the {{ ClassName }}Service interface.
+    """
+
+    def __init__(self, mapper: {{ ClassName }}Mapper):
+        """
+        Initialize the {{ ClassName }}ServiceImpl instance.
+
+        Args:
+            mapper ({{ ClassName }}Mapper): The {{ ClassName }}Mapper instance to use for database operations.
+        """
+        super().__init__(mapper=mapper)
+        self.mapper = mapper
+
+    async def fetch_{{ c_n }}_by_page(self, {{ c_n }}_query: {{ ClassName }}Query, request: Request) -> PageResult:
+        eq = {}
+        ne = {}
+        gt = {}
+        ge = {}
+        lt = {}
+        le = {}
+        between = {}
+        like = {}
+        {%- for field in fields %}
+        {%- if field.gen_field.queryable == 1  %}
+        {%- set field_name=field.gen_field.field_name %}
+        {%- set query_type=field.gen_field.query_type %}
+        {%- if query_type == "EQ" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "" :
+            eq["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "NE" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "" :
+            ne["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "GT" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "" :
+            gt["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "GE" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "" :
+            ge["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "LT" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "" :
+            lt["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "LE" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "" :
+            le["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "BETWEEN" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "" :
+            between["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- elif query_type == "LIKE" %}
+        if {{ c_n }}_query.{{ field_name }} is not None and {{ c_n }}_query.{{ field_name }} != "" :
+            like["{{ field_name }}"] = {{ c_n }}_query.{{ field_name }}
+        {%- endif %}
+        {%- endif %}
+        {%- endfor %}
+        filters = {
+            FilterOperators.EQ: eq,
+            FilterOperators.NE: ne,
+            FilterOperators.GT: gt,
+            FilterOperators.GE: ge,
+            FilterOperators.LT: lt,
+            FilterOperators.LE: le,
+            FilterOperators.BETWEEN: between,
+            FilterOperators.LIKE: like
+        }
+        records, total = await self.mapper.select_by_ordered_page(
+            current={{ c_n }}_query.current,
+            pageSize={{ c_n }}_query.pageSize,
+            **filters
+        )
+        records = [{{ ClassName }}Page(**record.model_dump()) for record in records]
+        return PageResult(records=records, total=total)
+
+    async def fetch_{{ c_n }}_detail(self, *, id: int, request: Request) -> Optional[{{ ClassName }}Detail]:
+        {{ c_n }}_do: {{ ClassName }}DO =await self.mapper.select_by_id(id=id)
+        if {{ c_n }}_do is None:
+            return None
+        return {{ ClassName }}Detail(**{{ c_n }}_do.model_dump())
+
+    async def export_{{ c_n }}_page(self, *, ids: List[int], request: Request) -> Optional[StreamingResponse]:
+        if ids is None or len(ids) == 0:
+            return None
+        {{ c_n }}_list: List[{{ ClassName }}DO] = await self.retrieve_by_ids(ids = ids)
+        if {{ c_n }}_list is None or len({{ c_n }}_list) == 0:
+            return None
+        {{ c_n }}_page_list = [{{ ClassName }}Page(**{{ c_n }}.model_dump()) for {{ c_n }} in {{ c_n }}_list]
+        return await export_excel(schema={{ ClassName }}Page, file_name="{{ c_n }}_data_export", data_list={{ c_n }}_page_list)
+
+    async def create_{{ c_n }}(self, {{ c_n }}_create: {{ ClassName }}Create, request: Request) -> {{ ClassName }}DO:
+        {{ c_n }}: {{ ClassName }}DO = {{ ClassName }}DO(**{{ c_n }}_create.model_dump())
+        {{ c_n }}.user_id = request.state.user_id
+        return await self.save(data={{ c_n }})
+
+    async def batch_create_{{ c_n }}(self, *, {{ c_n }}_create_list: List[{{ ClassName }}Create], request: Request) -> List[int]:
+        {{ c_n }}_list: List[{{ ClassName }}DO] = [{{ ClassName }}DO(**{{ c_n }}_create.model_dump()) for {{ c_n }}_create in {{ c_n }}_create_list]
+        await self.batch_save(datas={{ c_n }}_list)
+        return [{{ c_n }}.id for {{ c_n }} in {{ c_n }}_list]
+
+    @staticmethod
+    async def import_{{ c_n }}(*, file: UploadFile, request: Request) -> Union[List[{{ ClassName }}Create], None]:
+        contents = await file.read()
+        import_df = pd.read_excel(io.BytesIO(contents))
+        import_df = import_df.fillna("")
+        {{ c_n }}_records = import_df.to_dict(orient="records")
+        if {{ c_n }}_records is None or len({{ c_n }}_records) == 0:
+            return None
+        for record in {{ c_n }}_records:
+            for key, value in record.items():
+                if value == "":
+                    record[key] = None
+        {{ c_n }}_create_list = []
+        for {{ c_n }}_record in {{ c_n }}_records:
+            try:
+                {{ c_n }}_create = {{ ClassName }}Create(**{{ c_n }}_record)
+                {{ c_n }}_create_list.append({{ c_n }}_create)
+            except Exception as e:
+                valid_data = {k: v for k, v in {{ c_n }}_record.items() if k in {{ ClassName }}Create.model_fields}
+                {{ c_n }}_create = {{ ClassName }}Create.model_construct(**valid_data)
+                {{ c_n }}_create.err_msg = ValidateService.get_validate_err_msg(e)
+                {{ c_n }}_create_list.append({{ c_n }}_create)
+                return {{ c_n }}_create_list
+
+        return {{ c_n }}_create_list

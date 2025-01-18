@@ -35,7 +35,7 @@ class ResponseCode(Enum):
         return self.value[1]
 
 
-class ConstantCode(Enum):
+class ConstantCode:
     """
     Enum for system constant codes.
     """
@@ -44,9 +44,18 @@ class ConstantCode(Enum):
     AUTH_KEY = "Authorization"
     UTF_8 = "utf-8"
 
-    @property
-    def value(self):
-        return self.value
+class FilterOperators:
+    """
+    过滤条件的操作符常量
+    """
+    EQ = "EQ"  # 等于
+    NE = "NE"  # 不等于
+    GT = "GT"  # 大于
+    GE = "GE"  # 大于等于
+    LT = "LT"  # 小于
+    LE = "LE"  # 小于等于
+    BETWEEN = "BETWEEN"  # 介于
+    LIKE = "LIKE"  # 模糊匹配
 
 
 class SortEnum(str, Enum):

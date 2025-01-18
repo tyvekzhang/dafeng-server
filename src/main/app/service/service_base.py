@@ -3,9 +3,9 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, TypeVar, Generic, Tuple, Union, Dict
 
-from src.main.app.model.model_base import ModelBase
+from sqlmodel import SQLModel
 
-T = TypeVar("T", bound=ModelBase)
+T = TypeVar("T", bound=SQLModel)
 
 
 class ServiceBase(Generic[T], ABC):
