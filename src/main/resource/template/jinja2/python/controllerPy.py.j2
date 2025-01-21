@@ -6,7 +6,7 @@ from fastapi import APIRouter, Query, UploadFile, Form, Request
 from starlette.responses import StreamingResponse
 from src.main.app.common.schema.response_schema import HttpResponse
 from src.main.app.common.util.excel_util import export_excel
-from src.main.app.mapper.{{ table_name }}_mapper import newWordMapper
+from src.main.app.mapper.{{ table_name }}_mapper import {{ className }}Mapper
 from src.main.app.model.{{ table_name }}_model import {{ ClassName }}DO
 from src.main.app.schema.common_schema import PageResult
 from src.main.app.schema.{{ table_name }}_schema import {{ ClassName }}Query, {{ ClassName }}Modify, {{ ClassName }}Create, \
@@ -15,7 +15,7 @@ from src.main.app.service.impl.{{ table_name }}_service_impl import {{ ClassName
 from src.main.app.service.{{ table_name }}_service import {{ ClassName }}Service
 
 {{ c_n }}_router = APIRouter()
-{{ c_n }}_service: {{ ClassName }}Service = {{ ClassName }}ServiceImpl(mapper=newWordMapper)
+{{ c_n }}_service: {{ ClassName }}Service = {{ ClassName }}ServiceImpl(mapper={{ className }}Mapper)
 
 @{{ c_n }}_router.get("/page")
 async def fetch_{{ c_n }}_by_page(

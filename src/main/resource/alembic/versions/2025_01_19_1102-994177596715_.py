@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b294b0f5c7c2
+Revision ID: 994177596715
 Revises: 
-Create Date: 2025-01-17 21:56:30.392548
+Create Date: 2025-01-19 11:02:24.942229
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel # added
 
 
 # revision identifiers, used by Alembic.
-revision = 'b294b0f5c7c2'
+revision = '994177596715'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -156,14 +156,14 @@ def upgrade():
     op.create_index(op.f('ix_gen_table_db_table_id'), 'gen_table', ['db_table_id'], unique=False)
     op.create_table('read_new_word',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
-    sa.Column('user_id', sa.Integer(), nullable=False, comment='用户ID'),
-    sa.Column('article_id', sa.Integer(), nullable=False, comment='文章ID'),
+    sa.Column('user_id', sa.Integer(), nullable=True, comment='用户ID'),
+    sa.Column('article_id', sa.Integer(), nullable=True, comment='文章ID'),
     sa.Column('word_id', sa.Integer(), nullable=True, comment='词库表ID'),
-    sa.Column('word', sa.String(length=32), nullable=False, comment='单词'),
-    sa.Column('translation', sa.String(length=32), nullable=False, comment='翻译'),
+    sa.Column('word', sa.String(length=32), nullable=True, comment='单词'),
+    sa.Column('translation', sa.String(length=32), nullable=True, comment='翻译'),
     sa.Column('review_count', sa.Integer(), nullable=True, comment='复习次数'),
     sa.Column('next_review_date', sa.DateTime(), nullable=True, comment='复习时间'),
-    sa.Column('tenant_id', sa.Integer(), nullable=False, comment='租户ID'),
+    sa.Column('tenant_id', sa.Integer(), nullable=True, comment='租户ID'),
     sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
     sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
     sa.PrimaryKeyConstraint('id'),
@@ -171,6 +171,30 @@ def upgrade():
     )
     op.create_index('idx_my_tenantId_userId_word', 'read_new_word', ['tenant_id', 'user_id', 'word'], unique=False)
     op.create_index('idx_nd_tenantid_userid_articleid', 'read_new_word', ['tenant_id', 'user_id', 'article_id'], unique=False)
+    op.create_table('sys_menu',
+    sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
+    sa.Column('menu_name', sa.String(length=50), nullable=False, comment='菜单名称'),
+    sa.Column('parent_id', sa.Integer(), nullable=True, comment='父菜单ID'),
+    sa.Column('order_num', sa.Integer(), nullable=True, comment='显示顺序'),
+    sa.Column('path', sa.String(length=200), nullable=True, comment='路由地址'),
+    sa.Column('component', sa.String(length=255), nullable=True, comment='组件路径'),
+    sa.Column('query', sa.String(length=255), nullable=True, comment='路由参数'),
+    sa.Column('route_name', sa.String(length=50), nullable=True, comment='路由名称'),
+    sa.Column('is_frame', sa.Integer(), nullable=True, comment='是否为外链（0是 1否）'),
+    sa.Column('is_cache', sa.Integer(), nullable=True, comment='是否缓存（0缓存 1不缓存）'),
+    sa.Column('menu_type', sa.String(length=1), nullable=True, comment='菜单类型（M目录 C菜单 F按钮）'),
+    sa.Column('visible', sa.String(length=1), nullable=True, comment='菜单状态（0显示 1隐藏）'),
+    sa.Column('status', sa.String(length=1), nullable=True, comment='菜单状态（0正常 1停用）'),
+    sa.Column('perms', sa.String(length=100), nullable=True, comment='权限标识'),
+    sa.Column('icon', sa.String(length=100), nullable=True, comment='菜单图标'),
+    sa.Column('create_by', sa.String(length=64), nullable=True, comment='创建者'),
+    sa.Column('create_time', sa.DateTime(), nullable=True, comment='创建时间'),
+    sa.Column('update_by', sa.String(length=64), nullable=True, comment='更新者'),
+    sa.Column('update_time', sa.DateTime(), nullable=True, comment='更新时间'),
+    sa.Column('remark', sa.String(length=500), nullable=True, comment='备注'),
+    sa.PrimaryKeyConstraint('id'),
+    comment='菜单权限表'
+    )
     op.create_table('sys_user',
     sa.Column('id', sa.BigInteger(), nullable=False, comment='主键'),
     sa.Column('username', sa.String(length=32), nullable=False, comment='用户名'),
@@ -194,6 +218,7 @@ def downgrade():
     op.drop_index(op.f('ix_sys_user_username'), table_name='sys_user')
     op.drop_index('idx_status_nickname', table_name='sys_user')
     op.drop_table('sys_user')
+    op.drop_table('sys_menu')
     op.drop_index('idx_nd_tenantid_userid_articleid', table_name='read_new_word')
     op.drop_index('idx_my_tenantId_userId_word', table_name='read_new_word')
     op.drop_table('read_new_word')

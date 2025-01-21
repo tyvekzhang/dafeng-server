@@ -18,5 +18,5 @@ class IndexServiceImpl(ServiceBaseImpl[IndexMapper, IndexDO], IndexService):
             pageSize=data.pageSize,
             order_by=data.order_by,
             sort_order=data.sort_order,
-            eq={"table_id": data.table_id},
+            EQ={"table_id": data.table_id},
         )

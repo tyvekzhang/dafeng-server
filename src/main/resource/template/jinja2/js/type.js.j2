@@ -1,6 +1,24 @@
+export interface {{class_name}}Page {
+    {% for field in fields %}
+    {%- if field.gen_field.pageable == 1  %}
+    /** {{ field.field.comment }} */
+    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {% endif -%}
+    {% endfor %}
+}
+
 export interface {{class_name}}Create {
     {% for field in fields %}
     {%- if field.gen_field.creatable == 1  %}
+    /** {{ field.field.comment }} */
+    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {% endif -%}
+    {% endfor %}
+}
+
+export interface {{class_name}}Query {
+    {% for field in fields %}
+    {%- if field.gen_field.queryable == 1  %}
     /** {{ field.field.comment }} */
     {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
     {% endif -%}
@@ -28,27 +46,9 @@ export interface {{class_name}}BatchModify {
     {% endfor %}
 }
 
-export interface {{class_name}}Query {
-    {% for field in fields %}
-    {%- if field.gen_field.queryable == 1  %}
-    /** {{ field.field.comment }} */
-    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
-    {% endif -%}
-    {% endfor %}
-}
-
 export interface {{class_name}}Detail {
     {% for field in fields %}
     {%- if field.gen_field.detailable == 1  %}
-    /** {{ field.field.comment }} */
-    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
-    {% endif -%}
-    {% endfor %}
-}
-
-export interface {{class_name}}Page {
-    {% for field in fields %}
-    {%- if field.gen_field.pageable == 1  %}
     /** {{ field.field.comment }} */
     {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
     {% endif -%}

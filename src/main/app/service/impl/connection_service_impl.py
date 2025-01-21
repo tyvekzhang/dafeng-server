@@ -33,8 +33,6 @@ class ConnectionServiceImpl(ServiceBaseImpl[ConnectionMapper, ConnectionDO], Con
         records, total_count = await self.mapper.select_by_ordered_page(
             current=data.current,
             pageSize=data.pageSize,
-            sort_order=data.sort_order,
-            order_by=data.order_by
         )
         if total_count == 0:
             database_config = load_config().database

@@ -5,6 +5,17 @@ from typing import Optional, List
 from pydantic import BaseModel, Field
 from src.main.app.schema.common_schema import PageBase
 
+class {{ ClassName }}Page(BaseModel):
+    """
+    {{ function_name }}分页信息
+    """
+    {%- for field in fields %}
+    {%- if field.gen_field.pageable == 1  %}
+    # {{ field.gen_field.comment }}
+    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
+    {%- endif %}
+    {%- endfor %}
+
 class {{ ClassName }}Query(PageBase):
     """
     {{ function_name }}查询参数
@@ -58,17 +69,6 @@ class {{ ClassName }}Detail(BaseModel):
     """
     {%- for field in fields %}
     {%- if field.gen_field.detailable == 1  %}
-    # {{ field.gen_field.comment }}
-    {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
-    {%- endif %}
-    {%- endfor %}
-
-class {{ ClassName }}Page(BaseModel):
-    """
-    {{ function_name }}分页信息
-    """
-    {%- for field in fields %}
-    {%- if field.gen_field.pageable == 1  %}
     # {{ field.gen_field.comment }}
     {{ field.gen_field.field_name }}: {% if field.gen_field.nullable %}Optional[{{ field.gen_field.field_type }}] = {{ field.gen_field.default }}{% else %}{{ field.gen_field.field_type }}{% endif %}
     {%- endif %}

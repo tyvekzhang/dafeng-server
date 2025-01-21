@@ -189,6 +189,7 @@ class Jinja2Utils:
         index_import_tpl = "jinja2/react/components/iImport.tsx.j2"
         api_tpl = "jinja2/js/api.js.j2"
         type_tpl = "jinja2/js/type.js.j2"
+        router_tpl = "jinja2/react/router.tsx.j2"
         react_templates = [
             index_query_tpl,
             index_modify_tpl,
@@ -198,7 +199,8 @@ class Jinja2Utils:
             index_tpl,
             index_create_tpl,
             api_tpl,
-            type_tpl
+            type_tpl,
+            router_tpl,
         ]
 
         select_template.extend(react_templates)

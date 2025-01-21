@@ -272,6 +272,12 @@ async def menus():
                     "name": "生词管理",
                     "hideMenu": False,
                     "path": "/system/new-word",
+                },
+                {
+                    "key": "menu",
+                    "name": "菜单管理",
+                    "hideMenu": False,
+                    "path": "/system/menu",
                 }
             ],
         },

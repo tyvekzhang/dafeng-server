@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from src.main.app.controller.probe_controller import probe_router
 from src.main.app.controller.read_new_word_controller import new_word_router
+from src.main.app.controller.sys_menu_controller import menu_router
 from src.main.app.controller.user_controller import user_router
 from src.main.app.controller.database_controller import database_router
 from src.main.app.controller.connection_controller import connection_router
@@ -24,5 +25,6 @@ def create_router() -> APIRouter:
     router.include_router(index_router, tags=["index"], prefix="/index")
     router.include_router(gen_table_router, tags=["genTable"], prefix="/gen-table")
     router.include_router(gen_table_column_router, tags=["genTableColumn"], prefix="/gen-table-column")
-    router.include_router(new_word_router, tags=["{{ class_name }}"], prefix="/new-word")
+    router.include_router(new_word_router, tags=["new-word"], prefix="/new-word")
+    router.include_router(menu_router, tags=["menu"], prefix="/menu")
     return router

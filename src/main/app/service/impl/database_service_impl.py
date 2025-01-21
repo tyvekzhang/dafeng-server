@@ -161,7 +161,5 @@ class DatabaseServiceImpl(ServiceBaseImpl[DatabaseMapper, DatabaseDO], DatabaseS
         return await self.mapper.select_by_ordered_page(
             current=data.current,
             pageSize=data.pageSize,
-            order_by=data.order_by,
-            sort_order=data.sort_order,
-            eq={"connection_id": connection_id},
+            EQ={"connection_id": connection_id},
         )

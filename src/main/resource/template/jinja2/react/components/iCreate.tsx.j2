@@ -52,12 +52,18 @@ const {{ class_name }}CreateComponent: React.FC<{{ class_name }}CreateProps> = (
           className="grid grid-cols-1 lg:grid-cols-2 gap-y-0 gap-x-2 pt-4"
         >
           {%- for field in fields %}
-          {%- if field.gen_field.creatable == 1 and field.gen_field.field_name != primary_key -%}
-          {%- set parentheseIndex = field.field.comment.find("(") -%}
-          {%- if parentheseIndex!= -1 -%}
-              {% set comment = field.field.comment[:parentheseIndex] %}
-          {%- else -%}
-              {% set comment = field.field.comment %}
+          {%- set comment = "" %}
+          {%- if field.gen_field.creatable == 1 and field.gen_field.field_name != primary_key %}
+          {%- if field.field.comment and field.field.comment != "" %}
+              {%- set parentheseIndex_en = field.field.comment.find("(") %}
+              {%- set parentheseIndex_cn = field.field.comment.find("（") %}
+              {%- if parentheseIndex_en!= -1 %}
+                  {%- set comment = field.field.comment[:parentheseIndex_en] %}
+              {%- elif parentheseIndex_cn!= -1 %}
+                  {%- set comment = field.field.comment[:parentheseIndex_cn] %}
+              {%- else %}
+                  {%- set comment = field.field.comment %}
+              {%- endif %}
           {%- endif %}
           <Form.Item name="{{ field.gen_field.field_name }}" label="{{ comment }}" rules={[{ required: false, message: '请输入' }]}>
             {%- if field.gen_field.html_type == 'input' and field.gen_field.js_type == 'string' %}
@@ -86,7 +92,7 @@ const {{ class_name }}CreateComponent: React.FC<{{ class_name }}CreateProps> = (
             />
             {%- else %}
             <Input placeholder="请输入" />
-            {% endif %}
+            {%- endif %}
           </Form.Item>
           {%- endif %}
           {%- endfor %}

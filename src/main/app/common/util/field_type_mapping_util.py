@@ -91,6 +91,7 @@ def mysql_map2sqlmodel_type(field_type: str) -> str:
 # SQLModel field type mapping to MySQL
 # Reference: https://github.com/sqlalchemy/sqlalchemy/blob/main/lib/sqlalchemy/sql/sqltypes.py
 SQLMODEL_TO_MYSQL_TYPE_MAP = {
+    "TINYINT": "tinyint",
     "BOOLEAN": "tinyint",
     "SMALLINTEGER": "smallint",
     "INTEGER": "int",

@@ -57,7 +57,7 @@ class GenUtils:
         gen_field.comment = field_record.comment
 
         if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_STR, data_type) or GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type):
-            html_type = GenConstants.HTML_TEXTAREA if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type) or field_length >= 500 else GenConstants.HTML_INPUT
+            html_type = GenConstants.HTML_TEXTAREA if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type) or (field_length is not None and field_length >= 500) else GenConstants.HTML_INPUT
             gen_field.html_type = html_type
         elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TIME, data_type):
             if backend == "python":

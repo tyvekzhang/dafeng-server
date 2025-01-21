@@ -154,7 +154,7 @@ class FieldServiceImpl(ServiceBaseImpl[FieldMapper, FieldDO], FieldService):
         return await self.mapper.select_by_ordered_page(
             current=data.current,
             pageSize=data.pageSize,
-            eq={"table_id": table_id},
+            EQ={"table_id": table_id},
         )
 
 
