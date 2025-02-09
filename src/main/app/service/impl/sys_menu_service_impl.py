@@ -46,10 +46,8 @@ class MenuServiceImpl(ServiceBaseImpl[MenuMapper, MenuDO], MenuService):
         like = {}
         if menu_query.name is not None and menu_query.name != "" :
             like["name"] = menu_query.name
-        if menu_query.status is not None and menu_query.status != "" :
-            eq["status"] = menu_query.status
         if menu_query.create_time is not None and menu_query.create_time != "" :
-            eq["create_time"] = menu_query.create_time
+            between["create_time"] = (menu_query.create_time[0], menu_query.create_time[1])
         filters = {
             FilterOperators.EQ: eq,
             FilterOperators.NE: ne,
@@ -65,8 +63,11 @@ class MenuServiceImpl(ServiceBaseImpl[MenuMapper, MenuDO], MenuService):
             pageSize=menu_query.pageSize,
             **filters
         )
+        if total == 0:
+            return PageResult(records=[], total=total)
         records = [MenuPage(**record.model_dump()) for record in records]
         records = [record.model_dump() for record in records]
+        records.sort(key=lambda x: x['sort'])
         records = list_to_tree(records)
         return PageResult(records=records, total=total)
 
@@ -87,7 +88,6 @@ class MenuServiceImpl(ServiceBaseImpl[MenuMapper, MenuDO], MenuService):
 
     async def create_menu(self, menu_create: MenuCreate, request: Request) -> MenuDO:
         menu: MenuDO = MenuDO(**menu_create.model_dump())
-        menu.user_id = request.state.user_id
         return await self.save(data=menu)
 
     async def batch_create_menu(self, *, menu_create_list: List[MenuCreate], request: Request) -> List[int]:

@@ -14,7 +14,7 @@ import {
   remove{{ class_name }},
 } from "@/service/{{ kebab_case_class_name }}";
 import { BaseQueryImpl } from "@/types";
-import { {{ class_name }}BatchModify, {{ class_name }}Create, {{ class_name }}Detail, {{ class_name }}Modify, {{ class_name }}Page } from "@/types/{{ kebab_case_class_name }}";
+import { {{ class_name }}BatchModify, {{ class_name }}Create, {{ class_name }}Detail, {{ class_name }}Modify, {{ class_name }}Page, {{ class_name }}Query } from "@/types/{{ kebab_case_class_name }}";
 import {{ class_name }}BatchModifyComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-batch-modify";
 import {{ class_name }}CreateComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-create";
 import {{ class_name }}ImportComponent from "@/views/system/{{ kebab_case_class_name }}/components/{{ kebab_case_class_name }}-import";
@@ -50,9 +50,9 @@ const {{ class_name }}: React.FC = () => {
   }
   useEffect(() => {
     const fetchData = async () => {
-      const {{ lowercase_class_name }}Page = (await {{ lowercase_class_name }}QueryForm.validateFields()) as {{ class_name }}Page;
+      const {{ lowercase_class_name }}Query = (await {{ lowercase_class_name }}QueryForm.validateFields()) as {{ class_name }}Query;
       const pageData = BaseQueryImpl.create(current, pageSize);
-      const resp = await fetch{{ class_name }}ByPage(pageData, {{ lowercase_class_name }}Page);
+      const resp = await fetch{{ class_name }}ByPage(pageData, {{ lowercase_class_name }}Query);
       set{{ class_name }}PageDataSource(resp.records);
       set{{ class_name }}PageTotalCount(resp.total);
     };
@@ -117,44 +117,51 @@ const {{ class_name }}: React.FC = () => {
       dataIndex: "{{ field.gen_field.field_name }}",
       key: "{{ field.gen_field.field_name }}",
       render: (text) => (text ? text : "-"),
+      {%- if field.gen_field.js_type == "string" %}
+      ellipsis: true,
+      width: "12%",
+      {%- elif field.gen_field.js_type == "number" %}
+      width: "6%",
+      {%- endif %}
     },
     {%- endif%}
     {%- endfor %}
     {
       title: "操作",
       key: "action",
+      align: "center",
       render: (_, record) => (
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center justify-center">
           <button
             type="button"
-            className="flex items-center gap-1 text-red-500 text-[12px] btn-operation"
-            onClick={ () => on{{ class_name }}Detail(record)}
+            className="flex items-center gap-0.5 text-xs btn-operation"
+            onClick={ () => on{{ ClassName }}Detail(record)}
           >
             <EyeOutlined className="w-3 h-3" />
             详情
           </button>
           <button
             type="button"
-            className="flex items-center gap-1 text-blue-500 text-[12px] btn-operation"
-            onClick={ () => on{{ class_name }}Modify(record)}
+            className="flex items-center gap-0.5 text-xs btn-operation"
+            onClick={ () => on{{ ClassName }}Modify(record)}
           >
             <EditOutlined className="w-3 h-3" />
             编辑
           </button>
           <button
             type="button"
-            className="flex items-center gap-1 text-red-500 text-[12px] btn-remove"
-            onClick={ () => handle{{ class_name }}Delete(record)}
+            className="flex items-center gap-0.5 text-xs btn-remove"
+            onClick={ () => handle{{ ClassName }}Delete(record)}
           >
             <DeleteOutlined className="w-3 h-3" />
             删除
           </button>
 
           {showMore && (
-            <button type="button" className="flex items-center gap-1 text-blue-500 text-[10px] btn-operation">
-               <span>更多</span>
-               <MoreOutlined className="w-3 h-3" />
-             </button>
+            <button type="button" className="flex items-center gap-0.5 text-xs btn-operation">
+              <span>更多</span>
+              <MoreOutlined className="w-3 h-3" />
+            </button>
           )}
         </div>
       ),
@@ -179,15 +186,21 @@ const {{ class_name }}: React.FC = () => {
     {{ lowercase_class_name }}QueryForm.resetFields();
   };
   const on{{ class_name }}QueryFinish = async () => {
-    const {{ lowercase_class_name }}Page = (await {{ lowercase_class_name }}QueryForm.validateFields()) as {{ class_name }}Page;
-    const filtered{{ class_name }}Page = Object.fromEntries(
-      Object.entries({{ lowercase_class_name }}Page).filter(([, value]) => value !== undefined && value !== null && value !== ""),
+    const {{ lowercase_class_name }}QueryFormData = {{ lowercase_class_name }}QueryForm.getFieldsValue();
+    const { create_time } = {{ lowercase_class_name }}QueryFormData
+    if (create_time) {
+      const [startDate, endDate] = create_time
+      {{ lowercase_class_name }}QueryFormData.create_time = [startDate.format('YYYY-MM-DD'), endDate.format('YYYY-MM-DD')]
+    }
+    const {{ lowercase_class_name }}Query = {{ lowercase_class_name }}QueryFormData as {{ class_name }}Query;
+    const filtered{{ class_name }}Query = Object.fromEntries(
+      Object.entries({{ lowercase_class_name }}Query).filter(([, value]) => value !== undefined && value !== null && value !== ""),
     );
     resetPagination();
-    await handle{{ class_name }}QueryFinish(filtered{{ class_name }}Page as {{ class_name }}Page);
+    await handle{{ class_name }}QueryFinish(filtered{{ class_name }}Query as {{ class_name }}Query);
   };
-  const handle{{ class_name }}QueryFinish = async ({{ lowercase_class_name }}Page: {{ class_name }}Page) => {
-    await fetch{{ class_name }}ByPage(BaseQueryImpl.create(current, pageSize), {{ lowercase_class_name }}Page).then((resp) => {
+  const handle{{ class_name }}QueryFinish = async ({{ lowercase_class_name }}Query: {{ class_name }}Query) => {
+    await fetch{{ class_name }}ByPage(BaseQueryImpl.create(current, pageSize), {{ lowercase_class_name }}Query).then((resp) => {
       set{{ class_name }}PageDataSource(resp.records);
       set{{ class_name }}PageTotalCount(resp.total);
     });
@@ -377,7 +390,7 @@ const {{ class_name }}: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 bg-white">
+    <div className="w-full mx-auto px-4 bg-white">
       <TransitionWrapper show={is{{ class_name }}QueryShow}>
         <div className="shadow-sm">
           <{{ class_name }}QueryComponent

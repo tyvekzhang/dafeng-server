@@ -94,7 +94,6 @@ class GenUtils:
                     gen_field.field_type = GenConstants.TYPE_LONG
                 else:
                     raise Exception(f"未支持的后端语言: {backend}")
-                gen_field.js_type = GenConstants.TYPE_JS_STRING
         gen_field.sql_model_type = sql_map2sqlmodel_type(gen_field.field_type)
 
         # Insert field
@@ -165,6 +164,7 @@ class GenUtils:
     @staticmethod
     def replace_first(replacement: str, search_list: List[str]) -> str:
         for search_string in search_list:
+            search_string = search_string.strip()
             if replacement.startswith(search_string):
                 return replacement.replace(search_string, "", 1)
         return replacement

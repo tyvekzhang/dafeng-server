@@ -32,4 +32,4 @@ gen:
   author: "tyvekzhang"
   package_name: "com.singularity.modules.admin"
   auto_remove_pre: True
-  table_prefix: "read,sys,acc"
+  table_prefix: "read_,sys_,acc_,system_"

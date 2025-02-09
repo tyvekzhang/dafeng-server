@@ -58,7 +58,7 @@ class Jinja2Utils:
             "primary_key": primary_key,
             "router_name": router_name,
             "kebab_case_class_name": kebab_case_class_name,
-            "class-name": kebab_case_class_name,
+            "cn": kebab_case_class_name,
             "fields": fields,
             "index_metadata": index_metadata,
             "business_name": business_name,
@@ -142,6 +142,7 @@ class Jinja2Utils:
             service_tpl = "jinja2/python/servicePy.py.j2"
             service_impl_tpl = "jinja2/python/serviceImplPy.py.j2"
             controller_tpl = "jinja2/python/controllerPy.py.j2"
+            router_tpl = "jinja2/python/routerPy.py.j2"
             python_template = [
                 entity_tpl,
                 schema_tpl,
@@ -149,6 +150,7 @@ class Jinja2Utils:
                 service_tpl,
                 service_impl_tpl,
                 controller_tpl,
+                router_tpl,
             ]
             for tmp in python_template:
                 select_template.append(tmp)

@@ -3,17 +3,19 @@
 import re
 from typing import Dict, Annotated, List
 
-from fastapi import APIRouter, Depends, Query, UploadFile, Form
+from fastapi import APIRouter, Depends, Query, UploadFile, Form, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.responses import StreamingResponse
 from jwt import PyJWTError
 
 from src.main.app.common.enums.enum import ResponseCode
 from src.main.app.common.exception.exception import SystemException
+from src.main.app.mapper.sys_menu_mapper import menuMapper
 from src.main.app.mapper.user_mapper import userMapper
 from src.main.app.common import result
 from src.main.app.schema.common_schema import Token, CurrentUser
 from src.main.app.common.result import HttpResponse
+from src.main.app.schema.sys_menu_schema import MenuQuery
 from src.main.app.schema.user_schema import (
     UserAdd,
     LoginCmd,
@@ -25,7 +27,9 @@ from src.main.app.schema.user_schema import (
     UserBatchUpdate,
     Ids,
 )
+from src.main.app.service.impl.sys_menu_service_impl import MenuServiceImpl
 from src.main.app.service.impl.user_service_impl import UserServiceImpl
+from src.main.app.service.sys_menu_service import MenuService
 from src.main.app.service.user_service import UserService
 from src.main.app.model.user_model import UserDO
 from src.main.app.common.util.excel_util import export_excel
@@ -38,6 +42,7 @@ from src.main.app.common.util.security_util import (
 
 user_router = APIRouter()
 user_service: UserService = UserServiceImpl(mapper=userMapper)
+menu_service: MenuService = MenuServiceImpl(mapper=menuMapper)
 
 
 @user_router.post("/add")
@@ -252,100 +257,108 @@ async def logout():
 
 
 @user_router.get("/menus")
-async def menus():
-    data = [
-        {
-            "icon": "system-manage",
-            "orderNo": 2,
-            "name": "系统管理",
-            "hideMenu": False,
-            "path": "/system",
-            "children": [
-                {
-                    "key": "user",
-                    "name": "用户管理",
-                    "hideMenu": False,
-                    "path": "/system/user",
-                },
-                {
-                    "key": "new-word",
-                    "name": "生词管理",
-                    "hideMenu": False,
-                    "path": "/system/new-word",
-                },
-                {
-                    "key": "menu",
-                    "name": "菜单管理",
-                    "hideMenu": False,
-                    "path": "/system/menu",
-                }
-            ],
-        },
-        {
-            "icon": "tool",
-            "orderNo": 8,
-            "name": "工具箱",
-            "hideMenu": False,
-            "path": "/tool",
-            "children": [
-                {
-                    "key": "code",
-                    "icon": "code",
-                    "name": "代码生成",
-                    "hideMenu": False,
-                    "path": "/tool/code",
-                },
-                {
-                    "key": "db",
-                    "icon": "db",
-                    "name": "数据库管理",
-                    "hideMenu": False,
-                    "path": "/tool/db",
-                }
-            ],
-        },
-        {
-            "icon": "monitor",
-            "orderNo": 10,
-            "name": "系统监控",
-            "hideMenu": False,
-            "path": "/monitor",
-        },
-        {
-            "icon": "bug",
-            "orderNo": 11,
-            "name": "异常页面",
-            "hideMenu": True,
-            "path": "/exception",
-            "children": [
-                {
-                    "key": "page403",
-                    "name": "403页面",
-                    "hideMenu": False,
-                    "path": "/exception/page-403",
-                },
-                {
-                    "key": "page404",
-                    "name": "404页面",
-                    "hideMenu": False,
-                    "path": "/exception/page-404",
-                },
-                {
-                    "key": "page500",
-                    "name": "500页面",
-                    "hideMenu": False,
-                    "path": "/exception/page-500",
-                },
-            ],
-        },
-        {
-            "icon": "home",
-            "affix": True,
-            "orderNo": 1,
-            "hideChildrenInMenu": True,
-            "name": "首页",
-            "hideMenu": False,
-            "path": "/home",
-        },
-    ]
-    return HttpResponse(data=data)
+async def get_menus(request: Request):
+    response = await menu_service.fetch_menu_by_page(menu_query=MenuQuery(current=1, pageSize=9999), request=request)
+    return HttpResponse(data=response.records)
+    # data = [
+    #     {
+    #         "icon": "system-manage",
+    #         "orderNo": 2,
+    #         "name": "系统管理",
+    #         "hideMenu": False,
+    #         "path": "/system",
+    #         "children": [
+    #             {
+    #                 "key": "user",
+    #                 "name": "用户管理",
+    #                 "hideMenu": False,
+    #                 "path": "/system/user",
+    #             },
+    #             {
+    #                 "key": "new-word",
+    #                 "name": "生词管理",
+    #                 "hideMenu": False,
+    #                 "path": "/system/new-word",
+    #             },
+    #             {
+    #                 "key": "menu",
+    #                 "name": "菜单管理",
+    #                 "hideMenu": False,
+    #                 "path": "/system/menu",
+    #             },
+    #             {
+    #                 "key": "role",
+    #                 "name": "角色管理",
+    #                 "hideMenu": False,
+    #                 "path": "/system/role",
+    #             }
+    #         ],
+    #     },
+    #     {
+    #         "icon": "tool",
+    #         "orderNo": 8,
+    #         "name": "工具箱",
+    #         "hideMenu": False,
+    #         "path": "/tool",
+    #         "children": [
+    #             {
+    #                 "key": "code",
+    #                 "icon": "code",
+    #                 "name": "代码生成",
+    #                 "hideMenu": False,
+    #                 "path": "/tool/code",
+    #             },
+    #             {
+    #                 "key": "db",
+    #                 "icon": "db",
+    #                 "name": "数据库管理",
+    #                 "hideMenu": False,
+    #                 "path": "/tool/db",
+    #             }
+    #         ],
+    #     },
+    #     {
+    #         "icon": "monitor",
+    #         "orderNo": 10,
+    #         "name": "系统监控",
+    #         "hideMenu": False,
+    #         "path": "/monitor",
+    #     },
+    #     {
+    #         "icon": "bug",
+    #         "orderNo": 11,
+    #         "name": "异常页面",
+    #         "hideMenu": True,
+    #         "path": "/exception",
+    #         "children": [
+    #             {
+    #                 "key": "page403",
+    #                 "name": "403页面",
+    #                 "hideMenu": False,
+    #                 "path": "/exception/page-403",
+    #             },
+    #             {
+    #                 "key": "page404",
+    #                 "name": "404页面",
+    #                 "hideMenu": False,
+    #                 "path": "/exception/page-404",
+    #             },
+    #             {
+    #                 "key": "page500",
+    #                 "name": "500页面",
+    #                 "hideMenu": False,
+    #                 "path": "/exception/page-500",
+    #             },
+    #         ],
+    #     },
+    #     {
+    #         "icon": "home",
+    #         "affix": True,
+    #         "orderNo": 1,
+    #         "hideChildrenInMenu": True,
+    #         "name": "首页",
+    #         "hideMenu": False,
+    #         "path": "/home",
+    #     },
+    # ]
+    # return HttpResponse(data=data)

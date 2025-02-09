@@ -2,7 +2,7 @@ export interface {{class_name}}Page {
     {% for field in fields %}
     {%- if field.gen_field.pageable == 1  %}
     /** {{ field.field.comment }} */
-    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
@@ -11,7 +11,7 @@ export interface {{class_name}}Create {
     {% for field in fields %}
     {%- if field.gen_field.creatable == 1  %}
     /** {{ field.field.comment }} */
-    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
@@ -20,7 +20,7 @@ export interface {{class_name}}Query {
     {% for field in fields %}
     {%- if field.gen_field.queryable == 1  %}
     /** {{ field.field.comment }} */
-    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
@@ -29,19 +29,18 @@ export interface {{class_name}}Modify {
     {% for field in fields %}
     {%- if field.gen_field.modifiable == 1  %}
     /** {{ field.field.comment }} */
-    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
 
 export interface {{class_name}}BatchModify {
-
     /** 主键列表 */
-    {{ primary_key }}s: string[]
+    {{ primary_key }}s: string[];
     {% for field in fields %}
     {%- if field.gen_field.batch_modifiable == 1 %}
     /** {{ field.field.comment }} */
-    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }
@@ -50,7 +49,7 @@ export interface {{class_name}}Detail {
     {% for field in fields %}
     {%- if field.gen_field.detailable == 1  %}
     /** {{ field.field.comment }} */
-    {{ field.gen_field.field_name }}: {{ field.gen_field.js_type }};
+    {{ field.gen_field.field_name }}: {% if 'id' in field.gen_field.field_name %}string{% else %}{{ field.gen_field.js_type }}{% endif %};
     {% endif -%}
     {% endfor %}
 }

@@ -23,10 +23,12 @@ class MenuPage(BaseModel):
     path: Optional[str] = None
     # 组件路径
     component: Optional[str] = None
+    # 是否显示（1显示 0隐藏）
+    visible: Optional[int] = 1
+    # 状态（1正常 0停用）
+    status: Optional[int] = 1
     # 父ID
     parent_id: Optional[int] = None
-    # 状态（1正常 0停用）
-    status: Optional[int] = '1'
     # 创建时间
     create_time: Optional[datetime] = None
 
@@ -36,8 +38,6 @@ class MenuQuery(PageBase):
     """
     # 名称
     name: Optional[str] = None
-    # 状态（1正常 0停用）
-    status: Optional[int] = None
     # 创建时间
     create_time: Optional[datetime] = None
 
@@ -58,15 +58,15 @@ class MenuCreate(BaseModel):
     # 组件路径
     component: Optional[str] = None
     # 类型（1目录 2菜单 3按钮）
-    type: Optional[str] = None
+    type: Optional[int] = None
     # 是否缓存（1缓存 0不缓存）
-    cacheable: Optional[int] = '1'
+    cacheable: Optional[int] = 1
     # 是否显示（1显示 0隐藏）
-    visible: Optional[int] = '1'
+    visible: Optional[int] = 1
     # 父ID
     parent_id: Optional[int] = None
     # 状态（1正常 0停用）
-    status: Optional[int] = '1'
+    status: Optional[int] = 1
     # 备注信息
     comment: Optional[str] = None
     # 错误信息
@@ -91,15 +91,15 @@ class MenuModify(BaseModel):
     # 组件路径
     component: Optional[str] = None
     # 类型（1目录 2菜单 3按钮）
-    type: Optional[str] = None
+    type: Optional[int] = None
     # 是否缓存（1缓存 0不缓存）
-    cacheable: Optional[int] = '1'
+    cacheable: Optional[int] = 1
     # 是否显示（1显示 0隐藏）
-    visible: Optional[int] = '1'
+    visible: Optional[int] = 1
     # 父ID
     parent_id: Optional[int] = None
     # 状态（1正常 0停用）
-    status: Optional[int] = '1'
+    status: Optional[int] = 1
     # 备注信息
     comment: Optional[str] = None
 
@@ -121,15 +121,15 @@ class MenuBatchModify(BaseModel):
     # 组件路径
     component: Optional[str] = None
     # 类型（1目录 2菜单 3按钮）
-    type: Optional[str] = None
+    type: Optional[int] = None
     # 是否缓存（1缓存 0不缓存）
-    cacheable: Optional[int] = '1'
+    cacheable: Optional[int] = 1
     # 是否显示（1显示 0隐藏）
-    visible: Optional[int] = '1'
+    visible: Optional[int] = 1
     # 父ID
     parent_id: Optional[int] = None
     # 状态（1正常 0停用）
-    status: Optional[int] = '1'
+    status: Optional[int] = 1
     # 备注信息
     comment: Optional[str] = None
 
@@ -152,15 +152,15 @@ class MenuDetail(BaseModel):
     # 组件路径
     component: Optional[str] = None
     # 类型（1目录 2菜单 3按钮）
-    type: Optional[str] = None
+    type: Optional[int] = None
     # 是否缓存（1缓存 0不缓存）
-    cacheable: Optional[int] = '1'
+    cacheable: Optional[int] = 1
     # 是否显示（1显示 0隐藏）
-    visible: Optional[int] = '1'
+    visible: Optional[int] = 1
     # 父ID
     parent_id: Optional[int] = None
     # 状态（1正常 0停用）
-    status: Optional[int] = '1'
+    status: Optional[int] = 1
     # 创建时间
     create_time: Optional[datetime] = None
     # 备注信息

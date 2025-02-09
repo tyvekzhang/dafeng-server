@@ -8,15 +8,15 @@ from sqlmodel import (
     Column,
     Index,
     BigInteger,
+    String,
     DateTime,
     Integer,
-    String,
 )
 from src.main.app.common.util.snowflake_util import snowflake_id
 
 
 class MenuBase(SQLModel):
-    
+
     id: int = Field(
         default_factory=snowflake_id,
         primary_key=True,
@@ -28,7 +28,7 @@ class MenuBase(SQLModel):
             String(50),
             nullable=False,
             default=None,
-            comment="菜单名称"
+            comment="名称"
         )
     )
     icon: Optional[str] = Field(
@@ -36,7 +36,7 @@ class MenuBase(SQLModel):
             String(100),
             nullable=True,
             default=None,
-            comment="菜单图标"
+            comment="图标"
         )
     )
     permission: Optional[str] = Field(
@@ -52,7 +52,7 @@ class MenuBase(SQLModel):
             Integer,
             nullable=True,
             default=None,
-            comment="显示顺序"
+            comment="排序"
         )
     )
     path: Optional[str] = Field(
@@ -71,28 +71,28 @@ class MenuBase(SQLModel):
             comment="组件路径"
         )
     )
-    type: Optional[str] = Field(
+    type: Optional[int] = Field(
         sa_column=Column(
-            String,
+            Integer,
             nullable=True,
             default=None,
-            comment="菜单类型（1目录 2菜单 3按钮）"
+            comment="类型（1目录 2菜单 3按钮）"
         )
     )
-    cacheable: Optional[str] = Field(
+    cacheable: Optional[int] = Field(
         sa_column=Column(
-            String,
+            Integer,
             nullable=True,
             default='1',
             comment="是否缓存（1缓存 0不缓存）"
         )
     )
-    visible: Optional[str] = Field(
+    visible: Optional[int] = Field(
         sa_column=Column(
-            String,
+            Integer,
             nullable=True,
-            default='1',
-            comment="菜单状态（1显示 0隐藏）"
+            default=1,
+            comment="是否显示（1显示 0隐藏）"
         )
     )
     parent_id: Optional[int] = Field(
@@ -100,15 +100,15 @@ class MenuBase(SQLModel):
             Integer,
             nullable=True,
             default=None,
-            comment="父菜单ID"
+            comment="父ID"
         )
     )
     status: Optional[int] = Field(
         sa_column=Column(
-            String,
+            Integer,
             nullable=True,
-            default='1',
-            comment="菜单状态（1正常 0停用）"
+            default=1,
+            comment="状态（1正常 0停用）"
         )
     )
     create_time: Optional[datetime] = Field(

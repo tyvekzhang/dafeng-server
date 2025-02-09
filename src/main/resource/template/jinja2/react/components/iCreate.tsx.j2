@@ -11,7 +11,7 @@ const {{ lowercase_class_name }}CreateFormItemLayout = {
 interface {{ class_name }}CreateProps {
   is{{ class_name }}CreateModalVisible: boolean;
   on{{ class_name }}CreateCancel: () => void;
-  on{{ class_name }}CreateFinish: ({{ class_name }}Create: {{ class_name }}Create) => void;
+  on{{ class_name }}CreateFinish: ({{ lowercase_class_name }}Create: {{ class_name }}Create) => void;
   is{{ class_name }}CreateLoading: boolean;
   {{ lowercase_class_name }}CreateForm: FormInstance;
 }

@@ -1,0 +1,3 @@
+from src.main.app.controller.{{ table_name }}_controller import {{ c_n }}_router
+
+router.include_router({{ c_n }}_router, tags=["{{ cn }}"], prefix="/{{ cn }}")

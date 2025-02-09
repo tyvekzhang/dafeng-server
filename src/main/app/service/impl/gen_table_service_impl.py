@@ -148,7 +148,7 @@ class GenTableServiceImpl(ServiceBaseImpl[GenTableMapper, GenTableDO], GenTableS
         for field_record in field_records:
             field = field_record
             gen_field: GenFieldDO= id_field_dict.get(field.id)
-            if gen_field.primary_key == 1:
+            if gen_field and gen_field.primary_key == 1:
                 field_record: FieldDO = await fieldMapper.select_by_id(id=gen_field.db_field_id)
                 primary_key = field_record.name
             field_gen = FieldGen(field=field, gen_field=gen_field)
