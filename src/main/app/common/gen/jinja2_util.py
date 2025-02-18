@@ -298,6 +298,12 @@ class Jinja2Utils:
             file_name = f"{client_dir}/service/{kebab_case_class_name}.ts"
         elif "type.js.j2" in template:
             file_name = f"{client_dir}/types/{kebab_case_class_name}.ts"
+        elif "router.tsx.j2" in template:
+            file_name = f"{client_dir}/router.ts"
+        elif "routerPy.py.j2" in template:
+            file_name = f"{py_path}/router.py"
+        else:
+            raise Exception(template)
 
         return file_name
 

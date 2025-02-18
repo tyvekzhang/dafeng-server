@@ -40,6 +40,7 @@ class GenConstants:
     HTML_RADIO = "radio"
     HTML_CHECKBOX = "checkbox"
     HTML_DATETIME = "datetime"
+    HTML_DATEPICKER = "datepicker"
     HTML_IMAGE_UPLOAD = "imageUpload"
     HTML_FILE_UPLOAD = "fileUpload"
     HTML_MODIFYOR = "editor"

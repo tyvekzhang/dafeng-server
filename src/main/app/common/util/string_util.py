@@ -45,6 +45,11 @@ class StringUtils:
         return components[0].lower() + ''.join(x.title() for x in components[1:])
 
     @staticmethod
+    def to_upper_camel_case(snake_str: str) -> str:
+        components = snake_str.split('_')
+        return components[0].title() + ''.join(x.title() for x in components[1:])
+
+    @staticmethod
     def substring(s: str, start: int, end: int) -> str:
         return s[start:end]
 

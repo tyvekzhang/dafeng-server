@@ -1,4 +1,4 @@
-"""NewWord data object"""
+"""DictType data object"""
 
 from datetime import datetime
 from typing import Optional
@@ -8,14 +8,15 @@ from sqlmodel import (
     Column,
     Index,
     BigInteger,
-    Integer,
-    DateTime,
     String,
+    DateTime,
+    Integer,
+    UniqueConstraint,
 )
 from src.main.app.common.util.snowflake_util import snowflake_id
 
 
-class NewWordBase(SQLModel):
+class DictTypeBase(SQLModel):
     
     id: int = Field(
         default_factory=snowflake_id,
@@ -23,37 +24,42 @@ class NewWordBase(SQLModel):
         sa_type=BigInteger,
         sa_column_kwargs={"comment": "主键"},
     )
-    word: Optional[str] = Field(
+    name: Optional[str] = Field(
         sa_column=Column(
-            String(32),
+            String(64),
             nullable=True,
             default=None,
-            comment="单词"
+            comment="字典名称"
         )
     )
-    translation: Optional[str] = Field(
+    type: Optional[str] = Field(
         sa_column=Column(
-            String(32),
+            String(64),
             nullable=True,
             default=None,
-            comment="翻译"
+            comment="字典类型"
         )
     )
-    next_review_date: Optional[datetime] = Field(
-        sa_column=Column(
-            DateTime,
-            nullable=True,
-            default=None,
-            comment="复习时间"
-        )
-    )
-    tenant: Optional[int] = Field(
+    status: Optional[int] = Field(
         sa_column=Column(
             Integer,
             nullable=True,
             default=None,
-            comment="租户ID"
+            comment="状态(1正常 0停用)"
         )
+    )
+    comment: Optional[str] = Field(
+        sa_column=Column(
+            String(255),
+            nullable=True,
+            default=None,
+            comment="备注"
+        )
+    )
+    create_time: Optional[datetime] = Field(
+        sa_type=DateTime,
+        default_factory=datetime.now,
+        sa_column_kwargs={"comment": "创建时间"},
     )
     update_time: Optional[datetime] = Field(
         sa_type=DateTime,
@@ -65,5 +71,9 @@ class NewWordBase(SQLModel):
     )
 
 
-class NewWordDO(NewWordBase, table=True):
-    __tablename__ = "read_new_word"
+class DictTypeDO(DictTypeBase, table=True):
+    __tablename__ = "sys_dict_type"
+    __table_args__ = (
+        UniqueConstraint('type', name="dict_type"),
+        {"comment": "字典类型表"}
+    )

@@ -1,6 +1,7 @@
 import ActionButtonComponent from "@/components/base/action-button";
 import { PaginatedTable } from "@/components/base/paginated-table";
 import { message } from "@/components/GlobalToast";
+import dayjs from 'dayjs';
 import {
   batchCreate{{ class_name }},
   batchModify{{ class_name }},
@@ -116,10 +117,21 @@ const {{ class_name }}: React.FC = () => {
       title: "{{ comment }}",
       dataIndex: "{{ field.gen_field.field_name }}",
       key: "{{ field.gen_field.field_name }}",
+      {%- if "Time" in field.gen_field.field_name or "Date" in field.gen_field.field_name or "time" in field.gen_field.field_name or "date" in field.gen_field.field_name or "day" in field.gen_field.field_name %}
+      render: (text: string) => (
+        text ? <span>{dayjs(text).format('YYYY-MM-DD HH:mm:ss')}</span>: "-"
+      ),
+      width: "14%",
+      {%- elif field.gen_field.html_type == "imageUpload" %}
+      render: (text) => (text ? <ImagePreview src={text} width="100%" /> : "-"),
+      {%- elif field.gen_field.dict_type %}
       render: (text) => (text ? text : "-"),
+      {% elif field.gen_field.js_type == "string" %}
+      render: (text) => (text ? text : "-"),
+      width: "12%",
+      {%- endif %}
       {%- if field.gen_field.js_type == "string" %}
       ellipsis: true,
-      width: "12%",
       {%- elif field.gen_field.js_type == "number" %}
       width: "6%",
       {%- endif %}

@@ -66,7 +66,7 @@ class MenuServiceImpl(ServiceBaseImpl[MenuMapper, MenuDO], MenuService):
         if total == 0:
             return PageResult(records=[], total=total)
         records = [MenuPage(**record.model_dump()) for record in records]
-        records = [record.model_dump() for record in records]
+        records = [record.model_dump() for record in records if record.visible == 1]
         records.sort(key=lambda x: x['sort'])
         records = list_to_tree(records)
         return PageResult(records=records, total=total)

@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from src.main.app.controller.probe_controller import probe_router
 from src.main.app.controller.read_new_word_controller import new_word_router
 from src.main.app.controller.sys_menu_controller import menu_router
+from src.main.app.controller.tool_controller import tool_router
 from src.main.app.controller.user_controller import user_router
 from src.main.app.controller.database_controller import database_router
 from src.main.app.controller.connection_controller import connection_router
@@ -15,6 +16,10 @@ from src.main.app.controller.sys_role_controller import role_router
 from src.main.app.controller.gen_field_controller import gen_table_column_router
 from src.main.app.controller.gen_table_controller import gen_table_router
 from src.main.app.controller.sys_user_role_controller import user_role_router
+from src.main.app.controller.read_global_word_controller import global_word_router
+from src.main.app.controller.member_controller import member_router
+from src.main.app.controller.sys_dict_data_controller import dict_data_router
+from src.main.app.controller.sys_dict_type_controller import dict_type_router
 
 def create_router() -> APIRouter:
     router = APIRouter()
@@ -31,4 +36,9 @@ def create_router() -> APIRouter:
     router.include_router(menu_router, tags=["menu"], prefix="/menu")
     router.include_router(role_router, tags=["role"], prefix="/role")
     router.include_router(user_role_router, tags=["user-role"], prefix="/user-role")
+    router.include_router(tool_router, tags=["tool"], prefix="/tool")
+    router.include_router(global_word_router, tags=["global-word"], prefix="/global-word")
+    router.include_router(member_router, tags=["member"], prefix="/member")
+    router.include_router(dict_data_router, tags=["dict-data"], prefix="/dict-data")
+    router.include_router(dict_type_router, tags=["dict-type"], prefix="/dict-type")
     return router

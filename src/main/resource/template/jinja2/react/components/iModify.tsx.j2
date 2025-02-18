@@ -1,5 +1,59 @@
+{%- set components = {
+    'input': False,
+    'select': False,
+    'datepicker': False,
+    'checkbox': False,
+    'radio': False,
+    'textarea': False,
+    'autocomplete': False,
+    'cascader': False,
+    'colorpicker': False,
+    'inputnumber': False,
+    'mentions': False,
+    'rate': False,
+    'slider': False,
+    'switch': False,
+    'timepicker': False,
+    'transfer': False,
+    'treeselect': False,
+    'upload': False
+} %}
+
+{%- for field in fields %}
+  {%- if field.gen_field.modifiable == 1 %}
+    {%- set html_type = field.gen_field.html_type %}
+    {%- if html_type in components %}
+        {%- set _ = components.update({html_type: True}) %}
+    {%- endif %}
+  {%- endif %}
+{%- endfor %}
+
+{%- if components.input -%}
+import { Input } from 'antd';
+{%- endif %}
+{%- if components.select %}
+import { Select } from 'antd';
+{%- endif %}
+{%- if components.datepicker %}
+import { DatePicker } from 'antd';
+{%- endif %}
+{%- if components.checkbox %}
+import { Checkbox } from 'antd';
+{%- endif %}
+{%- if components.radio %}
+import { Radio } from 'antd';
+{%- endif %}
+import {
+  AutoComplete,
+  Button,
+  Cascader,
+  ColorPicker,
+  Form,
+  InputNumber, Mentions,
+  Modal, Rate,
+  Slider, Switch, TimePicker, Transfer, TreeSelect, Upload, Space
+} from 'antd';
 import { {{ class_name }}Modify } from '@/types/{{ kebab_case_class_name }}';
-import { Button, DatePicker, Form, Input, Modal, Select } from 'antd';
 import { FormInstance } from 'antd/es/form';
 import React, { useMemo } from 'react';
 
@@ -64,34 +118,55 @@ const {{ class_name }}ModifyComponent: React.FC<{{ class_name }}ModifyProps> = (
                   {%- set comment = field.field.comment %}
               {%- endif %}
           {%- endif %}
-          <Form.Item name="{{ field.gen_field.field_name }}" label="{{ comment }}" rules={[{ required: false, message: '请输入' }]}>
-            {%- if field.gen_field.html_type == 'input' and field.gen_field.js_type == 'string' %}
-            <Input placeholder="请输入" />
-            {%- elif field.gen_field.html_type == 'datetime' %}
-            <DatePicker />
-            {%- elif field.gen_field.html_type == 'input' and field.gen_field.js_type == 'number' %}
-            <Input type="number" placeholder="请输入" />
-            {%- elif field.gen_field.field_name == 'status' %}
+          {%- set field_name = field.gen_field.field_name %}
+          {%- set html_type = field.gen_field.html_type %}
+          <Form.Item name="{{ field_name }}" label="{{ comment }}" rules={[{ required: false, message: '请输入' }]}>
+            {%- if html_type == 'input' %}
+            <Input placeholder="请输入{{ comment }}" />
+            {%- elif html_type =='select' %}
+            {%- if dict_type %}
             <Select
-              allowClear
-              placeholder="请选择"
-              optionFilterProp="label"
-              defaultValue={"1"}
-              onChange={() => {} }
-              options={[
-                {
-                  value: '1',
-                  label: '正常',
-                },
-                {
-                  value: '0',
-                  label: '停用',
-                },
-              ]}
+                placeholder="请选择{{ comment }}"
+                options={ {{ dict_type }} }
             />
             {%- else %}
-            <Input placeholder="请输入" />
-            {% endif %}
+            <Select placeholder="请选择{{ comment }}" />
+            {%- endif %}
+            {%- elif html_type == 'datepicker' or html_type == 'datetime' %}
+            <DatePicker format="YYYY-MM-DD" placeholder="请选择{{ comment }}" />
+            {%- elif html_type == 'checkbox' %}
+            <Checkbox >{{ comment }}</Checkbox>
+            {%- elif html_type == 'radio' %}
+            <Radio>{{ comment }}</Radio>
+            {%- elif html_type == 'textarea' %}
+            <Input.TextArea />
+            {%- elif html_type == 'autocomplete' %}
+            <AutoComplete placeholder="请输入{{ comment }}" />
+            {%- elif html_type == 'cascader' %}
+            <Cascader placeholder="请选择{{ comment }}" />
+            {%- elif html_type == 'colorpicker' %}
+            <ColorPicker />
+            {%- elif html_type == 'inputnumber' %}
+            <InputNumber placeholder="请输入数字" />
+            {%- elif html_type =='mentions' %}
+            <Mentions placeholder="请提及{{ comment }}" />
+            {%- elif html_type == 'rate' %}
+            <Rate />
+            {%- elif html_type =='slider' %}
+            <Slider />
+            {%- elif html_type =='switch' %}
+            <Switch />
+            {%- elif html_type == 'timepicker' %}
+            <TimePicker placeholder="请选择时间" />
+            {%- elif html_type == 'transfer' %}
+            <Transfer />
+            {%- elif html_type == 'treeselect' %}
+            <TreeSelect placeholder="请选择" />
+            {%- elif html_type == 'upload' %}
+            <Upload />
+            {%- else %}
+            <Input placeholder="请输入{{ comment }}" />
+            {%- endif %}
           </Form.Item>
           {%- endif %}
           {%- endfor %}

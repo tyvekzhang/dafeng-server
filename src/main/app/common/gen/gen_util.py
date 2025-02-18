@@ -58,6 +58,8 @@ class GenUtils:
 
         if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_STR, data_type) or GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type):
             html_type = GenConstants.HTML_TEXTAREA if GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TEXT, data_type) or (field_length is not None and field_length >= 500) else GenConstants.HTML_INPUT
+            if field_name == "comment" or field_name == "remark":
+                html_type = GenConstants.HTML_TEXTAREA
             gen_field.html_type = html_type
         elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_TIME, data_type):
             if backend == "python":
@@ -67,7 +69,7 @@ class GenUtils:
             else:
                 raise Exception(f"未支持的后端语言: {backend}")
 
-            gen_field.html_type = GenConstants.HTML_DATETIME
+            gen_field.html_type = GenConstants.HTML_DATEPICKER
         elif GenUtils.arrays_contains(GenConstants.COLUMNTYPE_NUMBER, data_type):
             gen_field.html_type = GenConstants.HTML_INPUT
             gen_field.js_type = GenConstants.TYPE_JS_NUMBER
@@ -117,7 +119,7 @@ class GenUtils:
             gen_field.detailable = GenConstants.REQUIRE
 
         # Query field
-        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_QUERY, field_name):
+        if not GenUtils.arrays_contains(GenConstants.COLUMNNAME_NOT_QUERY, field_name) and not field_name.__contains__("_id" ):
             gen_field.queryable = GenConstants.REQUIRE
 
         # Query field type
@@ -159,7 +161,7 @@ class GenUtils:
         if auto_remove_pre and StringUtils.is_not_empty(table_prefix):
             search_list = StringUtils.split(table_prefix, ",")
             table_name = GenUtils.replace_first(table_name, search_list)
-        return StringUtils.to_camel_case(table_name)
+        return StringUtils.to_upper_camel_case(table_name)
 
     @staticmethod
     def replace_first(replacement: str, search_list: List[str]) -> str:

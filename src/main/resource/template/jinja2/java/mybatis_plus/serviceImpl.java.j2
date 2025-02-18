@@ -63,9 +63,21 @@ public class {{ class_name }}ServiceImpl extends ServiceImpl<{{ class_name }}Map
         // 构建分页对象
         Page<{{ class_name }}DO> pageRequest = {{ lowercase_class_name }}Query.buildPage();
         // 使用 LambdaQueryWrapper 构建查询条件
+        {%- set has_tenant_id = false %}
+        {%- for field in fields %}
+        {%- if field.gen_field.field_name == "tenantId" %}
+        {% set has_tenant_id = true %}
+        {%- endif %}
+        {%- endfor %}
+
+        {%- if has_tenant_id %}
         LambdaQueryWrapper<{{ class_name }}DO> queryWrapper = {{ class_name }}DO.lambdaQueryWrapper()
             .eq({{ class_name }}DO::getTenantId, Objects.requireNonNull(getCurrentUser()).getCurrentTenantId())
             .eq({{ class_name }}DO::getUserId, Objects.requireNonNull(getCurrentUser()).getUserId());
+        {%- else %}
+        LambdaQueryWrapper<{{ class_name }}DO> queryWrapper = {{ class_name }}DO.lambdaQueryWrapper();
+        {%- endif %}
+
         // 动态添加查询条件
         {%- for field in fields -%}
         {%- if field.gen_field.queryable == 1 -%}

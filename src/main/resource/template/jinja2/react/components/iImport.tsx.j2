@@ -23,7 +23,7 @@ const {{ class_name }}ImportComponent: React.FC<{{ class_name }}ImportProps> = (
   is{{ class_name }}ImportLoading,
   handle{{ class_name }}Import,
 }) => {
-  const [{{ class_name }}ImportFileList, set{{ class_name }}ImportFileList] = useState<RcFile[]>([]);
+  const [{{ lowercase_class_name }}ImportFileList, set{{ class_name }}ImportFileList] = useState<RcFile[]>([]);
   const [{{ class_name }}CreateList, set{{ class_name }}CreateList] = useState<{{ class_name }}Create[]>([]);
   const [isUploadShow, setIsUploadShow] = useState<boolean>(true);
 
@@ -38,12 +38,12 @@ const {{ class_name }}ImportComponent: React.FC<{{ class_name }}ImportProps> = (
 
   const handle{{ class_name }}ImportConfirm = async () => {
     if (isUploadShow) {
-      if ({{ class_name }}ImportFileList.length === 0) {
+      if ({{ lowercase_class_name }}ImportFileList.length === 0) {
         message.warning('请先选择文件');
         return;
       }
       try {
-        const {{ class_name }}PageList = await on{{ class_name }}ImportFinish({{ class_name }}ImportFileList);
+        const {{ class_name }}PageList = await on{{ class_name }}ImportFinish({{ lowercase_class_name }}ImportFileList);
         setIsUploadShow(false);
         set{{ class_name }}CreateList({{ class_name }}PageList as {{ class_name }}Create[]);
       } finally {
@@ -136,7 +136,7 @@ const {{ class_name }}ImportComponent: React.FC<{{ class_name }}ImportProps> = (
               multiple
               accept=".xlsx,.xls"
               onRemove={handleRemove}
-              fileList={ {{ class_name }}ImportFileList}
+              fileList={ {{ lowercase_class_name }}ImportFileList}
               customRequest={customUploadRequest as any}
             >
               <p className="sc-upload-drag-icon">

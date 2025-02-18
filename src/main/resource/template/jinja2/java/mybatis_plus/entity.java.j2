@@ -30,11 +30,12 @@ import com.singularity.common.utils.SecurityUtil;
 public class {{ class_name }}DO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
     public static LambdaQueryWrapper<{{ class_name }}DO> lambdaQueryWrapper(){
         return new LambdaQueryWrapper<>();
     }
-    
+
+    {%- for field in fields %}
+    {%- if field.gen_field.field_name == "tenantId" %}
     public static {{ class_name }}DO fillInTenantIdUserId({{ class_name }}DO {{ lowercase_class_name }}DO){
       if ({{ lowercase_class_name }}DO == null){
             {{ lowercase_class_name }}DO = new {{ class_name }}DO();
@@ -45,6 +46,16 @@ public class {{ class_name }}DO implements Serializable {
         {{ lowercase_class_name }}DO.setUserId(currentUser.getUserId());
         return {{ lowercase_class_name }}DO;
     }
+
+    public static {{ class_name }}DO fillInTenantIdUserId(){
+        return fillInTenantIdUserId(null);
+    }
+    {%- elif field.gen_field.field_name == "status" %}
+    public static final Integer INIT_STATUS = 1;
+    public static final Integer END_STATUS = 100;
+    {%- endif %}
+    {%- endfor %}
+
     {% for field in fields %}
     /**
      * {{ field.field.comment }}

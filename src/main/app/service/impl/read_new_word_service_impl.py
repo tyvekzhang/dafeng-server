@@ -45,20 +45,16 @@ class NewWordServiceImpl(ServiceBaseImpl[NewWordMapper, NewWordDO], NewWordServi
         like = {}
         if new_word_query.id is not None and new_word_query.id != "" :
             eq["id"] = new_word_query.id
-        if new_word_query.article_id is not None and new_word_query.article_id != "" :
-            eq["article_id"] = new_word_query.article_id
-        if new_word_query.word_id is not None and new_word_query.word_id != "" :
-            eq["word_id"] = new_word_query.word_id
         if new_word_query.word is not None and new_word_query.word != "" :
             eq["word"] = new_word_query.word
         if new_word_query.translation is not None and new_word_query.translation != "" :
             eq["translation"] = new_word_query.translation
-        if new_word_query.review_count is not None and new_word_query.review_count != "" :
-            eq["review_count"] = new_word_query.review_count
         if new_word_query.next_review_date is not None and new_word_query.next_review_date != "" :
             eq["next_review_date"] = new_word_query.next_review_date
-        if new_word_query.create_time is not None and new_word_query.create_time != "" :
-            eq["create_time"] = new_word_query.create_time
+        if new_word_query.tenant is not None and new_word_query.tenant != "" :
+            eq["tenant"] = new_word_query.tenant
+        if new_word_query.update_time is not None and new_word_query.update_time != "" :
+            eq["update_time"] = new_word_query.update_time
         filters = {
             FilterOperators.EQ: eq,
             FilterOperators.NE: ne,
@@ -74,6 +70,10 @@ class NewWordServiceImpl(ServiceBaseImpl[NewWordMapper, NewWordDO], NewWordServi
             pageSize=new_word_query.pageSize,
             **filters
         )
+        if total == 0:
+            return PageResult(records=[], total=total)
+        if "sort" in NewWordDO.__fields__:
+            records.sort(key=lambda x: x['sort'])
         records = [NewWordPage(**record.model_dump()) for record in records]
         return PageResult(records=records, total=total)
 
@@ -94,7 +94,7 @@ class NewWordServiceImpl(ServiceBaseImpl[NewWordMapper, NewWordDO], NewWordServi
 
     async def create_new_word(self, new_word_create: NewWordCreate, request: Request) -> NewWordDO:
         new_word: NewWordDO = NewWordDO(**new_word_create.model_dump())
-        new_word.user_id = request.state.user_id
+        # new_word.user_id = request.state.user_id
         return await self.save(data=new_word)
 
     async def batch_create_new_word(self, *, new_word_create_list: List[NewWordCreate], request: Request) -> List[int]:

@@ -105,7 +105,7 @@ class TableServiceImpl(ServiceBaseImpl[TableMapper, TableDO], TableService):
         )
         rendered_content = render_template(template, **table_generate.model_dump())
         dest_dir = os.path.join(resource_dir, "table_create_history")
-        file_name = f"{get_current_time("%Y-%m-%d-%H-%M")}_{table_generate.table_name}.py"
+        file_name = f"{get_current_time(fmt='%Y-%m-%d-%H-%M')}_{table_generate.table_name}.py"
         dest_path = os.path.join(dest_dir, file_name)
         with open(dest_path, "w", encoding="UTF-8") as f:
             f.write(rendered_content)

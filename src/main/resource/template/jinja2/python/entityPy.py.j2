@@ -8,6 +8,7 @@ from sqlmodel import (
     Column,
 {%- if index_metadata %}
     Index,
+    UniqueConstraint,
 {%- endif %}
     BigInteger,
 {%- for sql_model_type in import_list %}
